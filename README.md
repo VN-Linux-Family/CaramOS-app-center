@@ -31,7 +31,7 @@ ubuntu-store/
 ## Cách build và chạy
 
 ```bash
-cd ubuntu-store
+cd CaramOS-app-center
 
 # Cài dependencies (chỉ lần đầu)
 make install-deps
