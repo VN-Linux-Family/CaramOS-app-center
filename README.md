@@ -1,5 +1,3 @@
----
-
 ## Cấu trúc dự án
 
 ```
@@ -29,7 +27,6 @@ ubuntu-store/
         └── libreoffice.sh
 ```
 
----
 
 ## Cách build và chạy
 
