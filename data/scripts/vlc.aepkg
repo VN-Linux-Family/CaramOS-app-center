@@ -1,0 +1,44 @@
+[meta]
+id          = vlc
+name        = VLC Media Player
+version     = 3.0.20
+description = Trình phát đa phương tiện mạnh mẽ, hỗ trợ hầu hết mọi định dạng
+long_desc   = VLC là media player miễn phí, mã nguồn mở hỗ trợ gần như tất cả\ncác định dạng video, audio và streaming protocol.\nKhông cần cài codec riêng. Hỗ trợ phát từ DVD, Blu-ray, network streams.
+usage       = Chạy: vlc\nMở file: vlc /path/to/file\nStream: vlc rtsp://...
+category    = media
+tags        = media;video;audio;player;vlc;multimedia
+author      = VideoLAN
+maintainer  = community
+license     = GPL-2.0
+homepage    = https://www.videolan.org/vlc
+arch        = x86_64;arm64;armhf
+
+[source]
+icon_online     =
+icon_offline    =
+icon_size       = 128x128
+icon_format     = png
+
+[install]
+method          = apt
+packages        = vlc
+sudo_required   = true
+estimated_size  = 110MB
+download_size   = 40MB
+
+[uninstall]
+method          = apt
+packages        = vlc vlc-data vlc-plugin-base
+purge           = false
+remove_deps     = true
+
+[verify]
+binary          = /usr/bin/vlc
+check_cmd       = vlc --version
+
+[desktop]
+desktop_name    = VLC Media Player
+desktop_exec    = vlc %U
+desktop_icon    = vlc
+desktop_cats    = AudioVideo;Audio;Video;Player;Recorder
+create_desktop  = true

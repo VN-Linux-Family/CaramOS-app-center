@@ -1,80 +1,183 @@
-## Cấu trúc dự án
+# App Explorer
+
+Software center cho Linux, viết bằng C++ với GTK 3.
+Giao diện tối giản, hỗ trợ ricing đầy đủ qua file `.cfg`.
+
+---
+
+## Tính năng
+
+- **Duyệt & tìm kiếm** ứng dụng theo category, text search
+- **Cài đặt & gỡ cài đặt** với nhiều phương thức: `apt`, `dnf`, `pacman`, `flatpak`, `snap`, `script`, `appimage`, `deb`, `rpm`
+- **Console view** read-only, hiển thị output thực tế của quá trình cài/gỡ
+- **Hệ thống theme** đầy đủ: load `.cfg` → generate GTK CSS → apply ngay lập tức
+- **Log system**: GUI log luôn ghi; operation log chỉ giữ khi có lỗi
+- **Package scripts** chuẩn `.aepkg`: metadata, install, uninstall, verify, hooks, desktop entry
+- **Nguồn dữ liệu**: offline ưu tiên hơn online; tự động fallback
+
+---
+
+## Build
+
+### Yêu cầu
 
 ```
-ubuntu-store/
-├── Makefile
-├── include/
-│   ├── types.h          ← định nghĩa AppInfo, Theme, CustomThemeColors, #define SCRIPTS_DIR
-│   ├── main_window.h    ← cửa sổ chính GTK3
-│   ├── theme_manager.h  ← quản lý 3 theme
-│   ├── app_loader.h     ← đọc & parse scripts
-│   └── installer.h      ← chạy script, stream output
-├── src/
-│   ├── main.cpp
-│   ├── main_window.cpp  ← toàn bộ UI GTK3
-│   ├── theme_manager.cpp
-│   ├── app_loader.cpp
-│   └── installer.cpp
-└── scripts/
-    ├── TEMPLATE.sh      ← mẫu tạo script mới
-    └── apps/            ← ← ĐÂY LÀ VỊ TRÍ ĐẶT SCRIPT (SCRIPTS_DIR)
-        ├── vscode.sh
-        ├── vlc.sh
-        ├── firefox.sh
-        ├── gimp.sh
-        ├── docker.sh
-        ├── htop.sh
-        └── libreoffice.sh
+g++ >= 9  (C++17)
+cmake >= 3.16
+pkg-config
+libgtk-3-dev
 ```
 
-
-## Cách build và chạy
+### Debian/Ubuntu
 
 ```bash
-cd CaramOS-app-center
+sudo apt install build-essential cmake pkg-config libgtk-3-dev
+```
 
-# Cài dependencies (chỉ lần đầu)
-make install-deps
+### Build
 
-# Build
-make
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+./app-explorer
+```
 
-# Chạy
-make run
+### Install
+
+```bash
+sudo make install
 ```
 
 ---
 
-## Hệ thống Script – Metadata bắt buộc
+## Cấu trúc thư mục
 
-Mỗi file `.sh` trong `scripts/apps/` cần có header như sau:
+```
+~/.config/app-explorer/
+├── logs/
+│   ├── gui.log                     # Log GUI, luôn ghi
+│   ├── install_firefox_20240101.log  # Chỉ giữ khi lỗi
+│   └── uninstall_vlc_20240101.log
+├── packages/
+│   ├── firefox.aepkg
+│   ├── neovim.aepkg
+│   └── ...
+└── themes/
+    ├── classic-ivory.cfg           # Theme mặc định
+    ├── forest-dark.cfg
+    ├── nord-frost.cfg
+    ├── catppuccin-mocha.cfg
+    └── your-custom.cfg
 
-```bash
-# @name        Tên hiển thị trong Store
-# @description Mô tả ngắn
-# @version     1.0.0
-# @category    development|office|multimedia|internet|utilities|games
-# @icon        gtk-icon-name
+/usr/share/app-explorer/
+├── packages/                       # System packages
+└── themes/                         # System themes
 ```
 
-Các **biến chuẩn** trong mỗi script:
+---
 
-| Biến | Ý nghĩa |
-|------|---------|
-| `APP_NAME` | Tên phần mềm |
-| `DOWNLOAD_URL` | Link tải |
-| `INSTALL_DIR` | Thư mục cài đặt |
-| `CREATE_SHORTCUT` | `true/false` tạo file `.desktop` |
-| `CREATE_BIN_LINK` | `true/false` tạo symlink trong `/usr/local/bin` |
+## Package Script (.aepkg)
 
-**Thêm phần mềm mới**: chỉ cần copy `TEMPLATE.sh` vào `scripts/apps/`, đổi tên thành `<id>.sh`, điền metadata và biến — app tự động xuất hiện trong Store sau khi chạy lại.
+Mỗi ứng dụng = một file `<id>.aepkg`. Xem chi tiết tại:
+[docs/PACKAGE_SCRIPT_STANDARD.md](docs/PACKAGE_SCRIPT_STANDARD.md)
 
-## Một số điều cần làm
+**Ví dụ nhanh:**
 
-- Thêm uninstall và dọn rác.
-- Thêm bộ icons cho đẹp.
-- Thêm khả năng import/export list ứng dụng cần/đã cài (dành cho những ai có như cầu cài đặt hàng loạt hoặc cài lại OS mà lười gõ lệnh).
-- Thêm khả năng cập nhật ứng dụng.
-- Thêm ...
-- Điều chỉnh lại màu sắc ứng dụng theo bảng màu của CaramOS.
+```ini
+[meta]
+id          = neovim
+name        = Neovim
+version     = 0.9.5
+description = Hyperextensible Vim-based text editor
+category    = editor
+tags        = editor;vim;terminal;dev
 
+[source]
+icon_online  = https://example.com/nvim.svg
+icon_offline =
+# Quy tắc: offline ưu tiên; nếu offline trống thì dùng online
+
+[install]
+method      = apt
+packages    = neovim
+checksum_type = sha256
+checksum    = abc123...
+
+[uninstall]
+method      = apt
+packages    = neovim
+
+[verify]
+binary      = /usr/bin/nvim
+```
+
+---
+
+## Theme & Ricing (.cfg)
+
+Tất cả màu sắc, font, kích thước, bo cong, shadow đều có thể custom:
+
+```ini
+[theme]
+name = my-rice
+dark_mode = true
+
+[colors.base]
+bg_primary   = #1A1A2E
+bg_card      = #16213E
+
+[colors.accent]
+primary      = #E94560
+hover        = #FF6B81
+
+[typography]
+font_ui      = "JetBrains Mono"
+font_ui_size = 10
+font_mono    = "CaskaydiaCove Nerd Font"
+
+[radius]
+card         = 12
+button       = 8
+
+[gtk_extra]
+inline_css = .nav-logo { letter-spacing: 2px; }
+```
+
+### Apply theme
+
+- **Qua UI**: click nút 🎨 trên toolbar → chọn file `.cfg`
+- **Qua env**: `AE_THEME=/path/to/theme.cfg app-explorer`
+- **Mặc định**: `~/.config/app-explorer/themes/classic-ivory.cfg`
+
+### Themes có sẵn
+
+| File | Phong cách |
+|---|---|
+| `classic-ivory.cfg` | Trắng ngà, cổ điển, mặc định |
+| `forest-dark.cfg` | Tối, xanh lá rừng |
+| `nord-frost.cfg` | Nord palette, arctic blue |
+| `catppuccin-mocha.cfg` | Catppuccin Mocha, pastel tím |
+
+---
+
+## Biến môi trường
+
+| Biến | Mô tả |
+|---|---|
+| `AE_THEME` | Override đường dẫn file theme |
+| `AE_PACKAGES_DIR` | Override thư mục packages |
+
+---
+
+## Log
+
+- `~/.config/app-explorer/logs/gui.log` — luôn ghi, mọi hành động GUI
+- `~/.config/app-explorer/logs/install_<id>_<timestamp>.log` — chỉ giữ khi install THẤT BẠI
+- `~/.config/app-explorer/logs/uninstall_<id>_<timestamp>.log` — chỉ giữ khi uninstall THẤT BẠI
+
+---
+
+## License
+
+MIT
