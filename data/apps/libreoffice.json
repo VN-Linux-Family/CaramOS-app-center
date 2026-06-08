@@ -1,0 +1,18 @@
+{
+  "id": "libreoffice",
+  "name": "LibreOffice",
+  "summary": "Bộ ứng dụng văn phòng toàn diện miễn phí",
+  "description": "LibreOffice là bộ phần mềm văn phòng mã nguồn mở mạnh mẽ bao gồm Writer (soạn thảo), Calc (bảng tính), Impress (trình chiếu), Draw, Base và Math.",
+  "category": "office",
+  "icon": "libreoffice",
+  "version": "7.6.4",
+  "author": "The Document Foundation",
+  "license": "MPL-2.0",
+  "website": "https://www.libreoffice.org/",
+  "script": "install-libreoffice.sh",
+  "tags": [
+    "văn phòng",
+    "soạn thảo",
+    "bảng tính"
+  ]
+}

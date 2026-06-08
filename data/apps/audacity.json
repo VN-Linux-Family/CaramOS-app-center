@@ -1,0 +1,18 @@
+{
+  "id": "audacity",
+  "name": "Audacity",
+  "summary": "Phần mềm chỉnh sửa âm thanh miễn phí và mạnh mẽ",
+  "description": "Audacity là phần mềm chỉnh sửa âm thanh đa nền tảng miễn phí và mã nguồn mở. Hỗ trợ ghi âm, chỉnh sửa, xuất nhiều định dạng và vô số hiệu ứng âm thanh.",
+  "category": "multimedia",
+  "icon": "audacity",
+  "version": "3.5.1",
+  "author": "Audacity Team",
+  "license": "GPL-2.0",
+  "website": "https://www.audacityteam.org/",
+  "script": "install-audacity.sh",
+  "tags": [
+    "âm thanh",
+    "ghi âm",
+    "podcast"
+  ]
+}

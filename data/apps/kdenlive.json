@@ -1,0 +1,18 @@
+{
+  "id": "kdenlive",
+  "name": "Kdenlive",
+  "summary": "Phần mềm chỉnh sửa video chuyên nghiệp cho Linux",
+  "description": "Kdenlive là phần mềm chỉnh sửa video phi tuyến tính mã nguồn mở mạnh mẽ. Hỗ trợ nhiều track, hiệu ứng, chuyển cảnh và xuất đa định dạng.",
+  "category": "multimedia",
+  "icon": "kdenlive",
+  "version": "23.08.5",
+  "author": "KDE Project",
+  "license": "GPL-2.0",
+  "website": "https://kdenlive.org/",
+  "script": "install-kdenlive.sh",
+  "tags": [
+    "video",
+    "chỉnh sửa",
+    "KDE"
+  ]
+}

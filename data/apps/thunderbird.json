@@ -1,0 +1,18 @@
+{
+  "id": "thunderbird",
+  "name": "Thunderbird",
+  "summary": "Ứng dụng email mã nguồn mở từ Mozilla",
+  "description": "Mozilla Thunderbird là ứng dụng email miễn phí và mã nguồn mở với nhiều tính năng mạnh mẽ như lọc thư thông minh, tìm kiếm nhanh và hỗ trợ nhiều tài khoản.",
+  "category": "internet",
+  "icon": "thunderbird",
+  "version": "115.8",
+  "author": "Mozilla Foundation",
+  "license": "MPL-2.0",
+  "website": "https://www.thunderbird.net/",
+  "script": "install-thunderbird.sh",
+  "tags": [
+    "email",
+    "thư điện tử",
+    "internet"
+  ]
+}

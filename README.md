@@ -1,183 +1,150 @@
-# App Explorer
+# VNLF App Store
 
-Software center cho Linux, viết bằng C++ với GTK 3.
-Giao diện tối giản, hỗ trợ ricing đầy đủ qua file `.cfg`.
+Kho ứng dụng Linux tiếng Việt — ứng dụng desktop viết bằng **C++ + GTK3**.
+
+Giao diện lấy cảm hứng từ [VNLF App Explorer](https://apps.vietnamlinuxfamily.net/), nhưng chạy hoàn toàn trên desktop Linux.
 
 ---
 
 ## Tính năng
 
-- **Duyệt & tìm kiếm** ứng dụng theo category, text search
-- **Cài đặt & gỡ cài đặt** với nhiều phương thức: `apt`, `dnf`, `pacman`, `flatpak`, `snap`, `script`, `appimage`, `deb`, `rpm`
-- **Console view** read-only, hiển thị output thực tế của quá trình cài/gỡ
-- **Hệ thống theme** đầy đủ: load `.cfg` → generate GTK CSS → apply ngay lập tức
-- **Log system**: GUI log luôn ghi; operation log chỉ giữ khi có lỗi
-- **Package scripts** chuẩn `.aepkg`: metadata, install, uninstall, verify, hooks, desktop entry
-- **Nguồn dữ liệu**: offline ưu tiên hơn online; tự động fallback
+- 🔍 **Tìm kiếm** ứng dụng theo tên, mô tả, thẻ
+- 📂 **Lọc theo danh mục**: Internet, Đa phương tiện, Văn phòng, Đồ họa, Lập trình, Hệ thống...
+- 📋 **Xem chi tiết** ứng dụng: mô tả, tác giả, phiên bản, giấy phép, website
+- ⚙️ **Cài đặt** bằng nút "Cài đặt" — gọi script bash có sẵn
+- 🖥️ **Cửa sổ terminal inline** hiển thị tiến trình cài đặt thời gian thực
+- 📦 **Dữ liệu ứng dụng** từ file `data/apps.json` — dễ mở rộng
 
 ---
 
-## Build
-
-### Yêu cầu
+## Cấu trúc dự án
 
 ```
-g++ >= 9  (C++17)
-cmake >= 3.16
-pkg-config
-libgtk-3-dev
+vnlf-store/
+├── src/
+│   └── main.cpp          # Toàn bộ source code C++/GTK3
+├── data/
+│   └── apps.json         # Danh sách ứng dụng (dễ chỉnh sửa)
+├── scripts/
+│   ├── install-generic.sh      # Script cài đặt tổng quát
+│   ├── install-firefox.sh
+│   ├── install-vlc.sh
+│   ├── install-libreoffice.sh
+│   ├── install-gimp.sh
+│   ├── install-vscode.sh
+│   ├── install-obs.sh
+│   └── ... (1 script/app)
+├── Makefile
+└── README.md
 ```
 
-### Debian/Ubuntu
+---
+
+## Yêu cầu
 
 ```bash
-sudo apt install build-essential cmake pkg-config libgtk-3-dev
+# Ubuntu/Debian
+sudo apt install libgtk-3-dev pkg-config g++ make
+
+# Fedora/RHEL
+sudo dnf install gtk3-devel gcc-c++ make pkgconf
+
+# Arch Linux
+sudo pacman -S gtk3 gcc make pkgconf
 ```
 
-### Build
+---
+
+## Build & Chạy
 
 ```bash
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-./app-explorer
-```
+# Build
+make
 
-### Install
+# Chạy trực tiếp
+./vnlf-store
 
-```bash
+# Hoặc build + chạy luôn
+make run
+
+# Cài đặt vào hệ thống
 sudo make install
 ```
 
 ---
 
-## Cấu trúc thư mục
+## Thêm ứng dụng mới
 
-```
-~/.config/app-explorer/
-├── logs/
-│   ├── gui.log                     # Log GUI, luôn ghi
-│   ├── install_firefox_20240101.log  # Chỉ giữ khi lỗi
-│   └── uninstall_vlc_20240101.log
-├── packages/
-│   ├── firefox.aepkg
-│   ├── neovim.aepkg
-│   └── ...
-└── themes/
-    ├── classic-ivory.cfg           # Theme mặc định
-    ├── forest-dark.cfg
-    ├── nord-frost.cfg
-    ├── catppuccin-mocha.cfg
-    └── your-custom.cfg
+### 1. Thêm vào `data/apps.json`
 
-/usr/share/app-explorer/
-├── packages/                       # System packages
-└── themes/                         # System themes
+```json
+{
+  "id": "myapp",
+  "name": "Tên ứng dụng",
+  "summary": "Mô tả ngắn",
+  "description": "Mô tả đầy đủ về ứng dụng...",
+  "category": "internet",
+  "icon": "tên-icon-gtk",
+  "version": "1.0.0",
+  "author": "Tác giả",
+  "license": "GPL-3.0",
+  "website": "https://...",
+  "script": "install-myapp.sh",
+  "tags": ["thẻ1", "thẻ2"]
+}
 ```
 
----
+**Danh mục hợp lệ:** `internet`, `multimedia`, `office`, `graphics`, `development`, `system`, `games`, `education`, `utilities`
 
-## Package Script (.aepkg)
+**Tên icon:** Dùng tên icon GTK chuẩn (vd: `firefox`, `vlc`, `gimp`, `code`...). Xem danh sách tại https://specifications.freedesktop.org/icon-naming-spec/latest/
 
-Mỗi ứng dụng = một file `<id>.aepkg`. Xem chi tiết tại:
-[docs/PACKAGE_SCRIPT_STANDARD.md](docs/PACKAGE_SCRIPT_STANDARD.md)
+### 2. Tạo script cài đặt `scripts/install-myapp.sh`
 
-**Ví dụ nhanh:**
+```bash
+#!/bin/bash
+echo "[VNLF] Cài đặt Tên App..."
 
-```ini
-[meta]
-id          = neovim
-name        = Neovim
-version     = 0.9.5
-description = Hyperextensible Vim-based text editor
-category    = editor
-tags        = editor;vim;terminal;dev
+if command -v apt &>/dev/null; then
+    sudo apt install -y myapp-package
+elif command -v dnf &>/dev/null; then
+    sudo dnf install -y myapp-package
+elif command -v pacman &>/dev/null; then
+    sudo pacman -S --noconfirm myapp-package
+else
+    echo "[VNLF] Không tìm thấy package manager!"
+    exit 1
+fi
 
-[source]
-icon_online  = https://example.com/nvim.svg
-icon_offline =
-# Quy tắc: offline ưu tiên; nếu offline trống thì dùng online
+[ $? -eq 0 ] && echo "[VNLF] Cài đặt thành công!" || exit 1
+```
 
-[install]
-method      = apt
-packages    = neovim
-checksum_type = sha256
-checksum    = abc123...
-
-[uninstall]
-method      = apt
-packages    = neovim
-
-[verify]
-binary      = /usr/bin/nvim
+```bash
+chmod +x scripts/install-myapp.sh
 ```
 
 ---
 
-## Theme & Ricing (.cfg)
+## Cơ chế cài đặt
 
-Tất cả màu sắc, font, kích thước, bo cong, shadow đều có thể custom:
+Khi người dùng nhấn **Cài đặt**:
 
-```ini
-[theme]
-name = my-rice
-dark_mode = true
-
-[colors.base]
-bg_primary   = #1A1A2E
-bg_card      = #16213E
-
-[colors.accent]
-primary      = #E94560
-hover        = #FF6B81
-
-[typography]
-font_ui      = "JetBrains Mono"
-font_ui_size = 10
-font_mono    = "CaskaydiaCove Nerd Font"
-
-[radius]
-card         = 12
-button       = 8
-
-[gtk_extra]
-inline_css = .nav-logo { letter-spacing: 2px; }
-```
-
-### Apply theme
-
-- **Qua UI**: click nút 🎨 trên toolbar → chọn file `.cfg`
-- **Qua env**: `AE_THEME=/path/to/theme.cfg app-explorer`
-- **Mặc định**: `~/.config/app-explorer/themes/classic-ivory.cfg`
-
-### Themes có sẵn
-
-| File | Phong cách |
-|---|---|
-| `classic-ivory.cfg` | Trắng ngà, cổ điển, mặc định |
-| `forest-dark.cfg` | Tối, xanh lá rừng |
-| `nord-frost.cfg` | Nord palette, arctic blue |
-| `catppuccin-mocha.cfg` | Catppuccin Mocha, pastel tím |
+1. App tìm file `scripts/<script>` tương ứng với ứng dụng
+2. Nếu không tìm thấy → dùng `install-generic.sh` với `<app-id>` làm tham số
+3. Chạy script qua `pkexec` (nếu có) để xác thực quyền root, hoặc bash trực tiếp
+4. Output của script hiển thị real-time trong cửa sổ terminal
 
 ---
 
-## Biến môi trường
+## Tùy chỉnh giao diện
 
-| Biến | Mô tả |
-|---|---|
-| `AE_THEME` | Override đường dẫn file theme |
-| `AE_PACKAGES_DIR` | Override thư mục packages |
+Toàn bộ CSS nằm trong hằng số `APP_CSS` trong `src/main.cpp`. Chỉnh màu sắc, font, bo góc... tại đó.
 
 ---
 
-## Log
+## Giấy phép
 
-- `~/.config/app-explorer/logs/gui.log` — luôn ghi, mọi hành động GUI
-- `~/.config/app-explorer/logs/install_<id>_<timestamp>.log` — chỉ giữ khi install THẤT BẠI
-- `~/.config/app-explorer/logs/uninstall_<id>_<timestamp>.log` — chỉ giữ khi uninstall THẤT BẠI
+MIT License — Tự do sử dụng, chỉnh sửa và phân phối.
 
 ---
 
-## License
-
-MIT
+*VNLF App Store — Cộng đồng Linux Việt Nam 🇻🇳*
