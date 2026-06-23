@@ -9,16 +9,17 @@ CXXFLAGS = -std=c++17 -Wall -Wextra \
            -I/usr/include/harfbuzz \
            -I/usr/include/cairo \
            -I/usr/include/gdk-pixbuf-2.0 \
-           -I/usr/include/atk-1.0
+           -I/usr/include/atk-1.0 \
+		   -I/usr/include/vte-2.91 
 
 # Try pkg-config first, fallback to manual flags
-GTK_CFLAGS := $(shell pkg-config --cflags gtk+-3.0 2>/dev/null)
-GTK_LIBS   := $(shell pkg-config --libs   gtk+-3.0 2>/dev/null)
+GTK_CFLAGS := $(shell pkg-config --cflags gtk+-3.0 vte-2.91 2>/dev/null)
+GTK_LIBS   := $(shell pkg-config --libs   gtk+-3.0 vte-2.91 2>/dev/null)
 
 ifeq ($(GTK_CFLAGS),)
   GTK_LIBS := -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 \
               -lgdk_pixbuf-2.0 -lcairo-gobject -lcairo \
-              -lgobject-2.0 -lglib-2.0 -latk-1.0
+              -lgobject-2.0 -lglib-2.0 -latk-1.0 
 endif
 
 # fontconfig luôn cần để load font động

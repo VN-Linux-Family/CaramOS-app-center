@@ -44,13 +44,13 @@ vnlf-store/
 
 ```bash
 # Ubuntu/Debian
-sudo apt install libgtk-3-dev pkg-config g++ make
+sudo apt install libgtk-3-dev pkg-config g++ make libvte-2.91-dev
 
 # Fedora/RHEL
-sudo dnf install gtk3-devel gcc-c++ make pkgconf
+sudo dnf install gtk3-devel gcc-c++ make pkgconf vte291-devel
 
 # Arch Linux
-sudo pacman -S gtk3 gcc make pkgconf
+sudo pacman -S gtk3 gcc make pkgconf vte3
 ```
 
 ---
@@ -138,12 +138,6 @@ Khi người dùng nhấn **Cài đặt**:
 ## Tùy chỉnh giao diện
 
 Toàn bộ CSS nằm trong hằng số `APP_CSS` trong `src/main.cpp`. Chỉnh màu sắc, font, bo góc... tại đó.
-
----
-
-## Giấy phép
-
-MIT License — Tự do sử dụng, chỉnh sửa và phân phối.
 
 ---
 

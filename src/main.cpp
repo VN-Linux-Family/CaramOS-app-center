@@ -19,6 +19,8 @@
 #include <functional>
 #include <iostream>
 #include <unistd.h>
+#include <vte/vte.h>
+#include <vte/vteterminal.h>
 
 // ─── Font loader ──────────────────────────────────────────────────────────────
 static std::string g_fonts_dir;
@@ -422,8 +424,9 @@ static void apply_filter(){
     for(auto&app:g_state.all_apps) if(app_matches_filter(app,g_state.current_category,g_state.search_query))g_state.filtered_apps.push_back(app);
 }
 // ─── CSS ──────────────────────────────────────────────────────────────────────
+
 static const char* APP_CSS = R"CSS(
-*{font-family:"FiraCode Nerd Font","Fira Code","Cantarell",sans-serif;}
+*{font-family:"Cantarell",sans-serif;}
 window{background-color:#f5f3ed;}
 .custom-titlebar{background:#3a6146;padding:0 8px;min-height:46px;border-bottom:1px solid #2a4f36;box-shadow:0 2px 6px rgba(0,0,0,0.22);}
 .custom-titlebar:backdrop{background:#2e4e38;}
@@ -432,24 +435,24 @@ window{background-color:#f5f3ed;}
 .search-box{background:#ffffff;border:1.5px solid rgba(255,255,255,0.9);border-radius:20px;padding:5px 14px;color:#1a1a1a;caret-color:#3a6146;min-width:240px;}
 .search-box:focus{border-color:#a8d5b5;box-shadow:0 0 0 2px rgba(168,213,181,0.5);outline:none;}
 .sidebar{background-color:#2e4e38;border-right:1px solid #1e3828;}
-.sidebar-title{font-size:9px;font-weight:bold;color:rgba(255,255,255,0.45);letter-spacing:1.6px;text-transform:uppercase;padding:14px 14px 6px 14px;}
+.sidebar-title{font-size:9px;font-weight:bold;color:rgba(255,255,255,0.45);letter-spacing:1.6px;padding:14px 14px 6px 14px;}
 .sidebar-toggle-btn{background:rgba(255,255,255,0.07);border:none;border-top:1px solid rgba(255,255,255,0.1);border-radius:0;padding:10px;color:rgba(255,255,255,0.6);font-size:16px;min-height:40px;}
 .sidebar-toggle-btn:hover{background:rgba(255,255,255,0.13);color:white;}
-.category-btn{background:transparent;border:none;border-radius:8px;padding:9px 12px;margin:1px 6px;text-align:left;color:rgba(255,255,255,0.82);font-size:12px;}
+.category-btn{background:transparent;border:none;border-radius:8px;padding:9px 12px;margin:1px 6px;color:rgba(255,255,255,0.82);font-size:12px;}
 .category-btn:hover{background:rgba(255,255,255,0.1);color:white;}
 .category-btn.active{background:rgba(255,255,255,0.18);color:white;font-weight:bold;}
 .category-count{font-size:10px;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.1);border-radius:10px;padding:1px 6px;}
 .category-btn-compact{background:transparent;border:none;border-radius:8px;padding:10px 0;margin:1px 4px;color:rgba(255,255,255,0.7);min-width:40px;}
 .category-btn-compact:hover{background:rgba(255,255,255,0.12);color:white;}
 .category-btn-compact.active{background:rgba(255,255,255,0.2);color:white;}
-.sidebar-about-btn{background:rgba(255,255,255,0.05);border:none;border-top:1px solid rgba(255,255,255,0.08);border-radius:0;padding:10px 12px;color:rgba(255,255,255,0.7);font-size:12px;text-align:left;}
+.sidebar-about-btn{background:rgba(255,255,255,0.05);border:none;border-top:1px solid rgba(255,255,255,0.08);border-radius:0;padding:10px 12px;color:rgba(255,255,255,0.7);font-size:12px;}
 .sidebar-about-btn:hover{background:rgba(255,255,255,0.12);color:white;}
 .sidebar-about-btn.active{background:rgba(255,255,255,0.18);color:white;font-weight:bold;}
 .app-card{background:#fffffe;border-radius:12px;border:1px solid #e2ddd4;padding:16px;}
 .app-card:hover{border-color:#3a6146;box-shadow:0 4px 16px rgba(58,97,70,0.13);}
 .app-card-installed{border-left:3px solid #3a6146;}
 .app-name{font-size:14px;font-weight:bold;color:#1a2e22;}
-.app-summary{font-size:12px;color:#6b6358;line-height:1.5;}
+.app-summary{font-size:12px;color:#6b6358;}
 .app-version{font-size:11px;color:#9a9285;}
 .app-author{font-size:11px;color:#9a9285;}
 .installed-badge{font-size:10px;border-radius:6px;padding:2px 8px;color:white;background-color:#3a6146;}
@@ -465,7 +468,7 @@ window{background-color:#f5f3ed;}
 .install-btn:disabled{background:#ccc;color:#888;}
 .uninstall-btn{background:white;color:#c62828;border:1.5px solid #e57373;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:bold;min-width:120px;}
 .uninstall-btn:hover{background:#fdecea;border-color:#c62828;}
-.method-btn{background:white;border:1.5px solid #a8c8b4;border-radius:8px;padding:10px 16px;text-align:left;color:#1a2e22;font-size:13px;}
+.method-btn{background:white;border:1.5px solid #a8c8b4;border-radius:8px;padding:10px 16px;color:#1a2e22;font-size:13px;}
 .method-btn:hover{background:#f0f8f2;border-color:#3a6146;}
 .method-btn-locked{background:#f5f5f5;border-color:#ddd;color:#aaa;}
 .pm-badge{font-size:10px;border-radius:4px;padding:2px 7px;background:#e8f0fe;color:#1a56c4;border:1px solid #c5d8f8;}
@@ -473,32 +476,40 @@ window{background-color:#f5f3ed;}
 .detail-header{background:#fffffe;border-bottom:1px solid #e2ddd4;}
 .detail-name{font-size:26px;font-weight:bold;color:#1a2e22;}
 .detail-summary{font-size:14px;color:#5a5348;margin-top:4px;}
-.detail-description{font-size:14px;color:#3d3830;line-height:1.75;}
-.detail-meta-label{font-size:10px;font-weight:bold;color:#9a9285;text-transform:uppercase;letter-spacing:0.9px;}
+.detail-description{font-size:14px;color:#3d3830;}
+.detail-meta-label{font-size:10px;font-weight:bold;color:#9a9285;letter-spacing:0.9px;}
 .detail-meta-value{font-size:13px;color:#3a3228;margin-top:2px;}
 .tag-chip{background:#d4e8da;color:#2b4e37;border-radius:14px;padding:3px 11px;font-size:11px;margin:2px;}
 .back-btn{background:transparent;border:none;color:#3a6146;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:bold;}
 .back-btn:hover{background:#e8f0eb;color:#2b4e37;}
 .sudo-dialog-title{font-size:15px;font-weight:bold;color:#1a2e22;}
-.sudo-dialog-subtitle{font-size:12px;color:#6b6358;line-height:1.5;}
+.sudo-dialog-subtitle{font-size:12px;color:#6b6358;}
 .sudo-password-entry{border:1.5px solid #ccc;border-radius:8px;padding:8px 12px;font-size:14px;min-width:240px;background:white;color:#1a1a1a;}
 .sudo-password-entry:focus{border-color:#3a6146;box-shadow:0 0 0 2px rgba(58,97,70,0.2);}
 .sudo-error-label{color:#c62828;font-size:12px;}
+/*
+.sudo-entry-error{border-color: #c62828; box-shadow: 0 0 0 2px rgba(198,40,40,0.25);}
+*/
 .sudo-ok-btn{background:linear-gradient(135deg,#3a6146,#2b4e37);color:white;border:none;border-radius:8px;padding:8px 20px;font-weight:bold;}
 .sudo-ok-btn:hover{background:linear-gradient(135deg,#2e4e38,#1e3828);}
+/*
+.sudo-ok-btn:active{background:linear-gradient(135deg,#1e3828,#2e4e38);color:white;}
+*/
+.sudo-ok-btn:disabled{background:linear-gradient(135deg,#ccc,#bbb);}
+
 .sudo-cancel-btn{background:white;color:#3a3228;border:1px solid #ccc;border-radius:8px;padding:8px 16px;}
 .sudo-cancel-btn:hover{background:#f0ece5;}
 .install-dialog-title{font-size:15px;font-weight:bold;color:#1a2e22;}
 .terminal-box{background:#1a231e;color:#7ee8a2;border-radius:8px;padding:12px;font-family:"FiraCode Nerd Font Mono","Fira Code",monospace;font-size:12px;}
 .progress-bar{min-height:6px;border-radius:3px;}
 .progress-bar progress{background:linear-gradient(90deg,#3a6146,#7ee8a2);border-radius:3px;}
-.status-bar{background:#f0ece5;border-top:1px solid #ddd8cc;padding:6px 14px;font-size:11px;color:#7a7264;}
+.status-bar{border:none;font-size:14px;color: #7a7264;}
 .empty-state{color:#9a9285;font-size:15px;padding:60px;}
 .empty-state-icon{color:#c8c4ba;}
 .about-box{background:#fffffe;}
 .about-title{font-size:24px;font-weight:bold;color:#1a2e22;}
 .about-subtitle{font-size:14px;color:#5a5348;}
-.about-body{font-size:13px;color:#3d3830;line-height:1.75;}
+.about-body{font-size:13px;color:#3d3830;}
 .about-action-btn{background:linear-gradient(135deg,#3a6146,#2b4e37);color:white;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:bold;}
 .about-action-btn:hover{background:linear-gradient(135deg,#2e4e38,#1e3828);}
 .about-script-btn{background:white;color:#3a6146;border:1.5px solid #a8c8b4;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:bold;}
@@ -509,7 +520,15 @@ scrolledwindow{border:none;}
 scrollbar{background:transparent;border:none;}
 scrollbar slider{background:rgba(58,97,70,0.18);border-radius:6px;min-width:6px;min-height:6px;}
 scrollbar slider:hover{background:rgba(58,97,70,0.35);}
+
+.titlebar-button{border: #f5f3ed 1px solid;border-radius: 0;min-width: 36px;min-height: 32px;}
+.titlebar-button:hover {background: alpha(white, 0.08);}
+.titlebar-close{border: #f5f3ed 1px solid;border-radius: 0;min-width: 36px;min-height: 32px;}
+.titlebar-close:hover {background: #e81123;color: white;}
+
+.username-value {color: #6b6358;font-size: 14px;}
 )CSS";
+
 // ─── Forward declarations ─────────────────────────────────────────────────────
 static void rebuild_apps_grid();
 static void show_app_detail(AppInfo* app);
@@ -532,47 +551,43 @@ static void on_category_clicked(GtkButton *btn, gpointer ud) {
 struct InstallData {
     AppInfo app;
     GtkWidget *dialog,*text_view,*progress,*status_label,*close_btn;
-    GIOChannel *channel; GPid pid;
+    //GIOChannel *channel; GPid pid;
     bool success,finished,is_uninstall;
     InstallData():dialog(nullptr),text_view(nullptr),progress(nullptr),status_label(nullptr),
-                  close_btn(nullptr),channel(nullptr),pid(0),success(false),finished(false),is_uninstall(false){}
+                  close_btn(nullptr),/*channel(nullptr),pid(0),*/success(false),finished(false),is_uninstall(false){}
 };
 
-static gboolean on_install_output(GIOChannel *ch, GIOCondition cond, gpointer ud) {
-    InstallData *d=(InstallData*)ud;
-    if (cond&G_IO_HUP) {
-        d->finished=true;
-        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(d->progress),1.0);
-        gtk_label_set_text(GTK_LABEL(d->status_label),
-            d->success?(d->is_uninstall?"✓ Gỡ cài đặt thành công!":"✓ Cài đặt thành công!")
-                      :(d->is_uninstall?"✗ Gỡ cài đặt thất bại!":"✗ Cài đặt thất bại!"));
-        gtk_widget_set_sensitive(d->close_btn,TRUE);
-        g_io_channel_unref(ch); return FALSE;
-    }
-    if (cond&G_IO_IN) {
-        gchar *line=nullptr; gsize len=0; GError *err=nullptr;
-        if (g_io_channel_read_line(ch,&line,&len,nullptr,&err)==G_IO_STATUS_NORMAL&&line) {
-            if (strstr(line,"thành công")||strstr(line,"Successfully")||strstr(line,"Complete"))
-                d->success=true;
-            GtkTextBuffer *buf=gtk_text_view_get_buffer(GTK_TEXT_VIEW(d->text_view));
-            GtkTextIter end; gtk_text_buffer_get_end_iter(buf,&end);
-            gtk_text_buffer_insert(buf,&end,line,-1);
-            gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(d->text_view),gtk_text_buffer_get_mark(buf,"insert"));
-            gtk_progress_bar_pulse(GTK_PROGRESS_BAR(d->progress));
-            g_free(line);
-        }
-        if(err)g_error_free(err);
-    }
-    return TRUE;
-}
-static void on_child_exit(GPid pid,gint status,gpointer ud){
-    InstallData*d=(InstallData*)ud;
-    if(WIFEXITED(status)&&WEXITSTATUS(status)==0)d->success=true;
-    g_spawn_close_pid(pid);
-}
-
 struct DoneCtx { std::function<void(bool)> cb; InstallData *d; };
+static void on_vte_child_exit(VteTerminal *term, gint status, gpointer user_data)
+{
+    InstallData *d =
+        static_cast<InstallData*>(user_data);
 
+    d->success = (status == 0);
+    d->finished = true;
+
+    gtk_progress_bar_set_fraction(
+        GTK_PROGRESS_BAR(d->progress),
+        1.0
+    );
+
+    gtk_label_set_text(
+        GTK_LABEL(d->status_label),
+        d->success ?
+            (d->is_uninstall ?
+                "✓ Gỡ cài đặt thành công!" :
+                "✓ Cài đặt thành công!")
+            :
+            (d->is_uninstall ?
+                "✗ Gỡ cài đặt thất bại!" :
+                "✗ Cài đặt thất bại!")
+    );
+
+    gtk_widget_set_sensitive(
+        d->close_btn,
+        TRUE
+    );
+}
 static void run_terminal_dialog(const std::string& title,const std::string& cmd,
                                  const AppInfo& app,bool is_uninstall,
                                  std::function<void(bool)> on_done) {
@@ -580,10 +595,12 @@ static void run_terminal_dialog(const std::string& title,const std::string& cmd,
     GtkWidget *dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL); data->dialog=dlg;
     gtk_window_set_title(GTK_WINDOW(dlg),title.c_str());
     gtk_window_set_default_size(GTK_WINDOW(dlg),620,460);
+
     gtk_window_set_transient_for(GTK_WINDOW(dlg),GTK_WINDOW(g_state.window));
     gtk_window_set_modal(GTK_WINDOW(dlg),TRUE);
     gtk_window_set_position(GTK_WINDOW(dlg),GTK_WIN_POS_CENTER_ON_PARENT);
 
+    gtk_widget_show_all(dlg);
     GtkWidget *vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_container_add(GTK_CONTAINER(dlg),vbox);
 
@@ -612,11 +629,9 @@ static void run_terminal_dialog(const std::string& title,const std::string& cmd,
     gtk_widget_set_margin_start(scrolled,16);gtk_widget_set_margin_end(scrolled,16);
     gtk_widget_set_margin_top(scrolled,12);
     gtk_box_pack_start(GTK_BOX(vbox),scrolled,TRUE,TRUE,0);
-    GtkWidget *tv=gtk_text_view_new(); data->text_view=tv;
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(tv),FALSE);
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(tv),GTK_WRAP_WORD_CHAR);
-    gtk_style_context_add_class(gtk_widget_get_style_context(tv),"terminal-box");
-    gtk_container_add(GTK_CONTAINER(scrolled),tv);
+
+    VteTerminal *term =VTE_TERMINAL(vte_terminal_new());
+    gtk_container_add(GTK_CONTAINER(scrolled),GTK_WIDGET(term));
 
     GtkWidget *pb=gtk_progress_bar_new(); data->progress=pb;
     gtk_widget_set_margin_start(pb,16);gtk_widget_set_margin_end(pb,16);gtk_widget_set_margin_top(pb,8);
@@ -628,6 +643,7 @@ static void run_terminal_dialog(const std::string& title,const std::string& cmd,
     gtk_widget_set_margin_top(stlbl,6);gtk_widget_set_margin_bottom(stlbl,6);
     gtk_widget_set_halign(stlbl,GTK_ALIGN_START);
     gtk_box_pack_start(GTK_BOX(vbox),stlbl,FALSE,FALSE,0);
+    gtk_style_context_add_class(gtk_widget_get_style_context(stlbl),"status-bar");
 
     gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),FALSE,FALSE,0);
 
@@ -645,40 +661,109 @@ static void run_terminal_dialog(const std::string& title,const std::string& cmd,
         gtk_widget_destroy(dc->d->dialog); if(dc->cb)dc->cb(ok); delete dc;
     }),dctx,[](gpointer,GClosure*){},(GConnectFlags)0);
     gtk_box_pack_end(GTK_BOX(btnrow),cbtn,FALSE,FALSE,0);
-
     gtk_widget_show_all(dlg);
 
-    // Initial message
-    GtkTextBuffer *buf=gtk_text_view_get_buffer(GTK_TEXT_VIEW(tv));
-    GtkTextIter iter; gtk_text_buffer_get_start_iter(buf,&iter);
-    gtk_text_buffer_insert(buf,&iter,("[VNLF] "+title+"\n──────────────────────────────────\n").c_str(),-1);
 
-    const gchar *argv[]={"/bin/bash","-c",cmd.c_str(),nullptr};
-    gint out_fd=-1; GError *err=nullptr;
-    bool spawned=g_spawn_async_with_pipes(nullptr,const_cast<gchar**>(argv),nullptr,
-        G_SPAWN_DO_NOT_REAP_CHILD,nullptr,nullptr,&data->pid,nullptr,&out_fd,nullptr,&err);
-    if (!spawned) {
-        std::string em="[VNLF] Lỗi: "+(err?std::string(err->message):"unknown")+"\n";
-        if(err)g_error_free(err);
-        GtkTextIter e2; gtk_text_buffer_get_end_iter(buf,&e2);
-        gtk_text_buffer_insert(buf,&e2,em.c_str(),-1);
-        gtk_label_set_text(GTK_LABEL(stlbl),"✗ Không thể chạy lệnh!");
-        gtk_widget_set_sensitive(cbtn,TRUE); return;
-    }
-    g_child_watch_add(data->pid,on_child_exit,data);
-    data->channel=g_io_channel_unix_new(out_fd);
-    g_io_channel_set_encoding(data->channel,nullptr,nullptr);
-    g_io_channel_set_flags(data->channel,G_IO_FLAG_NONBLOCK,nullptr);
-    g_io_channel_set_buffered(data->channel,FALSE);
-    g_io_add_watch(data->channel,(GIOCondition)(G_IO_IN|G_IO_HUP),on_install_output,data);
+    char *argv[] = {
+        (char*)"/bin/bash",
+        (char*)"-c",
+        (char*)cmd.c_str(),
+        nullptr
+    };
+
+    vte_terminal_spawn_async(
+        term,
+        VTE_PTY_DEFAULT,
+        nullptr,
+        argv,
+        nullptr,
+        GSpawnFlags(0),
+        nullptr,
+        nullptr,
+        nullptr,
+        -1,
+        nullptr,
+        nullptr,
+        nullptr
+    );
+
+
+    g_signal_connect(
+        term,
+        "child-exited",
+        G_CALLBACK(on_vte_child_exit),
+        data
+    );
 }
 // ─── Sudo dialog ──────────────────────────────────────────────────────────────
+static bool verify_sudo_password(const std::string& password) {
+    std::string safe;
+    for (char c : password) { if (c=='\'') safe+="'\\''"; else safe+=c; }
+    return system(("echo '" + safe + "' | sudo -S -k true 2>/dev/null").c_str()) == 0;
+}
 struct SudoDialogData {
     GtkWidget *dialog,*entry,*ok_btn;
+    GtkWidget *error_lbl, *spinner;
     std::string password; bool confirmed;
     std::function<void(const std::string&)> on_confirm;
 };
-static void on_sudo_ok(GtkButton*,gpointer ud){SudoDialogData*d=(SudoDialogData*)ud;d->password=gtk_entry_get_text(GTK_ENTRY(d->entry));d->confirmed=true;gtk_widget_destroy(d->dialog);}
+struct VerifyResult { SudoDialogData *d; bool success; };
+
+static gboolean on_verify_done(gpointer ud) {
+    VerifyResult *res = (VerifyResult*)ud;
+    SudoDialogData *d = res->d;
+    bool ok = res->success;
+    delete res;
+
+    gtk_widget_set_sensitive(d->ok_btn, TRUE);
+    gtk_widget_set_sensitive(d->entry, TRUE);
+    gtk_spinner_stop(GTK_SPINNER(d->spinner));
+    //gtk_widget_hide(d->spinner);
+
+    if (ok) {
+        d->confirmed = true;
+        gtk_widget_destroy(d->dialog);
+    } else {
+        gtk_label_set_text(GTK_LABEL(d->error_lbl), "✗ Mật khẩu không đúng, thử lại");
+        gtk_widget_show(d->error_lbl);
+        gtk_entry_set_text(GTK_ENTRY(d->entry), "");
+        gtk_widget_grab_focus(d->entry);
+        GtkStyleContext *ctx = gtk_widget_get_style_context(d->entry);
+        gtk_style_context_add_class(ctx, "sudo-entry-error");
+        g_timeout_add(1500, +[](gpointer ud2) -> gboolean {
+            GtkWidget *e = (GtkWidget*)ud2;
+            if (GTK_IS_WIDGET(e))
+                gtk_style_context_remove_class(
+                    gtk_widget_get_style_context(e), "sudo-entry-error");
+            return FALSE;
+        }, d->entry);
+    }
+    return FALSE;
+}
+
+static gpointer verify_thread(gpointer ud) {
+    SudoDialogData *d = (SudoDialogData*)ud;
+    bool ok = verify_sudo_password(d->password);
+    g_idle_add(on_verify_done, new VerifyResult{d, ok});
+    return nullptr;
+}
+static void on_sudo_ok(GtkButton*, gpointer ud) {
+    SudoDialogData *d = (SudoDialogData*)ud;
+    std::string pwd = gtk_entry_get_text(GTK_ENTRY(d->entry));
+    if (pwd.empty()) {
+        gtk_label_set_text(GTK_LABEL(d->error_lbl), "✗ Vui lòng nhập mật khẩu");
+        gtk_widget_show(d->error_lbl);
+        return;
+    }
+    d->password = pwd;
+    gtk_widget_set_sensitive(d->ok_btn, FALSE);
+    gtk_widget_set_sensitive(d->entry, FALSE);
+    gtk_label_set_text(GTK_LABEL(d->error_lbl), "Đang xác thực...");
+    gtk_widget_show(d->error_lbl);
+    gtk_widget_show(d->spinner);
+    gtk_spinner_start(GTK_SPINNER(d->spinner));
+    g_thread_new("sudo-verify", verify_thread, d);
+}
 static void on_sudo_cancel(GtkButton*,gpointer ud){((SudoDialogData*)ud)->confirmed=false;gtk_widget_destroy(((SudoDialogData*)ud)->dialog);}
 static void on_sudo_activate(GtkEntry*,gpointer ud){gtk_button_clicked(GTK_BUTTON(((SudoDialogData*)ud)->ok_btn));}
 static void on_sudo_destroy(GtkWidget*,gpointer ud){
@@ -721,7 +806,9 @@ static void show_sudo_dialog(const std::string& app_name, std::function<void(con
     GtkWidget*ur=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,12);gtk_box_pack_start(GTK_BOX(pa),ur,FALSE,FALSE,0);
     GtkWidget*ul=gtk_label_new("Người dùng:");gtk_widget_set_size_request(ul,100,-1);gtk_widget_set_halign(ul,GTK_ALIGN_END);
     gtk_style_context_add_class(gtk_widget_get_style_context(ul),"sudo-dialog-subtitle");gtk_box_pack_start(GTK_BOX(ur),ul,FALSE,FALSE,0);
-    gtk_box_pack_start(GTK_BOX(ur),gtk_label_new(g_get_user_name()),FALSE,FALSE,0);
+    GtkWidget *username = gtk_label_new(g_get_user_name());
+    gtk_style_context_add_class(gtk_widget_get_style_context(username),"username-value");
+    gtk_box_pack_start(GTK_BOX(ur), username, FALSE, FALSE, 0);
     // password row
     GtkWidget*pr=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,12);gtk_box_pack_start(GTK_BOX(pa),pr,FALSE,FALSE,0);
     GtkWidget*pl=gtk_label_new("Mật khẩu:");gtk_widget_set_size_request(pl,100,-1);gtk_widget_set_halign(pl,GTK_ALIGN_END);
@@ -746,8 +833,25 @@ static void show_sudo_dialog(const std::string& app_name, std::function<void(con
     GtkWidget*ob=gtk_button_new_with_label("Xác nhận");d->ok_btn=ob;
     gtk_style_context_add_class(gtk_widget_get_style_context(ob),"sudo-ok-btn");
     g_signal_connect(ob,"clicked",G_CALLBACK(on_sudo_ok),d);gtk_box_pack_start(GTK_BOX(br),ob,FALSE,FALSE,0);
-    gtk_window_set_default(GTK_WINDOW(dlg),ob);
-    gtk_widget_show_all(dlg);gtk_widget_grab_focus(entry);
+    gtk_widget_show_all(dlg);
+    //gtk_widget_hide(d->spinner);
+    //gtk_widget_hide(d->error_lbl);
+    gtk_widget_grab_focus(entry);
+
+    // Error/status row
+    GtkWidget *err_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_margin_start(err_row, 114);
+    gtk_widget_set_margin_top(err_row, 2);
+    gtk_box_pack_start(GTK_BOX(pa), err_row, FALSE, FALSE, 0);
+
+    GtkWidget *spinner = gtk_spinner_new(); d->spinner = spinner;
+    gtk_widget_set_size_request(spinner, 16, 16);
+    gtk_box_pack_start(GTK_BOX(err_row), spinner, FALSE, FALSE, 0);
+
+    GtkWidget *err_lbl = gtk_label_new(""); d->error_lbl = err_lbl;
+    gtk_widget_set_halign(err_lbl, GTK_ALIGN_START);
+    gtk_style_context_add_class(gtk_widget_get_style_context(err_lbl), "sudo-error-label");
+    gtk_box_pack_start(GTK_BOX(err_row), err_lbl, FALSE, FALSE, 0);
 }
 
 // ─── Build install command ────────────────────────────────────────────────────
@@ -1351,7 +1455,7 @@ static void show_about_page(){
 
     GtkWidget*abtnrow=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,12);gtk_widget_set_halign(abtnrow,GTK_ALIGN_START);gtk_box_pack_start(GTK_BOX(content),abtnrow,FALSE,FALSE,0);
 
-    std::string *url_ptr=new std::string(g_state.about_url.empty()?"https://vietnamlinuxfamily.net":g_state.about_url);
+    std::string *url_ptr=new std::string(g_state.about_url.empty()?"https://apps.vietnamlinuxfamily.net":g_state.about_url);
     GtkWidget*wb=gtk_button_new_with_label("🌐 Trang web cộng đồng");
     gtk_style_context_add_class(gtk_widget_get_style_context(wb),"about-action-btn");
     gtk_widget_set_tooltip_text(wb,url_ptr->c_str());
@@ -1376,6 +1480,7 @@ static void on_search_changed(GtkSearchEntry*entry,gpointer){
     g_state.search_query=gtk_entry_get_text(GTK_ENTRY(entry));
     apply_filter(); show_apps_list();
 }
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 static void on_toggle_sidebar(GtkButton*,gpointer){
     g_state.sidebar_collapsed=!g_state.sidebar_collapsed;
@@ -1475,6 +1580,21 @@ static void rebuild_sidebar(){
     gtk_widget_show_all(g_state.sidebar_box);
 }
 
+// ─── 3 Buttons at pack end ─────────────────────────────────────────────────
+static void on_close(GtkButton*, gpointer){gtk_main_quit();}
+static void on_minimize(GtkButton*, gpointer window){gtk_window_iconify(GTK_WINDOW(window));}
+static void on_maximize(GtkButton*, gpointer window)
+{
+    GtkWindow *win = GTK_WINDOW(window);
+
+    if (gtk_window_is_maximized(win))
+        gtk_window_unmaximize(win);
+    else
+        gtk_window_maximize(win);
+}
+
+
+
 // ─── Setup window ─────────────────────────────────────────────────────────────
 static void setup_window(){
     GtkCssProvider*css=gtk_css_provider_new();
@@ -1489,9 +1609,34 @@ static void setup_window(){
     g_signal_connect(window,"destroy",G_CALLBACK(gtk_main_quit),nullptr);
 
     GtkWidget*header_bar=gtk_header_bar_new();
-    gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header_bar),TRUE);
+    gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header_bar),FALSE);
     gtk_style_context_add_class(gtk_widget_get_style_context(header_bar),"custom-titlebar");
 
+    GtkWidget *btn_close=gtk_button_new_from_icon_name("window-close-symbolic", GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_max=gtk_button_new_from_icon_name("window-maximize-symbolic",GTK_ICON_SIZE_BUTTON);
+    GtkWidget *btn_min=gtk_button_new_from_icon_name("window-minimize-symbolic",GTK_ICON_SIZE_BUTTON);
+    
+    gtk_style_context_add_class(gtk_widget_get_style_context(btn_close),"titlebar-close");
+    gtk_style_context_add_class(gtk_widget_get_style_context(btn_max),"titlebar-button");
+    gtk_style_context_add_class(gtk_widget_get_style_context(btn_min),"titlebar-button");
+    
+    g_signal_connect(btn_close,"clicked",G_CALLBACK(on_close),nullptr);
+    g_signal_connect(btn_max,"clicked",G_CALLBACK(on_maximize),window);
+    g_signal_connect(btn_min,"clicked",G_CALLBACK(on_minimize),window);
+    
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(header_bar),btn_close);
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(header_bar),btn_max);
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(header_bar),btn_min);
+
+    
+/*
+    GtkWidget *close_image =gtk_button_get_image(GTK_BUTTON(btn_close));
+    gtk_image_set_pixel_size(GTK_IMAGE(close_image),24);
+    GtkWidget *max_image =gtk_button_get_image(GTK_BUTTON(btn_max));
+    gtk_image_set_pixel_size(GTK_IMAGE(max_image),24);
+    GtkWidget *min_image =gtk_button_get_image(GTK_BUTTON(btn_min));
+    gtk_image_set_pixel_size(GTK_IMAGE(min_image),24);
+*/
     GtkWidget*title_box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);gtk_widget_set_halign(title_box,GTK_ALIGN_CENTER);
     GtkWidget*title_lbl=gtk_label_new("VNLF App Store");
     gtk_style_context_add_class(gtk_widget_get_style_context(title_lbl),"titlebar-title");
@@ -1502,11 +1647,11 @@ static void setup_window(){
     gtk_header_bar_set_custom_title(GTK_HEADER_BAR(header_bar),title_box);
 
     GtkWidget*search=gtk_search_entry_new(); g_state.search_entry=search;
-    gtk_entry_set_placeholder_text(GTK_ENTRY(search),"🔍 Tìm kiếm...");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(search),"Tìm kiếm...");
     gtk_widget_set_size_request(search,240,-1);
     gtk_style_context_add_class(gtk_widget_get_style_context(search),"search-box");
     g_signal_connect(search,"search-changed",G_CALLBACK(on_search_changed),nullptr);
-    gtk_header_bar_pack_end(GTK_HEADER_BAR(header_bar),search);
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar),search);
     gtk_window_set_titlebar(GTK_WINDOW(window),header_bar);
 
     GtkWidget*main_box=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -1565,6 +1710,7 @@ static void setup_window(){
     gtk_widget_show_all(window);
     gtk_stack_set_visible_child_name(GTK_STACK(stack),"grid");
     apply_filter(); rebuild_apps_grid();
+
 }
 // ─── Main ─────────────────────────────────────────────────────────────────────
 static std::string get_exe_dir(){
@@ -1638,7 +1784,7 @@ int main(int argc, char *argv[]){
     }
 
     // 7. About page config — edit these two lines to customize
-    g_state.about_url    = "https://vietnamlinuxfamily.net"; // URL mở bằng browser
+    g_state.about_url    = "https://apps.vietnamlinuxfamily.net/"; // URL mở bằng browser
     g_state.about_script = "";  // đường dẫn script bash (để trống nếu chưa có)
 
     // 8. Fonts
@@ -1652,6 +1798,7 @@ int main(int argc, char *argv[]){
     }
     load_app_fonts();
 
+    
     std::cout<<"[VNLF] Data:    "<<g_state.data_dir<<"\n";
     std::cout<<"[VNLF] Icons:   "<<g_state.icons_dir<<"\n";
     std::cout<<"[VNLF] Scripts: "<<g_state.scripts_dir<<"\n";
