@@ -1,0 +1,21 @@
+{
+  "id": "vlc",
+  "name": "VLC Media Player",
+  "summary": "Trình phát media đa năng, hỗ trợ hầu hết định dạng",
+  "description": "VLC là trình phát media mã nguồn mở miễn phí, hỗ trợ hầu hết các định dạng âm thanh và video mà không cần cài thêm codec. Có thể phát stream, DVD, Blu-ray và nhiều nguồn khác.",
+  "category": "multimedia",
+  "icon": "vlc",
+  "version": "3.0.20",
+  "author": "VideoLAN",
+  "license": "LGPL-2.1",
+  "website": "https://www.videolan.org/vlc/",
+  "script": "",
+  "tags": ["video", "âm thanh", "media", "player"],
+  "install_methods": [
+    { "pm": "apt", "package": "vlc" },
+    { "pm": "dnf", "package": "vlc" },
+    { "pm": "pacman", "package": "vlc" },
+    { "pm": "flatpak", "package": "org.videolan.VLC" },
+    { "pm": "snap", "package": "vlc" }
+  ]
+}
