@@ -25,14 +25,13 @@ endif
 # fontconfig luôn cần để load font động
 EXTRA_LIBS = -lfontconfig
 
-TARGET   = store
+TARGET   = demo-store
 SRCDIR   = src
 BUILDDIR = build
 SOURCES  = $(SRCDIR)/main.cpp
 OBJECTS  = $(BUILDDIR)/main.o
 
-# Đóng gói cài đặt của dev, sửa lại PREFIX để cài đặt vào thư mục mong muốn
-PREFIX  = /usr/local
+PREFIX = /usr/local
 DATADIR = $(PREFIX)/bin
 BINDIR  = $(PREFIX)/bin
 
@@ -49,7 +48,6 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CXX) $(CXXFLAGS) $(GTK_CFLAGS) -c $< -o $@
-
 
 run: all
 	./$(TARGET)

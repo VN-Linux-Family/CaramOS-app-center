@@ -1,4 +1,4 @@
-# VNLF App Store
+# VNLF App Store - Demo for Ubiquity
 
 Kho ứng dụng Linux tiếng Việt — ứng dụng desktop viết bằng **C++ + GTK3**.
 
@@ -151,6 +151,7 @@ Khi người dúng nhấn **Gỡ cài đặt**:
 
 Toàn bộ CSS nằm trong hằng số `APP_CSS` trong `src/main.cpp`. Chỉnh màu sắc, font, bo góc... tại đó.
 
+---
 
 ---
 ## Những điều cụ thể cần cải thiện
