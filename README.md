@@ -132,7 +132,7 @@ chmod +x scripts/install-myapp.sh
 ## Cơ chế cài đặt (hiện tại dù chưa ngon, còn chậm và tắc nghẽn nhưng tương lai cơ chế sẽ ngon hơn rất nhiều)
 
 Khi người dùng nhấn **Cài đặt**:
-0. init(lần khởi động đầu tiên, khi chưa có file installed.json): phần mềm sẽ đọc các "id" ứng dụng trong các file .json đồng thời thực hiện tìm kiếm các package đã cài đặt trong hệ thống.
+init(lần khởi động đầu tiên, khi chưa có file installed.json): phần mềm sẽ đọc các "id" ứng dụng trong các file .json đồng thời thực hiện tìm kiếm các package đã cài đặt trong hệ thống.
 1. Phần mềm đọc "id" ứng dụng trong các file json đồng thời đọc mục "script" -> nếu có thì thêm phương pháp cài đặt là script.
 2. Check không có script thì mặc định sẽ sử dụng các package manager có sẵn + install "id".
 3. Flatpak user thì không cần sudo - các package manager của hệ thống và flatpak system thì có -> nhập mật khẩu sudo.
@@ -151,17 +151,6 @@ Khi người dúng nhấn **Gỡ cài đặt**:
 
 Toàn bộ CSS nằm trong hằng số `APP_CSS` trong `src/main.cpp`. Chỉnh màu sắc, font, bo góc... tại đó.
 
----
-
----
-## Những điều cụ thể cần cải thiện
-- Thêm nút update, upgrade (nếu cần).
-- Thêm nút scan lại ứng dụng khi gặp lỗi thông tin với file installed.json.
-- Cơ chế tìm kiếm và tự động cập nhật thông tin phần mềm, database local theo thời gian.
-- Bổ sung các thuật toán tìm kiếm hoặc preload hoặc ... để tránh tắc nghẽn, mở app center chậm khi số lượng phần mềm, ứng quá nhiều so với thời điểm hiện tại.
-- Sử dụng tài nguyên online (hiện tại phần mềm hoạt động offline gần như hoàn toàn).
-- Thay đổi cách phần mềm hoạt động để trở nên linh hoạt hơn (dynamic), hiện tại vì sử dụng tài nguyên offline và khá static.
-... Còn nữa, chủ yếu tìm thấy trong issues.
 ---
 
 *VNLF App Store — Cộng đồng Linux Việt Nam 🇻🇳*
