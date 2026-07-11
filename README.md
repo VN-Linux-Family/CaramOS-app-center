@@ -132,7 +132,9 @@ chmod +x scripts/install-myapp.sh
 ## Cơ chế cài đặt (hiện tại dù chưa ngon, còn chậm và tắc nghẽn nhưng tương lai cơ chế sẽ ngon hơn rất nhiều)
 
 Khi người dùng nhấn **Cài đặt**:
-0. init(lần khởi động đầu tiên, khi chưa có file installed.json): phần mềm sẽ đọc các "id" ứng dụng trong các file .json đồng thời thực hiện tìm kiếm các package đã cài đặt trong hệ thống.
+```
+init(lần khởi động đầu tiên, khi chưa có file installed.json): phần mềm sẽ đọc các "id" ứng dụng trong các file .json đồng thời thực hiện tìm kiếm các package đã cài đặt trong hệ thống.
+```
 1. Phần mềm đọc "id" ứng dụng trong các file json đồng thời đọc mục "script" -> nếu có thì thêm phương pháp cài đặt là script.
 2. Check không có script thì mặc định sẽ sử dụng các package manager có sẵn + install "id".
 3. Flatpak user thì không cần sudo - các package manager của hệ thống và flatpak system thì có -> nhập mật khẩu sudo.
