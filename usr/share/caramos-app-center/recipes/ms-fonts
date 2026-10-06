@@ -1,0 +1,18 @@
+#!/bin/bash
+# Microsoft core fonts (Times New Roman, Arial, ...). The Ubuntu package downloads them from
+# SourceForge after its EULA is accepted; CaramOS accepts it here for the user who chose the fonts.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+if [ "$1" = remove ]; then
+    remove_packages ttf-mscorefonts-installer
+    exit 0
+fi
+
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
+echo "ttf-mscorefonts-installer msttcorefonts/present-mscorefonts-eula note" | debconf-set-selections
+progress 10
+"${APT_GET[@]}" install -y ttf-mscorefonts-installer
+progress 95
+fc-cache -f >/dev/null 2>&1 || true
+progress 100

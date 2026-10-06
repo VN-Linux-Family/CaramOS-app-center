@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=CaramOS App Center
+Name[vi]=App Center CaramOS
+Comment=Choose your apps the first time you log in
+Comment[vi]=Chọn ứng dụng ở lần đăng nhập đầu tiên
+Exec=/usr/bin/caramos-app-center --first-run
+Icon=caramos-logo
+Terminal=false
+NoDisplay=true
+OnlyShowIn=X-Cinnamon;
+X-GNOME-Autostart-Phase=Applications
+X-GNOME-Autostart-Delay=8

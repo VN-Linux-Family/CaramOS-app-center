@@ -1,0 +1,27 @@
+#!/bin/bash
+# Cốc Cốc from its official apt repository (https://coccoc.com/download/linux). The repository only
+# publishes a binary-any index, hence arch=any.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+KEYRING=/usr/share/keyrings/coccoc-browser.gpg
+SOURCES=/etc/apt/sources.list.d/coccoc-browser.list
+
+if [ "$1" = remove ]; then
+    remove_packages coccoc-browser-stable
+    # The package's postinst rewrites the .list as deb822 coccoc-browser.sources.
+    rm -f "$SOURCES" "${SOURCES%.list}.sources" "$KEYRING"
+    exit 0
+fi
+
+progress 2
+curl -fsSL --retry 3 --connect-timeout 30 https://browser-linux.coccoc.com/deb/public.gpg -o "$WORK_DIR/coccoc.asc"
+gpg --batch --yes --dearmor -o "$KEYRING" "$WORK_DIR/coccoc.asc"
+chmod 644 "$KEYRING"
+echo "deb [arch=any signed-by=$KEYRING] https://browser-linux.coccoc.com/deb/ stable main" > "$SOURCES"
+progress 10
+# Refresh only this repository; the system lists are already current enough for its dependencies.
+"${APT_GET[@]}" update -o Dir::Etc::sourcelist="$SOURCES" -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+progress 20
+"${APT_GET[@]}" install -y coccoc-browser-stable
+progress 100

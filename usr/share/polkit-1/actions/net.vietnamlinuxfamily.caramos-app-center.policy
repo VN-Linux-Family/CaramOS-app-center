@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <action id="net.vietnamlinuxfamily.caramos-app-center.manage">
+    <description>Install and remove apps with the CaramOS App Center</description>
+    <description xml:lang="vi">Cài và gỡ ứng dụng bằng App Center CaramOS</description>
+    <message>Authentication is required to install or remove apps</message>
+    <message xml:lang="vi">Cần xác thực để cài hoặc gỡ ứng dụng</message>
+    <icon_name>system-software-install</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/caramos-app-center/caramos-app-center-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

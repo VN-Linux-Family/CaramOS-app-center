@@ -1,0 +1,31 @@
+#!/bin/bash
+# WPS Office 12.1 Linux Personal (the build CaramOS ISOs up to 1.0.20 preinstalled through hook 0250).
+# The download URL is signed with a timestamp like the WPS website does. After installing, the zh_CN
+# interface pack and the wtool updater are removed, as before.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+if [ "$1" = remove ]; then
+    remove_packages wps-office
+    exit 0
+fi
+
+WPS_VER="12.1.2.25882"
+
+wps_url() {
+    local furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${WPS_VER##*.}/wps-office_${WPS_VER}.AK.preread.sw.Personal_662820_amd64.deb"
+    local uri="${furl#https://wps-linux-personal.wpscdn.cn}"
+    local key='7f8faaaa468174dc1c9cd62e5f218a5b'
+    local ts md5
+    ts=$(date '+%s')
+    md5=$(printf '%s' "${key}${uri}${ts}" | md5sum)
+    echo "${furl}?t=${ts}&k=${md5%% *}"
+}
+
+download "$(wps_url)" "$WORK_DIR/wps-office.deb"
+if ! file "$WORK_DIR/wps-office.deb" | grep -qi "Debian binary package"; then
+    echo "The WPS server did not return a package. Try again later." >&2
+    exit 1
+fi
+install_deb "$WORK_DIR/wps-office.deb"
+rm -rf /opt/kingsoft/wps-office/office6/mui/zh_CN /opt/kingsoft/wps-office/office6/wtool

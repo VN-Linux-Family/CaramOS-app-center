@@ -1,0 +1,13 @@
+#!/bin/bash
+# Google Chrome from Google's own package. Its postinst adds Google's apt repository, so Chrome
+# then updates with the rest of the system.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+if [ "$1" = remove ]; then
+    remove_packages google-chrome-stable
+    exit 0
+fi
+
+download "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" "$WORK_DIR/chrome.deb"
+install_deb "$WORK_DIR/chrome.deb"

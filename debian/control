@@ -1,0 +1,33 @@
+Source: caramos-app-center
+Section: admin
+Priority: optional
+Maintainer: Vietnam Linux Family <developer@vietnamlinuxfamily.net>
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13),
+ gettext,
+ python3
+Rules-Requires-Root: no
+Homepage: https://github.com/VN-Linux-Family/CaramOS-app-center
+
+Package: caramos-app-center
+Architecture: all
+Depends: ${misc:Depends},
+ python3,
+ python3-gi,
+ gir1.2-gtk-4.0,
+ gir1.2-adw-1,
+ gir1.2-flatpak-1.0,
+ flatpak,
+ pkexec,
+ curl,
+ file,
+ gnupg
+Description: CaramOS App Center: first-run app picker and app store
+ Lets CaramOS users choose an office suite, web browsers, chat apps and
+ everyday tools, each with its strengths and weaknesses, the first time they
+ log in, and install or remove them later from the menu.
+ .
+ Apps come from Flathub when the publisher maintains them there, otherwise
+ from the publisher's own package. A polkit-protected helper only accepts app
+ IDs from the packaged catalog. Apps beyond the suggestions are on
+ apps.vietnamlinuxfamily.net.

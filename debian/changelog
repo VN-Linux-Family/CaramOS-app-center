@@ -1,0 +1,14 @@
+caramos-app-center (0.1.0) noble; urgency=medium
+
+  * Rewrite the CaramOS App Center in Python, GTK4 and libadwaita (#46).
+  * First-run app picker: office suite (ONLYOFFICE, WPS Office, LibreOffice),
+    browsers, chat and everyday tools, each with strengths and weaknesses.
+  * Apps come from Flathub when the publisher maintains them there, otherwise
+    from the publisher's own package (WPS, Chrome, Edge, Coc Coc, Zoom, Zalo
+    with calls, Microsoft core fonts).
+  * App store with categories, search, install and remove, and a link to
+    apps.vietnamlinuxfamily.net for apps beyond the suggestions.
+  * Privileged helper behind polkit that only accepts app IDs from the
+    packaged catalog; replaces the password piped to sudo in the old app.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Tue, 06 Oct 2026 20:00:00 +0700

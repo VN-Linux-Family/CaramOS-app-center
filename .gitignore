@@ -1,0 +1,14 @@
+# Build output
+dist/
+usr/share/locale/
+debian/.debhelper/
+debian/caramos-app-center/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/*.debhelper.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+.run-locale/

@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=CaramOS App Center
+Name[vi]=App Center CaramOS
+GenericName=Software Center
+GenericName[vi]=Kho ứng dụng
+Comment=Install office suites, browsers, chat and other apps
+Comment[vi]=Cài bộ văn phòng, trình duyệt, ứng dụng liên lạc và các ứng dụng khác
+Exec=/usr/bin/caramos-app-center
+Icon=caramos-logo
+Terminal=false
+Categories=System;PackageManager;GTK;
+Keywords=apps;install;software;store;office;browser;
+Keywords[vi]=ứng dụng;cài đặt;phần mềm;kho;văn phòng;trình duyệt;
+StartupNotify=true
+StartupWMClass=caramos-app-center

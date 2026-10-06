@@ -1,0 +1,3 @@
+# Local build output must not end up in the source package uploaded to the PPA.
+tar-ignore = "dist"
+tar-ignore = "usr/share/locale"

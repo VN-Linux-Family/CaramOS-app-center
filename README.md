@@ -1,169 +1,126 @@
-# VNLF App Store
+# App Center CaramOS
 
-Kho ứng dụng Linux tiếng Việt — ứng dụng desktop viết bằng **C++ + GTK3**.
+App Center (`caramos-app-center`) có hai chế độ:
 
-Giao diện lấy cảm hứng từ [VNLF App Explorer](https://apps.vietnamlinuxfamily.net/), nhưng chạy hoàn toàn trên desktop Linux.
+- **Trình chọn ứng dụng lần đầu**: tự mở ở lần đăng nhập đầu tiên của mỗi user trên máy cài từ ISO CaramOS. Người dùng chọn bộ văn phòng, trình duyệt, ứng dụng liên lạc và tiện ích; mỗi lựa chọn ghi rõ ưu và nhược điểm.
+- **App Center**: mở từ menu (System > App Center CaramOS) để tìm, cài và gỡ ứng dụng bất cứ lúc nào. Menu ⋮ có mục mở lại trình chọn ứng dụng.
 
----
+App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): nút "Tìm thêm ứng dụng" ở cuối thanh bên, và khi tìm không thấy thì App Center mở kết quả tìm cùng từ khoá trên trang đó.
 
-## Tính năng
+Giao diện: Python + GTK4 + libadwaita, chạy trên CaramOS (Linux Mint 22.3 / Ubuntu 24.04). Bản C++/GTK3 cũ vẫn còn trong lịch sử git (tag `legacy-cpp`).
 
-- 🔍 **Tìm kiếm** ứng dụng theo tên, mô tả, thẻ
-- 📂 **Lọc theo danh mục**: Internet, Đa phương tiện, Văn phòng, Đồ họa, Lập trình, Hệ thống...
-- 📋 **Xem chi tiết** ứng dụng: mô tả, tác giả, phiên bản, giấy phép, website
-- ⚙️ **Cài đặt** bằng nút "Cài đặt" — gọi script bash có sẵn
-- 🖥️ **Cửa sổ terminal inline** hiển thị tiến trình cài đặt thời gian thực
-- 📦 **Dữ liệu ứng dụng** từ file `data/apps/apps.json` — dễ mở rộng
-
----
-
-## Cấu trúc dự án
-
-```
-vnlf-store/
-├── src/
-│   └── main.cpp          # Toàn bộ source code C++/GTK3
-├── data/
-│   ├── apps
-│   |   ├── files.json
-│   |   └── ... 
-│   ├── icons
-│   |   ├── icons.png
-│   │   └── ....png   # Danh sách ứng dụng (dễ chỉnh sửa)
-├── scripts/
-│   ├── install-generic.sh      # Script cài đặt tổng quát
-│   ├── install-firefox.sh
-│   ├── install-vlc.sh
-│   ├── install-libreoffice.sh
-│   ├── install-gimp.sh
-│   ├── install-vscode.sh
-│   ├── install-obs.sh
-│   └── ... (1 script/app)
-├── Makefile
-└── README.md
-```
-
----
-
-## Yêu cầu
+## Phát triển
 
 ```bash
-# Ubuntu/Debian
-sudo apt install libgtk-3-dev pkg-config g++ make libvte-2.91-dev
-
-# Fedora/RHEL
-sudo dnf install gtk3-devel gcc-c++ make pkgconf vte291-devel
-
-# Arch Linux
-sudo pacman -S gtk3 gcc make pkgconf vte3
+make test      # unit test (không cần GTK)
+make run       # chạy giao diện từ mã nguồn, helper giả lập (không cài gì thật)
+make build     # build dist/caramos-app-center_<version>_all.deb
+make pot       # cập nhật po/caramos-app-center/*.pot và gộp vào vi.po sau khi sửa chuỗi giao diện
 ```
 
----
+Gói build cần `debhelper dpkg-dev gettext python3`; chạy giao diện cần `gir1.2-gtk-4.0 gir1.2-adw-1`.
 
-## Build & Chạy
+Chuỗi giao diện viết bằng tiếng Anh trong code (`_("...")`), bản tiếng Việt ở `po/caramos-app-center/vi.po`. Tên, mô tả, ưu/nhược điểm của ứng dụng nằm trong `catalog.json` dạng `{"vi": ..., "en": ...}`. Test chặn chữ tiếng Việt viết thẳng trong giao diện và chuỗi chưa dịch.
+
+## Phát hành
+
+App Center có phiên bản riêng (không đi theo phiên bản CaramOS) và lên cùng PPA `ppa:vietnamlinuxfamily/caram-os`:
 
 ```bash
-# Build
-make
-
-# Chạy trực tiếp
-./store
-
-# Hoặc build + chạy luôn
-make run
-
-# Cài đặt vào hệ thống
-sudo make install
+make changelog VERSION=0.2.0    # mở mục mới trong debian/changelog, rồi ghi các thay đổi vào đó
+make release VERSION=0.2.0      # test, build, ký GPG, upload lên PPA
 ```
 
----
+Máy CaramOS tự nhận bản mới trong vòng một ngày: lần kiểm tra OTA hằng ngày (`caramos-ota --check`) cập nhật cả `caramos-ota` lẫn `caramos-app-center`. Thêm hay sửa ứng dụng gợi ý chỉ cần release App Center, không cần ra bản CaramOS mới.
 
-## Thêm ứng dụng mới
+## Trong CaramOS
 
-### 1. Thêm vào `data/apps.json`
+- Repo này là submodule `packages/caramos-app-center` của [CaramOS](https://github.com/VN-Linux-Family/CaramOS). Build ISO dựng gói từ submodule và cài vào rootfs.
+- ISO tạo `/etc/caramos-app-center/first-run` (overlay `config/includes.chroot`) để bật trình chọn ứng dụng lần đầu.
+- `caramos-ota` khai báo `Recommends: caramos-app-center`, nên máy đã cài nhận App Center qua OTA (chỉ có mục trong menu, không bật trình chọn lần đầu).
 
-```json
-{
-  "id": "myapp",
-  "name": "Tên ứng dụng",
-  "summary": "Mô tả ngắn",
-  "description": "Mô tả đầy đủ về ứng dụng...",
-  "category": "internet",
-  "icon": "tên-icon-gtk",
-  "version": "1.0.0",
-  "author": "Tác giả",
-  "license": "GPL-3.0",
-  "website": "https://...",
-  "script": "install-myapp.sh",
-  "tags": ["thẻ1", "thẻ2"]
-}
+## Cài ứng dụng như thế nào
+
+| Cách cài (`install` trong catalog) | Dùng khi | Ví dụ |
+|---|---|---|
+| `flatpak` | Flathub có bản chính chủ (verified) | ONLYOFFICE, LibreOffice, Brave, Telegram |
+| `recipe` | Phải dùng gói chính hãng của nhà phát hành, hoặc Flathub chỉ có bản cộng đồng/cũ | WPS, Chrome, Edge, Cốc Cốc, Zoom, Zalo bản gọi được |
+| `apt` | Gói trong kho Ubuntu/Mint là đủ | VLC |
+| `preinstalled` | Có sẵn trong CaramOS, chỉ để hiển thị | Firefox |
+
+Flatpak được cài cho toàn hệ thống (mọi user), qua libflatpak để có % tiến độ thật. App Flatpak gõ tiếng Việt bằng Lotus bình thường và thấy font của hệ thống (đã thử ONLYOFFICE, LibreOffice trên CaramOS 1.0.19).
+
+## Bảo mật
+
+```
+caramos-app-center (user)  ──pkexec──>  /usr/lib/caramos-app-center/caramos-app-center-helper (root)
+        chỉ gửi ID ứng dụng                   tra cách cài trong /usr/share/caramos-app-center/catalog.json
+        đọc tiến độ dạng JSON lines           chạy flatpak / apt / recipe, in sự kiện ra stdout
 ```
 
-**Danh mục hợp lệ:** `internet`, `multimedia`, `office`, `graphics`, `development`, `system`, `games`, `education`, `utilities`
+- Helper chỉ nhận ID khớp `^[a-z0-9][a-z0-9-]{0,40}$` và tra mọi thứ trong catalog của gói (thuộc root). Không có lệnh hay URL nào đi từ phía user sang root.
+- Polkit action `net.vietnamlinuxfamily.caramos-app-center.manage` (`auth_admin_keep`): hỏi mật khẩu một lần cho cả lượt cài.
+- Công thức chỉ tải qua HTTPS; Zalo được đối chiếu sha256 GitHub công bố. Test `test_app_center_packaging` chặn URL `http://`.
+- Biến `CARAMOS_APP_CENTER_DATA` và `CARAMOS_APP_CENTER_FAKE_HELPER` chỉ để chạy thử giao diện; helper root không đọc biến môi trường nào.
 
-**Tên icon:** Dùng tên icon GTK chuẩn (vd: `firefox`, `vlc`, `gimp`, `code`...). Xem danh sách tại https://specifications.freedesktop.org/icon-naming-spec/latest/
+## Thêm một ứng dụng
 
-### 2. (Không bắt buộc) Tạo script cài đặt `scripts/install-myapp.sh`
+1. Thêm mục vào `usr/share/caramos-app-center/catalog.json`:
+   ```json
+   {
+     "id": "ten-app",
+     "name": "Tên hiển thị",
+     "category": "tools",
+     "icon": "ten-app.png",
+     "summary": {"vi": "...", "en": "..."},
+     "pros": {"vi": ["..."], "en": ["..."]},
+     "cons": {"vi": ["..."], "en": ["..."]},
+     "size_mb": 300,
+     "website": "https://...",
+     "install": {"flatpak": "org.example.App"}
+   }
+   ```
+   - `badge` (không bắt buộc): `recommended` hoặc `popular`.
+   - `detect` bắt buộc với `recipe` và `preinstalled`: `{"deb": "ten-goi"}` hoặc `{"zalo_flavour": "full"}`.
+   - `size_mb`: dung lượng sau khi cài (ước lượng). Runtime Flathub dùng chung tính riêng (`FLATPAK_RUNTIME_MB` trong `plan.py`).
+2. Thêm icon PNG 128×128 vào `usr/share/caramos-app-center/icons/` (với app Flathub, lấy từ `https://flathub.org/api/v2/appstream/<id>` trường `icon`), hoặc đặt `icon_name` theo theme icon.
+3. Muốn hiện ở trình chọn lần đầu: thêm ID vào `apps` của một bước trong `steps` (`default` là các mục được chọn sẵn).
+4. Chạy `make test`, rồi `make run` để xem thẻ mới trong trình chọn.
+
+## Viết công thức cài (`recipe`)
+
+File thực thi trong `usr/share/caramos-app-center/recipes/<tên>`, nhận đúng một tham số `install` hoặc `remove`, chạy bằng root.
 
 ```bash
 #!/bin/bash
-echo "[VNLF] Cài đặt Tên App..."
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
 
-if command -v apt &>/dev/null; then
-    sudo apt install -y myapp-package
-elif command -v dnf &>/dev/null; then
-    sudo dnf install -y myapp-package
-elif command -v pacman &>/dev/null; then
-    sudo pacman -S --noconfirm myapp-package
-else
-    echo "[VNLF] Không tìm thấy package manager!"
-    exit 1
+if [ "$1" = remove ]; then
+    remove_packages ten-goi
+    exit 0
 fi
 
-[ $? -eq 0 ] && echo "[VNLF] Cài đặt thành công!" || exit 1
+download "https://example.com/app.deb" "$WORK_DIR/app.deb"   # báo tiến độ 0-80 %
+install_deb "$WORK_DIR/app.deb"                              # 80-100 %
 ```
+
+- Dòng `PROGRESS <0-100>` trên stdout thành thanh tiến độ; các dòng khác vào nhật ký.
+- Thoát khác 0 là báo lỗi cho app đó; các app còn lại vẫn cài tiếp.
+- Ưu tiên gói `.deb` tự thêm kho apt của hãng (Chrome, Edge, Cốc Cốc) để app tự cập nhật cùng hệ thống.
+
+## Lần đầu đăng nhập
+
+- `etc/xdg/autostart/caramos-app-center-first-run.desktop` chạy `caramos-app-center --first-run`.
+- Chỉ mở khi có `/etc/caramos-app-center/first-run` (ISO tạo qua overlay `config/includes.chroot`), không phải live session (`boot=casper`), uid ≥ 1000 và user chưa có `~/.config/caramos-app-center/first-run-done`.
+- Máy nhận App Center qua OTA không có file cờ nên chỉ thấy mục trong menu.
+- "Để sau" hoặc không có mạng: không ghi dấu, lần đăng nhập sau hỏi lại. Cài xong hoặc bấm "Hoàn tất": ghi dấu.
+
+## Chạy thử trên VM
+
+Cài `.deb` vào VM rồi mở **trong phiên desktop** (Alt+F2 → `caramos-app-center --first-run`). Mở qua SSH thì `pkexec` không có polkit agent nên báo huỷ xác thực ngay. Tạo cờ để thử trình chọn lần đầu:
 
 ```bash
-chmod +x scripts/install-myapp.sh
+sudo mkdir -p /etc/caramos-app-center && sudo touch /etc/caramos-app-center/first-run
+rm -f ~/.config/caramos-app-center/first-run-done
 ```
-
----
-
-## Cơ chế cài đặt (hiện tại dù chưa ngon, còn chậm và tắc nghẽn nhưng tương lai cơ chế sẽ ngon hơn rất nhiều)
-
-Khi người dùng nhấn **Cài đặt**:
-```
-init(lần khởi động đầu tiên, khi chưa có file installed.json): phần mềm sẽ đọc các "id" ứng dụng trong các file .json đồng thời thực hiện tìm kiếm các package đã cài đặt trong hệ thống.
-```
-1. Phần mềm đọc "id" ứng dụng trong các file json đồng thời đọc mục "script" -> nếu có thì thêm phương pháp cài đặt là script.
-2. Check không có script thì mặc định sẽ sử dụng các package manager có sẵn + install "id".
-3. Flatpak user thì không cần sudo - các package manager của hệ thống và flatpak system thì có -> nhập mật khẩu sudo.
-4. Cài đặt xong sẽ cập nhật file log tại ~/.local/share/vnlf-store/installed.json (chắc chắn trong tương lai sẽ là ở trong thư mục /var/, hiện tại chạy ở cấp độ user nên lưu ở ~/ là ổn).
-
-Khi người dúng nhấn **Gỡ cài đặt**:
-1. Đọc thông tin ứng dụng và package manager trong installed.json.
-2. Nhập mật khẩu sudo nếu cần.
-3. Tiến hành gỡ cài đặt theo package manager.
-4. Nếu phần mềm cài bằng script, dev cần viết cơ chế uninstall trong file install-appnames.sh
-5. Cập nhật lại file installed.json.
-
----
-
-## Tùy chỉnh giao diện
-
-Toàn bộ CSS nằm trong hằng số `APP_CSS` trong `src/main.cpp`. Chỉnh màu sắc, font, bo góc... tại đó.
-
----
-
----
-## Những điều cụ thể cần cải thiện
-- Thêm nút update, upgrade (nếu cần).
-- Thêm nút scan lại ứng dụng khi gặp lỗi thông tin với file installed.json.
-- Cơ chế tìm kiếm và tự động cập nhật thông tin phần mềm, database local theo thời gian.
-- Bổ sung các thuật toán tìm kiếm hoặc preload hoặc ... để tránh tắc nghẽn, mở app center chậm khi số lượng phần mềm, ứng quá nhiều so với thời điểm hiện tại.
-- Sử dụng tài nguyên online (hiện tại phần mềm hoạt động offline gần như hoàn toàn).
-- Thay đổi cách phần mềm hoạt động để trở nên linh hoạt hơn (dynamic), hiện tại vì sử dụng tài nguyên offline và khá static.
-... Còn nữa, chủ yếu tìm thấy trong issues.
----
-
-*VNLF App Store — Cộng đồng Linux Việt Nam 🇻🇳*

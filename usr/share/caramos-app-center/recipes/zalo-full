@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+"""Switch Zalo between the light build and the calling (Full) build of VN-Linux-Family/zalo-for-linux.
+
+install: put the latest Full build (Wine wrapper for voice and video calls) at /usr/local/bin/Zalo.AppImage.
+remove:  go back to the light build CaramOS ships.
+
+The file is checked against the sha256 GitHub publishes for the asset. The state file is the one the
+Zalo OTA migration writes, with "flavour" added so later Zalo updates keep the build the user chose.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import sys
+import tempfile
+import urllib.request
+from pathlib import Path
+
+REPOSITORY = "VN-Linux-Family/zalo-for-linux"
+API_URL = f"https://api.github.com/repos/{REPOSITORY}/releases/latest"
+APPIMAGE = Path("/usr/local/bin/Zalo.AppImage")
+LAUNCHER = Path("/usr/share/applications/zalo.desktop")
+STATE_FILE = Path("/var/lib/caramos-ota/zalo-appimage.json")
+FLAVOURS = {
+    "full": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-Full-x86_64\.AppImage$"),
+    "light": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-x86_64\.AppImage$"),
+}
+LAUNCHER_CONTENT = f"""[Desktop Entry]
+Name=Zalo
+Exec={APPIMAGE}
+Icon=/usr/share/pixmaps/zalo.png
+Terminal=false
+Type=Application
+Categories=Network;Chat;
+"""
+TIMEOUT = 60
+
+
+def say(line: str) -> None:
+    print(line, flush=True)
+
+
+def latest_asset(flavour: str) -> tuple[str, str, str, int, str]:
+    request = urllib.request.Request(API_URL, headers={"Accept": "application/vnd.github+json", "User-Agent": "caramos-app-center"})
+    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+        release = json.load(response)
+    for asset in release.get("assets", []):
+        if FLAVOURS[flavour].fullmatch(asset.get("name", "")):
+            digest = str(asset.get("digest") or "")
+            if not digest.startswith("sha256:"):
+                raise RuntimeError(f"GitHub publishes no sha256 for {asset['name']}")
+            return asset["name"], asset["browser_download_url"], digest[7:], int(asset["size"]), release["tag_name"]
+    raise RuntimeError(f"no {flavour} Zalo build in release {release.get('tag_name')}")
+
+
+def download(url: str, size: int, sha256: str) -> Path:
+    APPIMAGE.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=".Zalo.AppImage.", dir=APPIMAGE.parent)
+    target = Path(name)
+    digest = hashlib.sha256()
+    done = 0
+    try:
+        request = urllib.request.Request(url, headers={"User-Agent": "caramos-app-center"})
+        with os.fdopen(fd, "wb") as out, urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+            last = -1
+            while chunk := response.read(1024 * 1024):
+                out.write(chunk)
+                digest.update(chunk)
+                done += len(chunk)
+                percent = done * 95 // size if size else 0
+                if percent != last:
+                    say(f"PROGRESS {percent}")
+                    last = percent
+        if done != size or digest.hexdigest() != sha256:
+            raise RuntimeError("downloaded Zalo does not match the sha256 GitHub published")
+        target.chmod(0o755)
+        return target
+    except BaseException:
+        target.unlink(missing_ok=True)
+        raise
+
+
+def switch(flavour: str) -> None:
+    name, url, sha256, size, tag = latest_asset(flavour)
+    say(f"Downloading {name}")
+    staged = download(url, size, sha256)
+    os.replace(staged, APPIMAGE)
+    if not LAUNCHER.is_file():
+        LAUNCHER.write_text(LAUNCHER_CONTENT, encoding="utf-8")
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    record = {"repository": REPOSITORY, "tag": tag, "asset": name, "sha256": sha256, "flavour": flavour}
+    STATE_FILE.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    say("PROGRESS 100")
+    say("Zalo is updated. If Zalo is open, quit it from the system tray and open it again.")
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2 or argv[1] not in ("install", "remove"):
+        print(f"usage: {argv[0]} install|remove", file=sys.stderr)
+        return 2
+    switch("full" if argv[1] == "install" else "light")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

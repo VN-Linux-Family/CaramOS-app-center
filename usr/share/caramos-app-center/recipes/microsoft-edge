@@ -1,0 +1,12 @@
+#!/bin/bash
+# Microsoft Edge from Microsoft's package, which adds packages.microsoft.com for updates.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+if [ "$1" = remove ]; then
+    remove_packages microsoft-edge-stable
+    exit 0
+fi
+
+download "https://go.microsoft.com/fwlink?linkid=2149051" "$WORK_DIR/edge.deb"
+install_deb "$WORK_DIR/edge.deb"

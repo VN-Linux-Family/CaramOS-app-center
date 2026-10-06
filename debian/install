@@ -1,0 +1,8 @@
+usr/bin/caramos-app-center usr/bin/
+usr/lib/caramos-app-center usr/lib/
+usr/lib/python3/dist-packages/caramos_app_center usr/lib/python3/dist-packages/
+usr/share/caramos-app-center usr/share/
+usr/share/applications/caramos-app-center.desktop usr/share/applications/
+usr/share/polkit-1/actions/net.vietnamlinuxfamily.caramos-app-center.policy usr/share/polkit-1/actions/
+usr/share/locale usr/share/
+etc/xdg/autostart/caramos-app-center-first-run.desktop etc/xdg/autostart/

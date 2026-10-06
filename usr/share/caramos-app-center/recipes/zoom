@@ -1,0 +1,12 @@
+#!/bin/bash
+# Zoom from zoom.us. Zoom has no apt repository; it offers updates from inside the app.
+. /usr/share/caramos-app-center/recipes/lib/common.sh
+require_action "${1:-}"
+
+if [ "$1" = remove ]; then
+    remove_packages zoom
+    exit 0
+fi
+
+download "https://zoom.us/client/latest/zoom_amd64.deb" "$WORK_DIR/zoom.deb"
+install_deb "$WORK_DIR/zoom.deb"

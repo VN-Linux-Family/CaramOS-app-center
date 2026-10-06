@@ -1,0 +1,12 @@
+#!/usr/bin/python3 -I
+"""Privileged CaramOS App Center helper, started by the App Center through pkexec."""
+
+import sys
+
+sys.path.insert(0, "/usr/lib/python3/dist-packages")
+
+from caramos_app_center.helper import main  # noqa: E402
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

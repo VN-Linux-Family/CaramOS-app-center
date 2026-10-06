@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) compile
+
+override_dh_auto_test:
+	$(MAKE) test
+
+# Files are installed by dh_install from debian/install.
+override_dh_auto_install:

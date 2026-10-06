@@ -1,0 +1,468 @@
+{
+  "schema": 1,
+  "steps": [
+    {
+      "id": "office",
+      "title": {"vi": "Bộ ứng dụng văn phòng", "en": "Office suite"},
+      "subtitle": {
+        "vi": "Soạn văn bản, bảng tính và trình chiếu. Chọn một bộ, cài thêm bộ khác sau trong App Center.",
+        "en": "Documents, spreadsheets and presentations. Pick one; you can add another later in the App Center."
+      },
+      "choice": "single",
+      "allow_none": true,
+      "apps": ["onlyoffice", "wps-office", "libreoffice"],
+      "default": ["onlyoffice"]
+    },
+    {
+      "id": "browser",
+      "title": {"vi": "Trình duyệt web", "en": "Web browsers"},
+      "subtitle": {
+        "vi": "Firefox đã có sẵn. Chọn thêm trình duyệt bạn quen dùng.",
+        "en": "Firefox is already installed. Add the browsers you are used to."
+      },
+      "choice": "multi",
+      "apps": ["google-chrome", "coccoc", "microsoft-edge", "brave", "firefox"],
+      "default": ["google-chrome"]
+    },
+    {
+      "id": "chat",
+      "title": {"vi": "Liên lạc và họp trực tuyến", "en": "Chat and meetings"},
+      "subtitle": {
+        "vi": "Zalo bản nhẹ đã có sẵn. Chọn bản gọi được nếu bạn cần gọi thoại, gọi video.",
+        "en": "The light Zalo is already installed. Pick the calling build if you need voice or video calls."
+      },
+      "choice": "multi",
+      "apps": ["zalo-full", "telegram", "zoom", "teams", "discord"],
+      "default": []
+    },
+    {
+      "id": "extras",
+      "title": {"vi": "Tiện ích thường dùng", "en": "Everyday tools"},
+      "subtitle": {
+        "vi": "Phông chữ cho file Word, xem phim, quay màn hình, hỗ trợ từ xa.",
+        "en": "Fonts for Word files, video, screen recording and remote help."
+      },
+      "choice": "multi",
+      "apps": ["ms-fonts", "vlc", "obs-studio", "rustdesk", "gimp", "thunderbird"],
+      "default": ["ms-fonts", "vlc"]
+    }
+  ],
+  "categories": [
+    {"id": "office", "title": {"vi": "Văn phòng", "en": "Office"}, "icon": "x-office-document-symbolic"},
+    {"id": "internet", "title": {"vi": "Trình duyệt", "en": "Browsers"}, "icon": "web-browser-symbolic"},
+    {"id": "chat", "title": {"vi": "Liên lạc", "en": "Chat"}, "icon": "user-available-symbolic"},
+    {"id": "media", "title": {"vi": "Đa phương tiện", "en": "Media"}, "icon": "applications-multimedia-symbolic"},
+    {"id": "graphics", "title": {"vi": "Đồ hoạ", "en": "Graphics"}, "icon": "applications-graphics-symbolic"},
+    {"id": "tools", "title": {"vi": "Tiện ích", "en": "Tools"}, "icon": "applications-utilities-symbolic"}
+  ],
+  "apps": [
+    {
+      "id": "onlyoffice",
+      "name": "ONLYOFFICE",
+      "category": "office",
+      "icon": "onlyoffice.png",
+      "badge": "recommended",
+      "summary": {"vi": "Văn bản, bảng tính, trình chiếu theo kiểu tab", "en": "Documents, spreadsheets and slides in tabs"},
+      "pros": {
+        "vi": ["Mở và lưu .docx, .xlsx, .pptx giữ định dạng rất tốt", "Giao diện ribbon quen thuộc như Microsoft Office", "Miễn phí, mã nguồn mở"],
+        "en": ["Keeps .docx, .xlsx and .pptx formatting very well", "Familiar ribbon interface like Microsoft Office", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Tốn dung lượng và RAM hơn", "Macro VBA của Excel chạy hạn chế"],
+        "en": ["Uses more disk space and memory", "Limited support for Excel VBA macros"]
+      },
+      "size_mb": 1300,
+      "website": "https://www.onlyoffice.com/",
+      "install": {"flatpak": "org.onlyoffice.desktopeditors"}
+    },
+    {
+      "id": "wps-office",
+      "name": "WPS Office",
+      "category": "office",
+      "icon": "wps-office.png",
+      "summary": {"vi": "Bộ văn phòng gọn nhẹ, giống Microsoft Office", "en": "Lightweight suite that looks like Microsoft Office"},
+      "pros": {
+        "vi": ["Giao diện gần giống Microsoft Office nhất", "Nhẹ, mở nhanh trên máy cấu hình thấp", "Có trình đọc và chỉnh PDF"],
+        "en": ["Closest look to Microsoft Office", "Light and quick on low-end machines", "Includes a PDF reader and editor"]
+      },
+      "cons": {
+        "vi": ["Mã nguồn đóng", "Bản dành cho Linux không tự cập nhật"],
+        "en": ["Closed source", "The Linux build does not update itself"]
+      },
+      "size_mb": 1100,
+      "website": "https://www.wps.com/",
+      "install": {"recipe": "wps-office"},
+      "detect": {"deb": "wps-office"}
+    },
+    {
+      "id": "libreoffice",
+      "name": "LibreOffice",
+      "category": "office",
+      "icon": "libreoffice.png",
+      "summary": {"vi": "Bộ văn phòng mã nguồn mở đầy đủ nhất", "en": "The most complete open source office suite"},
+      "pros": {
+        "vi": ["Đủ Writer, Calc, Impress, Draw, Base, Math", "Kiểm tra chính tả tiếng Việt", "Miễn phí, mã nguồn mở, cập nhật đều"],
+        "en": ["Writer, Calc, Impress, Draw, Base and Math", "Vietnamese spell checking", "Free, open source and regularly updated"]
+      },
+      "cons": {
+        "vi": ["Giao diện khác Microsoft Office", "File .docx phức tạp có thể lệch định dạng"],
+        "en": ["Looks different from Microsoft Office", "Complex .docx files can lose some layout"]
+      },
+      "size_mb": 800,
+      "website": "https://www.libreoffice.org/",
+      "install": {"flatpak": "org.libreoffice.LibreOffice"}
+    },
+    {
+      "id": "google-chrome",
+      "name": "Google Chrome",
+      "category": "internet",
+      "icon": "google-chrome.png",
+      "badge": "popular",
+      "summary": {"vi": "Trình duyệt phổ biến nhất của Google", "en": "Google's widely used browser"},
+      "pros": {
+        "vi": ["Đồng bộ dấu trang, mật khẩu với tài khoản Google", "Hầu hết trang web được làm cho Chrome trước", "Kho tiện ích mở rộng lớn nhất"],
+        "en": ["Syncs bookmarks and passwords with your Google account", "Most websites target Chrome first", "Largest extension store"]
+      },
+      "cons": {
+        "vi": ["Tốn RAM khi mở nhiều tab", "Gửi nhiều dữ liệu sử dụng về Google"],
+        "en": ["Uses a lot of memory with many tabs", "Sends a lot of usage data to Google"]
+      },
+      "size_mb": 380,
+      "website": "https://www.google.com/chrome/",
+      "install": {"recipe": "google-chrome"},
+      "detect": {"deb": "google-chrome-stable"}
+    },
+    {
+      "id": "coccoc",
+      "name": "Cốc Cốc",
+      "category": "internet",
+      "icon": "coccoc.png",
+      "summary": {"vi": "Trình duyệt Việt Nam", "en": "Vietnamese web browser"},
+      "pros": {
+        "vi": ["Tải video, nhạc từ trang web chỉ một cú bấm", "Chặn quảng cáo có sẵn", "Giao diện và hỗ trợ khách hàng bằng tiếng Việt"],
+        "en": ["Downloads video and music from web pages in one click", "Built-in ad blocker", "Vietnamese interface and customer support"]
+      },
+      "cons": {
+        "vi": ["Bản Linux còn đang thử nghiệm", "Mã nguồn đóng"],
+        "en": ["The Linux build is still experimental", "Closed source"]
+      },
+      "size_mb": 450,
+      "website": "https://coccoc.com/",
+      "install": {"recipe": "coccoc"},
+      "detect": {"deb": "coccoc-browser-stable"}
+    },
+    {
+      "id": "microsoft-edge",
+      "name": "Microsoft Edge",
+      "category": "internet",
+      "icon": "microsoft-edge.png",
+      "summary": {"vi": "Trình duyệt của Microsoft", "en": "Microsoft's browser"},
+      "pros": {
+        "vi": ["Đồng bộ với tài khoản Microsoft, Outlook, OneDrive", "Có chế độ đọc và dịch trang tích hợp"],
+        "en": ["Syncs with your Microsoft account, Outlook and OneDrive", "Built-in reading mode and page translation"]
+      },
+      "cons": {
+        "vi": ["Nhiều quảng cáo, gợi ý dịch vụ Microsoft", "Mã nguồn đóng"],
+        "en": ["Many ads and Microsoft service prompts", "Closed source"]
+      },
+      "size_mb": 520,
+      "website": "https://www.microsoft.com/edge",
+      "install": {"recipe": "microsoft-edge"},
+      "detect": {"deb": "microsoft-edge-stable"}
+    },
+    {
+      "id": "brave",
+      "name": "Brave",
+      "category": "internet",
+      "icon": "brave.png",
+      "summary": {"vi": "Trình duyệt chặn quảng cáo và theo dõi", "en": "Browser that blocks ads and trackers"},
+      "pros": {
+        "vi": ["Chặn quảng cáo, trình theo dõi ngay khi cài", "Dùng được tiện ích của Chrome"],
+        "en": ["Blocks ads and trackers out of the box", "Works with Chrome extensions"]
+      },
+      "cons": {
+        "vi": ["Một số trang lỗi khi bị chặn quảng cáo", "Có ví tiền mã hoá, tin tài trợ bật sẵn"],
+        "en": ["Some sites break when ads are blocked", "Crypto wallet and sponsored content are on by default"]
+      },
+      "size_mb": 420,
+      "website": "https://brave.com/",
+      "install": {"flatpak": "com.brave.Browser"}
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "category": "internet",
+      "icon": "firefox.png",
+      "summary": {"vi": "Trình duyệt mã nguồn mở của Mozilla", "en": "Mozilla's open source browser"},
+      "pros": {
+        "vi": ["Có sẵn trong CaramOS, cập nhật cùng hệ thống", "Tôn trọng quyền riêng tư"],
+        "en": ["Comes with CaramOS and updates with the system", "Respects your privacy"]
+      },
+      "cons": {
+        "vi": ["Vài trang Việt Nam chỉ làm cho Chrome"],
+        "en": ["A few Vietnamese sites only target Chrome"]
+      },
+      "size_mb": 250,
+      "website": "https://www.mozilla.org/firefox/",
+      "install": {"preinstalled": true},
+      "detect": {"deb": "firefox"}
+    },
+    {
+      "id": "zalo-full",
+      "name": "Zalo",
+      "category": "chat",
+      "icon": "zalo.svg",
+      "summary": {"vi": "Bản gọi thoại, gọi video được", "en": "Build with voice and video calls"},
+      "pros": {
+        "vi": ["Gọi thoại, gọi video như trên Windows", "Thay bản nhẹ đang có, giữ nguyên tin nhắn"],
+        "en": ["Voice and video calls like on Windows", "Replaces the light build and keeps your messages"]
+      },
+      "cons": {
+        "vi": ["Nặng hơn bản nhẹ khoảng 100 MB", "Gọi điện cần mạng cho phép kết nối trực tiếp"],
+        "en": ["About 100 MB larger than the light build", "Calls need a network that allows direct connections"]
+      },
+      "size_mb": 310,
+      "website": "https://github.com/VN-Linux-Family/zalo-for-linux",
+      "install": {"recipe": "zalo-full"},
+      "detect": {"zalo_flavour": "full"}
+    },
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "category": "chat",
+      "icon": "telegram.png",
+      "summary": {"vi": "Nhắn tin nhanh, nhóm và kênh lớn", "en": "Fast messaging, big groups and channels"},
+      "pros": {
+        "vi": ["Nhẹ, đồng bộ tức thì giữa máy tính và điện thoại", "Gửi file lớn tới 2 GB"],
+        "en": ["Light, syncs instantly between computer and phone", "Sends files up to 2 GB"]
+      },
+      "cons": {
+        "vi": ["Tin nhắn thường không mã hoá đầu cuối"],
+        "en": ["Regular chats are not end-to-end encrypted"]
+      },
+      "size_mb": 200,
+      "website": "https://telegram.org/",
+      "install": {"flatpak": "org.telegram.desktop"}
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "category": "chat",
+      "icon": "zoom.png",
+      "summary": {"vi": "Họp và học trực tuyến", "en": "Online meetings and classes"},
+      "pros": {
+        "vi": ["Trường học, công ty dùng nhiều", "Bản chính hãng của Zoom, có chia sẻ màn hình"],
+        "en": ["Widely used by schools and companies", "Official Zoom build with screen sharing"]
+      },
+      "cons": {
+        "vi": ["Mã nguồn đóng", "Tải khá nặng"],
+        "en": ["Closed source", "Fairly large download"]
+      },
+      "size_mb": 800,
+      "website": "https://zoom.us/",
+      "install": {"recipe": "zoom"},
+      "detect": {"deb": "zoom"}
+    },
+    {
+      "id": "teams",
+      "name": "Teams for Linux",
+      "category": "chat",
+      "icon": "teams.png",
+      "summary": {"vi": "Dùng Microsoft Teams trên Linux", "en": "Use Microsoft Teams on Linux"},
+      "pros": {
+        "vi": ["Họp, nhắn tin Teams của công ty, trường học", "Có thông báo và chia sẻ màn hình"],
+        "en": ["Teams meetings and chat for work or school", "Notifications and screen sharing"]
+      },
+      "cons": {
+        "vi": ["Ứng dụng cộng đồng, không phải của Microsoft"],
+        "en": ["Community app, not made by Microsoft"]
+      },
+      "size_mb": 300,
+      "website": "https://github.com/IsmaelMartinez/teams-for-linux",
+      "install": {"flatpak": "com.github.IsmaelMartinez.teams_for_linux"}
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "category": "chat",
+      "icon": "discord.png",
+      "summary": {"vi": "Trò chuyện thoại, cộng đồng game", "en": "Voice chat and gaming communities"},
+      "pros": {
+        "vi": ["Kênh thoại chất lượng tốt", "Nhiều cộng đồng học tập, công nghệ"],
+        "en": ["Good quality voice channels", "Many study and tech communities"]
+      },
+      "cons": {
+        "vi": ["Tốn RAM", "Mã nguồn đóng"],
+        "en": ["Uses a lot of memory", "Closed source"]
+      },
+      "size_mb": 300,
+      "website": "https://discord.com/",
+      "install": {"flatpak": "com.discordapp.Discord"}
+    },
+    {
+      "id": "ms-fonts",
+      "name": "Microsoft Core Fonts",
+      "category": "tools",
+      "icon_name": "font-x-generic",
+      "badge": "recommended",
+      "summary": {"vi": "Times New Roman, Arial, Verdana...", "en": "Times New Roman, Arial, Verdana..."},
+      "pros": {
+        "vi": ["File Word, Excel gửi từ Windows hiển thị đúng phông", "Dùng cho mọi bộ văn phòng và trình duyệt"],
+        "en": ["Word and Excel files from Windows show the right fonts", "Works for every office suite and browser"]
+      },
+      "cons": {
+        "vi": ["Không có Calibri, Cambria (phông của Office mới)"],
+        "en": ["Does not include Calibri or Cambria (newer Office fonts)"]
+      },
+      "size_mb": 10,
+      "website": "https://packages.ubuntu.com/noble/ttf-mscorefonts-installer",
+      "install": {"recipe": "ms-fonts"},
+      "detect": {"deb": "ttf-mscorefonts-installer"}
+    },
+    {
+      "id": "vlc",
+      "name": "VLC",
+      "category": "media",
+      "icon": "vlc.png",
+      "summary": {"vi": "Xem phim, nghe nhạc mọi định dạng", "en": "Plays any video or music format"},
+      "pros": {
+        "vi": ["Mở được gần như mọi file phim, nhạc", "Tải phụ đề, chỉnh tốc độ phát"],
+        "en": ["Plays nearly every video and audio file", "Subtitles and playback speed control"]
+      },
+      "cons": {
+        "vi": ["Giao diện đơn giản, hơi cũ"],
+        "en": ["Plain, dated interface"]
+      },
+      "size_mb": 80,
+      "website": "https://www.videolan.org/vlc/",
+      "install": {"apt": ["vlc"]},
+      "detect": {"deb": "vlc"}
+    },
+    {
+      "id": "obs-studio",
+      "name": "OBS Studio",
+      "category": "media",
+      "icon": "obs-studio.png",
+      "summary": {"vi": "Quay màn hình và phát trực tiếp", "en": "Screen recording and live streaming"},
+      "pros": {
+        "vi": ["Quay bài giảng, hướng dẫn chất lượng cao", "Livestream lên YouTube, Facebook"],
+        "en": ["High quality lessons and tutorials", "Streams to YouTube and Facebook"]
+      },
+      "cons": {
+        "vi": ["Nhiều tuỳ chỉnh, cần làm quen"],
+        "en": ["Many settings to learn"]
+      },
+      "size_mb": 450,
+      "website": "https://obsproject.com/",
+      "install": {"flatpak": "com.obsproject.Studio"}
+    },
+    {
+      "id": "rustdesk",
+      "name": "RustDesk",
+      "category": "tools",
+      "icon": "rustdesk.png",
+      "summary": {"vi": "Điều khiển máy tính từ xa", "en": "Remote desktop control"},
+      "pros": {
+        "vi": ["Nhờ người khác hỗ trợ từ xa, giống UltraViewer", "Miễn phí, mã nguồn mở"],
+        "en": ["Get remote help, like UltraViewer", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Người hỗ trợ cũng phải cài RustDesk"],
+        "en": ["The helper also needs RustDesk"]
+      },
+      "size_mb": 70,
+      "website": "https://rustdesk.com/",
+      "install": {"flatpak": "com.rustdesk.RustDesk"}
+    },
+    {
+      "id": "gimp",
+      "name": "GIMP",
+      "category": "graphics",
+      "icon": "gimp.png",
+      "summary": {"vi": "Chỉnh sửa ảnh", "en": "Photo editing"},
+      "pros": {
+        "vi": ["Đủ công cụ chỉnh ảnh như Photoshop", "Miễn phí, mã nguồn mở"],
+        "en": ["Photoshop-class editing tools", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Cách dùng khác Photoshop, cần làm quen"],
+        "en": ["Works differently from Photoshop"]
+      },
+      "size_mb": 450,
+      "website": "https://www.gimp.org/",
+      "install": {"flatpak": "org.gimp.GIMP"}
+    },
+    {
+      "id": "thunderbird",
+      "name": "Thunderbird",
+      "category": "chat",
+      "icon": "thunderbird.png",
+      "summary": {"vi": "Đọc thư Gmail, Outlook trên máy", "en": "Gmail and Outlook mail on your computer"},
+      "pros": {
+        "vi": ["Gom nhiều hộp thư vào một chỗ", "Có lịch và danh bạ"],
+        "en": ["Brings several mailboxes together", "Calendar and contacts included"]
+      },
+      "cons": {
+        "vi": ["Thừa nếu bạn chỉ đọc thư trên web"],
+        "en": ["Not needed if you only use webmail"]
+      },
+      "size_mb": 300,
+      "website": "https://www.thunderbird.net/",
+      "install": {"flatpak": "org.mozilla.Thunderbird"}
+    },
+    {
+      "id": "inkscape",
+      "name": "Inkscape",
+      "category": "graphics",
+      "icon": "inkscape.png",
+      "summary": {"vi": "Vẽ vector, thiết kế logo", "en": "Vector drawing and logo design"},
+      "pros": {
+        "vi": ["Vẽ logo, poster, sơ đồ như Illustrator", "Miễn phí, mã nguồn mở"],
+        "en": ["Logos, posters and diagrams like Illustrator", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Mở file .ai phức tạp chưa chuẩn"],
+        "en": ["Complex .ai files may not open correctly"]
+      },
+      "size_mb": 350,
+      "website": "https://inkscape.org/",
+      "install": {"flatpak": "org.inkscape.Inkscape"}
+    },
+    {
+      "id": "kdenlive",
+      "name": "Kdenlive",
+      "category": "media",
+      "icon": "kdenlive.png",
+      "summary": {"vi": "Dựng và chỉnh sửa video", "en": "Video editing"},
+      "pros": {
+        "vi": ["Cắt ghép, thêm chữ, hiệu ứng nhiều lớp", "Miễn phí, mã nguồn mở"],
+        "en": ["Multi-track cutting, titles and effects", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Cần máy khá mạnh khi xuất video dài"],
+        "en": ["Needs a fairly strong machine for long exports"]
+      },
+      "size_mb": 600,
+      "website": "https://kdenlive.org/",
+      "install": {"flatpak": "org.kde.kdenlive"}
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "category": "office",
+      "icon": "obsidian.png",
+      "summary": {"vi": "Ghi chú cá nhân bằng Markdown", "en": "Personal notes in Markdown"},
+      "pros": {
+        "vi": ["Ghi chú lưu thành file trên máy, không phụ thuộc mạng", "Liên kết các ghi chú với nhau"],
+        "en": ["Notes are plain files on your computer, work offline", "Links notes together"]
+      },
+      "cons": {
+        "vi": ["Đồng bộ giữa các máy phải trả phí hoặc tự cài"],
+        "en": ["Sync between devices is paid or self-hosted"]
+      },
+      "size_mb": 400,
+      "website": "https://obsidian.md/",
+      "install": {"flatpak": "md.obsidian.Obsidian"}
+    }
+  ]
+}
