@@ -1,4 +1,4 @@
-"""First-run app picker: welcome, one page per catalog step, then a summary before installing."""
+"""First-run app picker: one page with the recommended apps already ticked and an always-visible install bar."""
 
 from __future__ import annotations
 
@@ -8,105 +8,117 @@ from gi.repository import Adw, Gtk
 
 from ..i18n import _, ngettext
 
-from ..catalog import Catalog, Step, localized
-from ..plan import default_selection, format_size, make_plan
+from .. import firstrun
+from ..catalog import Catalog, Step, localized, more_apps_url
+from ..plan import Plan, default_selection, format_size, make_plan
 from .cards import AppCard, NoneCard
-from .common import app_icon, clamp, label, logo, scrolled, source_text
+from .common import clamp, label, logo, open_more_apps, scrolled
 
 
 class WizardView(Gtk.Box):
     def __init__(self, catalog: Catalog, installed: set[str], *, on_install: Callable[[list[str]], None],
-                 on_finish: Callable[[], None], on_later: Callable[[], None]) -> None:
+                 on_finish: Callable[[], None], on_later: Callable[[], None] | None) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.catalog = catalog
         self.installed = installed
         self.on_install = on_install
         self.on_finish = on_finish
         self.selection = default_selection(catalog, installed)
-        self.index = 0
 
         header = Adw.HeaderBar()
         header.set_title_widget(Adw.WindowTitle(title=_("Set up your apps"), subtitle=_("CaramOS App Center")))
-        later = Gtk.Button(label=_("Later"))
-        later.set_tooltip_text(_("Close now and ask again at the next login"))
-        later.connect("clicked", lambda _b: on_later())
-        header.pack_end(later)
+        if on_later is not None:
+            # Autostart only: a picker the user opened closes with the window button.
+            later = Gtk.Button(label=_("Later"))
+            later.set_tooltip_text(_("Close now and ask again at the next login"))
+            later.connect("clicked", lambda _b: on_later())
+            header.pack_end(later)
         self.append(header)
 
-        self.carousel = Adw.Carousel(vexpand=True, interactive=False, allow_scroll_wheel=False, allow_mouse_drag=False)
-        self.carousel.connect("page-changed", self._on_page_changed)
-        self.append(self.carousel)
-
-        self.carousel.append(self._welcome_page())
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=36)
+        content.set_margin_top(24)
+        content.set_margin_bottom(32)
+        content.set_margin_start(24)
+        content.set_margin_end(24)
+        content.append(self._hero())
         for number, step in enumerate(catalog.steps, 1):
-            self.carousel.append(self._step_page(step, number))
-        self.summary_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
-        self.carousel.append(self._summary_page())
+            content.append(self._section(step, number))
+        content.append(self._more_apps())
+        page = scrolled(clamp(content))
+        page.add_css_class("welcome")
+        self.append(page)
 
-        self.bar = Gtk.CenterBox()
-        self.bar.add_css_class("wizard-bar")
-        self.back_button = Gtk.Button(label=_("Back"))
-        self.back_button.connect("clicked", lambda _b: self.go(self.index - 1))
-        self.next_button = Gtk.Button(label=_("Continue"))
-        self.next_button.add_css_class("suggested-action")
-        self.next_button.add_css_class("pill")
-        self.next_button.connect("clicked", self._on_next)
-        self.bar.set_start_widget(self.back_button)
-        self.bar.set_center_widget(Adw.CarouselIndicatorDots(carousel=self.carousel))
-        self.bar.set_end_widget(self.next_button)
+        self.bar = Gtk.Box(spacing=18)
+        self.bar.add_css_class("install-bar")
+        totals = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True, valign=Gtk.Align.CENTER)
+        self.total_label = label("", "bar-total")
+        self.detail_label = label("", "dim-label", "bar-detail")
+        totals.append(self.total_label)
+        totals.append(self.detail_label)
+        self.bar.append(totals)
+        self.install_button = Gtk.Button(valign=Gtk.Align.CENTER)
+        for css_class in ("suggested-action", "pill"):
+            self.install_button.add_css_class(css_class)
+        self.install_button.connect("clicked", self._on_install_clicked)
+        self.bar.append(self.install_button)
         self.append(self.bar)
         self._sync_bar()
 
-    # Pages -----------------------------------------------------------------------------------
+    # Page parts ------------------------------------------------------------------------------
 
-    def _welcome_page(self) -> Gtk.Widget:
-        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=22, valign=Gtk.Align.CENTER,
-                       halign=Gtk.Align.CENTER, hexpand=True, vexpand=True)
-        page.set_margin_start(32)
-        page.set_margin_end(32)
-        page.append(logo(104))
-        page.append(label(_("Welcome to CaramOS"), "hero-title", xalign=0.5))
-        page.append(label(_("Pick the apps you need. CaramOS downloads and installs them for you."),
-                          "hero-subtitle", "dim-label", xalign=0.5))
-        points = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, halign=Gtk.Align.CENTER)
-        points.add_css_class("welcome-points")
-        for icon, text in (
-            ("view-grid-symbolic", _("Office suite, browsers, chat and tools in a few steps")),
-            ("dialog-information-symbolic", _("Each choice lists its strengths and weaknesses")),
-            ("emblem-synchronizing-symbolic", _("Installs in the background while you use the computer")),
-        ):
-            row = Gtk.Box(spacing=12)
+    def _hero(self) -> Gtk.Widget:
+        hero = Gtk.Box(spacing=20)
+        hero.add_css_class("hero-card")
+        image = logo(72)
+        image.set_valign(Gtk.Align.START)
+        hero.append(image)
+        texts = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, hexpand=True)
+        texts.append(label(_("Welcome to CaramOS"), "hero-title"))
+        texts.append(label(_("Pick the apps you need. CaramOS downloads and installs them for you."),
+                           "hero-subtitle"))
+        points = [
+            ("object-select-symbolic", _("The recommended apps are already selected. Press Install at the bottom, "
+                                         "or change any choice below.")),
+            ("emblem-synchronizing-symbolic", _("Apps install in the background while you use the computer. Add "
+                                                "more any time from the App Center in the menu.")),
+        ]
+        if firstrun.is_live_session():
+            points.append(("dialog-information-symbolic", _("You are trying CaramOS from the USB: apps installed now "
+                                                            "are lost when the computer turns off. Install CaramOS "
+                                                            "to keep them.")))
+        for icon, text in points:
+            row = Gtk.Box(spacing=8)
+            row.add_css_class("hero-point")
+            row.set_margin_top(4)
             image = Gtk.Image.new_from_icon_name(icon)
-            image.set_pixel_size(20)
+            image.set_valign(Gtk.Align.START)
+            image.set_margin_top(2)
             row.append(image)
-            row.append(label(text, wrap=False))
-            points.append(row)
-        page.append(points)
-        start = Gtk.Button(label=_("Choose apps"), halign=Gtk.Align.CENTER)
-        for css_class in ("suggested-action", "pill", "large"):
-            start.add_css_class(css_class)
-        start.connect("clicked", lambda _b: self.go(1))
-        page.append(start)
-        wrapper = Gtk.Box(vexpand=True, hexpand=True)
-        wrapper.add_css_class("welcome")
-        wrapper.append(page)
-        return wrapper
+            row.append(label(text, "dim-label"))
+            texts.append(row)
+        hero.append(texts)
+        return hero
 
-    def _step_page(self, step: Step, number: int) -> Gtk.Widget:
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        box.set_margin_top(28)
-        box.set_margin_bottom(28)
-        box.set_margin_start(24)
-        box.set_margin_end(24)
-        box.append(label(_("STEP %(number)d OF %(total)d") % {"number": number, "total": len(self.catalog.steps)},
-                         "step-eyebrow"))
-        box.append(label(localized(step.title), "step-title"))
+    def _section(self, step: Step, number: int) -> Gtk.Widget:
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        heading = Gtk.Box(spacing=12)
+        heading.append(label(str(number), "section-number", wrap=False, xalign=0.5))
+        title = label(localized(step.title), "section-title")
+        title.set_valign(Gtk.Align.CENTER)
+        heading.append(title)
+        hint = label(_("Pick one") if step.choice == "single" else _("Pick any"), "section-hint", wrap=False)
+        hint.set_valign(Gtk.Align.CENTER)
+        hint.set_hexpand(True)
+        hint.set_halign(Gtk.Align.START)
+        heading.append(hint)
+        heading.append(_see_more_button(step.web_category))
+        box.append(heading)
         subtitle = label(localized(step.subtitle), "dim-label")
-        subtitle.set_margin_bottom(14)
+        subtitle.set_margin_bottom(12)
         box.append(subtitle)
 
         flow = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, homogeneous=True, max_children_per_line=3,
-                           min_children_per_line=1, column_spacing=18, row_spacing=18)
+                           min_children_per_line=1, column_spacing=16, row_spacing=16)
         group: Gtk.ToggleButton | None = None
         chosen = self.selection[step.id]
         for app_id in step.apps:
@@ -128,54 +140,20 @@ class WizardView(Gtk.Box):
                 none_card.set_group(group)
             none_card.set_active(not chosen)
             none_card.set_halign(Gtk.Align.START)
-            none_card.set_margin_top(6)
+            none_card.set_margin_top(4)
             box.append(none_card)
-        return scrolled(clamp(box))
+        return box
 
-    def _summary_page(self) -> Gtk.Widget:
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        box.set_margin_top(28)
-        box.set_margin_bottom(28)
-        box.set_margin_start(24)
-        box.set_margin_end(24)
-        box.append(label(_("CONFIRM"), "step-eyebrow"))
-        box.append(label(_("Ready to install"), "step-title"))
-        box.append(self.summary_box)
-        return scrolled(clamp(box, 820))
+    def _more_apps(self) -> Gtk.Widget:
+        box = Gtk.Box(spacing=4, halign=Gtk.Align.CENTER)
+        box.add_css_class("more-apps")
+        text = label(_("Can't find the app you want?"), "dim-label", wrap=False)
+        text.set_valign(Gtk.Align.CENTER)
+        box.append(text)
+        box.append(_see_more_button(""))
+        return box
 
-    def _rebuild_summary(self) -> None:
-        while (child := self.summary_box.get_first_child()) is not None:
-            self.summary_box.remove(child)
-        plan = make_plan(self.catalog, self.selected_ids(), self.installed)
-        if not plan.install:
-            self.summary_box.append(label(_("You did not pick any apps. You can install apps any time from the "
-                                            "App Center in the menu."), "dim-label"))
-            return
-        self.summary_box.append(label(_("Check your choices, then install. You can keep using the computer while "
-                                        "the apps install."), "dim-label"))
-        total = Gtk.Box(spacing=18)
-        total.add_css_class("total-card")
-        total.set_margin_top(10)
-        numbers = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True)
-        numbers.append(label(_("About %s on disk") % format_size(plan.total_mb), "total-size", wrap=False))
-        count = ngettext("%d app", "%d apps", len(plan.install)) % len(plan.install)
-        if plan.runtime_mb:
-            count += " · " + _("includes %s of shared Flathub libraries, downloaded once") % format_size(plan.runtime_mb)
-        numbers.append(label(count, "dim-label"))
-        total.append(numbers)
-        self.summary_box.append(total)
-
-        group = Adw.PreferencesGroup()
-        group.set_margin_top(8)
-        for app in plan.install:
-            row = Adw.ActionRow(title=app.name, subtitle=f"{source_text(app)} · {format_size(app.size_mb)}")
-            icon = app_icon(app, 40)
-            icon.add_css_class("row-icon")
-            row.add_prefix(icon)
-            group.add(row)
-        self.summary_box.append(group)
-
-    # Navigation ------------------------------------------------------------------------------
+    # Selection and totals --------------------------------------------------------------------
 
     def selected_ids(self) -> list[str]:
         ids: list[str] = []
@@ -183,32 +161,27 @@ class WizardView(Gtk.Box):
             ids.extend(app_id for app_id in step.apps if app_id in self.selection[step.id])
         return ids
 
-    def go(self, index: int) -> None:
-        index = max(0, min(index, self.carousel.get_n_pages() - 1))
-        if index == self.carousel.get_n_pages() - 1:
-            self._rebuild_summary()
-        self.carousel.scroll_to(self.carousel.get_nth_page(index), True)
-        self.index = index
-        self._sync_bar()
-
-    def _on_page_changed(self, _carousel, index: int) -> None:
-        self.index = index
-        self._sync_bar()
+    def _plan(self) -> Plan:
+        return make_plan(self.catalog, self.selected_ids(), self.installed)
 
     def _sync_bar(self) -> None:
-        last = self.carousel.get_n_pages() - 1
-        self.bar.set_visible(self.index > 0)
-        if self.index == last:
-            count = len(make_plan(self.catalog, self.selected_ids(), self.installed).install)
-            self.next_button.set_label(ngettext("Install %d app", "Install %d apps", count) % count if count else _("Finish"))
+        plan = self._plan()
+        count = len(plan.install)
+        if count:
+            self.total_label.set_label(ngettext("%d app", "%d apps", count) % count + " · " +
+                                       _("About %s on disk") % format_size(plan.total_mb))
+            self.install_button.set_label(ngettext("Install %d app", "Install %d apps", count) % count)
         else:
-            self.next_button.set_label(_("Continue"))
+            self.total_label.set_label(_("No apps selected"))
+            self.install_button.set_label(_("Finish"))
+        if plan.runtime_mb:
+            self.detail_label.set_label(_("includes %s of shared Flathub libraries, downloaded once")
+                                        % format_size(plan.runtime_mb))
+        else:
+            self.detail_label.set_label(_("You can keep using the computer while the apps install."))
 
-    def _on_next(self, _button) -> None:
-        if self.index < self.carousel.get_n_pages() - 1:
-            self.go(self.index + 1)
-            return
-        ids = make_plan(self.catalog, self.selected_ids(), self.installed).ids
+    def _on_install_clicked(self, _button) -> None:
+        ids = self._plan().ids
         if ids:
             self.on_install(ids)
         else:
@@ -222,3 +195,17 @@ class WizardView(Gtk.Box):
             chosen.add(card.app.id)
         else:
             chosen.discard(card.app.id)
+        self._sync_bar()
+
+
+def _see_more_button(category: str) -> Gtk.Button:
+    button = Gtk.Button(valign=Gtk.Align.CENTER)
+    button.add_css_class("flat")
+    button.add_css_class("see-more")
+    content = Gtk.Box(spacing=6)
+    content.append(Gtk.Label(label=_("See more")))
+    content.append(Gtk.Image.new_from_icon_name("go-next-symbolic"))
+    button.set_child(content)
+    button.set_tooltip_text(_("Open %s in the web browser") % more_apps_url(category=category))
+    button.connect("clicked", lambda b: open_more_apps(b, category=category))
+    return button

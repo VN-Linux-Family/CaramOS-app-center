@@ -55,6 +55,14 @@ class ShippedCatalogTests(unittest.TestCase):
     def test_more_apps_link_goes_to_the_vnlf_app_site(self) -> None:
         self.assertEqual("https://apps.vietnamlinuxfamily.net/browse", more_apps_url())
         self.assertEqual("https://apps.vietnamlinuxfamily.net/browse?q=k%E1%BA%BF+to%C3%A1n", more_apps_url(" kế toán "))
+        self.assertEqual("https://apps.vietnamlinuxfamily.net/browse?category=network", more_apps_url(category="network"))
+
+    def test_every_step_links_to_a_category_of_the_vnlf_app_site(self) -> None:
+        # Slugs of https://apps-api.vietnamlinuxfamily.net/api/categories.
+        site = {"network", "development", "graphics", "audiovideo", "office", "game", "system", "education",
+                "security", "communication", "science", "utility"}
+        for step in self.catalog.steps:
+            self.assertIn(step.web_category, site, step.id)
 
     def test_localized_follows_the_session_language(self) -> None:
         text = {"vi": "Văn phòng", "en": "Office"}
@@ -83,6 +91,7 @@ class ValidationTests(unittest.TestCase):
         self.broken(lambda d: d["steps"][0].update(apps=["unknown-app"]))
         self.broken(lambda d: d["steps"][0].update(default=["telegram"]))
         self.broken(lambda d: d["steps"][0].update(default=["onlyoffice", "libreoffice"]))
+        self.broken(lambda d: d["steps"][0].update(web_category="office&x=1"))
 
     def test_rejects_missing_translation(self) -> None:
         self.broken(lambda d: d["apps"][0]["summary"].pop("en"))

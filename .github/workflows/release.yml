@@ -1,0 +1,53 @@
+name: Release
+
+# Pushing a vX.Y.Z tag publishes the App Center to CaramOS machines: the daily caramos-ota check
+# downloads latest.json from the newest release, verifies latest.json.sig against the App Center release
+# key it ships, then installs the .deb when its SHA-256 matches and its version is newer.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential debhelper dpkg-dev gettext python3
+      - name: Check that the tag matches debian/changelog
+        run: |
+          version="$(dpkg-parsechangelog -S Version)"
+          test "v${version}" = "${GITHUB_REF_NAME}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match debian/changelog version ${version}" >&2
+            exit 1
+          }
+      - name: Unit tests
+        run: make test
+      - name: Build the package
+        run: make build
+      - name: Write and sign latest.json
+        env:
+          SIGNING_KEY: ${{ secrets.APP_CENTER_SIGNING_KEY }}
+        run: |
+          test -n "${SIGNING_KEY}" || { echo "The APP_CENTER_SIGNING_KEY secret is not set" >&2; exit 1; }
+          export GNUPGHOME="$(mktemp -d)"
+          printf '%s\n' "${SIGNING_KEY}" | gpg --batch --import
+          deb="$(ls dist/caramos-app-center_*_all.deb)"
+          python3 tools/release-manifest.py "${deb}" > dist/latest.json
+          gpg --batch --yes --detach-sign --output dist/latest.json.sig dist/latest.json
+          # Fail the release rather than publish something CaramOS machines would reject.
+          gpg --dearmor < keys/caramos-app-center-release.asc > "${GNUPGHOME}/release.gpg"
+          gpgv --keyring "${GNUPGHOME}/release.gpg" dist/latest.json.sig dist/latest.json
+          cat dist/latest.json
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dpkg-parsechangelog -S Changes | tail -n +4 > release-notes.md
+          gh release create "${GITHUB_REF_NAME}" dist/caramos-app-center_*_all.deb dist/latest.json \
+            dist/latest.json.sig --title "CaramOS App Center ${GITHUB_REF_NAME#v}" --notes-file release-notes.md

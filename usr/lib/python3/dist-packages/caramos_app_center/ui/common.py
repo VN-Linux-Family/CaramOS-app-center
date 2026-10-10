@@ -17,11 +17,12 @@ from ..plan import format_size  # noqa: E402
 
 SYSTEM_LOGO = Path("/usr/share/pixmaps/caramos-logo.png")
 
-def open_more_apps(parent: Gtk.Widget, query: str = "") -> None:
-    """Open the VNLF app site in the default browser, searching for query when given."""
+def open_more_apps(parent: Gtk.Widget, query: str = "", category: str = "") -> None:
+    """Open the VNLF app site in the default browser, searching for query or showing a category."""
 
     root = parent.get_root()
-    Gtk.UriLauncher.new(more_apps_url(query)).launch(root if isinstance(root, Gtk.Window) else None, None, None, None)
+    Gtk.UriLauncher.new(more_apps_url(query, category)).launch(
+        root if isinstance(root, Gtk.Window) else None, None, None, None)
 
 
 def logo_path() -> Path:
@@ -98,7 +99,7 @@ def source_text(app: App) -> str:
         return _("Ubuntu repository")
     if app.method == "preinstalled":
         return _("Comes with CaramOS")
-    return _("Official download")
+    return _("From the developer")
 
 
 def source_chip(app: App) -> Gtk.Label:
@@ -108,7 +109,7 @@ def source_chip(app: App) -> Gtk.Label:
     chip.set_tooltip_text({
         "flatpak": _("Verified app from Flathub, installed in a sandbox"),
         "apt": _("Package from the Ubuntu archive"),
-        "recipe": _("Installed from the publisher's own package"),
+        "recipe": _("Downloaded from the developer's website and installed as a system package"),
         "preinstalled": _("Already part of CaramOS"),
     }[app.method])
     return chip
@@ -118,7 +119,7 @@ def size_text(app: App) -> str:
     return _("About %s") % format_size(app.size_mb)
 
 
-def pros_cons_box(app: App, spacing: int = 6) -> Gtk.Box:
+def pros_cons_box(app: App, spacing: int = 6, max_width_chars: int = -1) -> Gtk.Box:
     box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=spacing)
     for text, icon, css in [(t, "object-select-symbolic", "pro") for t in app.pros_list()] + \
                            [(t, "list-remove-symbolic", "con") for t in app.cons_list()]:
@@ -128,7 +129,9 @@ def pros_cons_box(app: App, spacing: int = 6) -> Gtk.Box:
         image.set_valign(Gtk.Align.START)
         image.set_margin_top(2)
         row.append(image)
-        row.append(label(text, f"{css}-text"))
+        text_label = label(text, f"{css}-text")
+        text_label.set_max_width_chars(max_width_chars)
+        row.append(text_label)
         box.append(row)
     return box
 

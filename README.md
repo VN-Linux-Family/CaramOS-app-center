@@ -1,11 +1,10 @@
 # App Center CaramOS
 
-App Center (`caramos-app-center`) có hai chế độ:
+App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc và tiện ích, bộ đề xuất được chọn sẵn, mỗi ứng dụng ghi rõ ưu và nhược điểm. Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
 
-- **Trình chọn ứng dụng lần đầu**: tự mở ở lần đăng nhập đầu tiên của mỗi user trên máy cài từ ISO CaramOS. Người dùng chọn bộ văn phòng, trình duyệt, ứng dụng liên lạc và tiện ích; mỗi lựa chọn ghi rõ ưu và nhược điểm.
-- **App Center**: mở từ menu (System > App Center CaramOS) để tìm, cài và gỡ ứng dụng bất cứ lúc nào. Menu ⋮ có mục mở lại trình chọn ứng dụng.
+App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): nút "Xem thêm" của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính.
 
-App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): nút "Tìm thêm ứng dụng" ở cuối thanh bên, và khi tìm không thấy thì App Center mở kết quả tìm cùng từ khoá trên trang đó.
+Trang danh sách ứng dụng có ô tìm kiếm (`ui/store.py`) đang tạm ẩn: sau này nó lấy danh sách từ API của apps.vietnamlinuxfamily.net. Lập trình viên vẫn mở được bằng `caramos-app-center --store`.
 
 Giao diện: Python + GTK4 + libadwaita, chạy trên CaramOS (Linux Mint 22.3 / Ubuntu 24.04). Bản C++/GTK3 cũ vẫn còn trong lịch sử git (tag `legacy-cpp`).
 
@@ -24,20 +23,30 @@ Chuỗi giao diện viết bằng tiếng Anh trong code (`_("...")`), bản ti�
 
 ## Phát hành
 
-App Center có phiên bản riêng (không đi theo phiên bản CaramOS) và lên cùng PPA `ppa:vietnamlinuxfamily/caram-os`:
+App Center có phiên bản riêng (không đi theo phiên bản CaramOS) và **không lên PPA**: mỗi bản là một GitHub Release.
 
 ```bash
 make changelog VERSION=0.2.0    # mở mục mới trong debian/changelog, rồi ghi các thay đổi vào đó
-make release VERSION=0.2.0      # test, build, ký GPG, upload lên PPA
+git commit -am "Release 0.2.0"
+make release VERSION=0.2.0      # test, build, gắn tag v0.2.0
+git push origin HEAD v0.2.0     # GitHub Actions build, ký và đăng release
 ```
 
-Máy CaramOS tự nhận bản mới trong vòng một ngày: lần kiểm tra OTA hằng ngày (`caramos-ota --check`) cập nhật cả `caramos-ota` lẫn `caramos-app-center`. Thêm hay sửa ứng dụng gợi ý chỉ cần release App Center, không cần ra bản CaramOS mới.
+Workflow `.github/workflows/release.yml` chạy khi có tag `vX.Y.Z` (phải trùng phiên bản trong `debian/changelog`): test, build `caramos-app-center_X.Y.Z_all.deb`, viết `latest.json` (phiên bản, tên file, SHA-256) bằng `tools/release-manifest.py`, ký thành `latest.json.sig` rồi đăng cả ba lên release.
+
+Máy CaramOS tự nhận bản mới trong vòng một ngày: lần kiểm tra OTA hằng ngày (`caramos-ota --check`, chạy bằng root) tải `latest.json` của release mới nhất, kiểm tra chữ ký bằng chìa công khai có sẵn trong `caramos-ota` (`/usr/share/caramos-ota/keys/caramos-app-center-release.gpg`), rồi cài `.deb` khi SHA-256 khớp và phiên bản mới hơn bản đang cài. Thêm hay sửa ứng dụng gợi ý chỉ cần release App Center, không cần ra bản CaramOS mới.
+
+### Chìa ký
+
+- Chìa riêng cho App Center (Ed25519, chỉ dùng để ký), fingerprint `9326538C708A3A6533D98EAFCC6853D8DA2155B6`. Phần công khai: `keys/caramos-app-center-release.asc`.
+- Phần bí mật nằm trong secret `APP_CENTER_SIGNING_KEY` của repo (Settings > Secrets and variables > Actions). Thiếu secret thì workflow dừng, không đăng release.
+- Đổi chìa: tạo chìa mới, cập nhật secret, `keys/` ở đây và `usr/share/caramos-ota/keys/` trong `caramos-ota`, rồi ra bản OTA trước khi phát hành App Center bằng chìa mới.
 
 ## Trong CaramOS
 
 - Repo này là submodule `packages/caramos-app-center` của [CaramOS](https://github.com/VN-Linux-Family/CaramOS). Build ISO dựng gói từ submodule và cài vào rootfs.
 - ISO tạo `/etc/caramos-app-center/first-run` (overlay `config/includes.chroot`) để bật trình chọn ứng dụng lần đầu.
-- `caramos-ota` khai báo `Recommends: caramos-app-center`, nên máy đã cài nhận App Center qua OTA (chỉ có mục trong menu, không bật trình chọn lần đầu).
+- Máy đã cài nhận App Center qua OTA: migration `20261009120000_add_app_center_launcher` của `caramos-ota` cài bản mới nhất từ GitHub Release (nếu máy chưa có) và đặt biểu tượng lên Desktop. Từ đó lần kiểm tra OTA hằng ngày giữ nó luôn mới. Trên máy này trình chọn không tự bật lần đầu; người dùng mở bằng biểu tượng Desktop hoặc menu.
 
 ## Cài ứng dụng như thế nào
 
@@ -112,7 +121,8 @@ install_deb "$WORK_DIR/app.deb"                              # 80-100 %
 ## Lần đầu đăng nhập
 
 - `etc/xdg/autostart/caramos-app-center-first-run.desktop` chạy `caramos-app-center --first-run`.
-- Chỉ mở khi có `/etc/caramos-app-center/first-run` (ISO tạo qua overlay `config/includes.chroot`), không phải live session (`boot=casper`), uid ≥ 1000 và user chưa có `~/.config/caramos-app-center/first-run-done`.
+- Chỉ mở khi có `/etc/caramos-app-center/first-run` (ISO tạo qua overlay `config/includes.chroot`) và user chưa có `~/.config/caramos-app-center/first-run-done`: trong live session từ USB (user `caram`, home nằm trong RAM nên mỗi lần boot USB đều hiện) và ở lần đăng nhập đầu sau khi cài (uid ≥ 1000). Trong live session trang chọn nhắc ứng dụng cài lúc đó sẽ mất khi tắt máy.
+- Khi đóng trình chọn (nút "Để sau" hoặc nút X), App Center nhắc cách mở lại: biểu tượng trên Desktop hoặc menu Start.
 - Máy nhận App Center qua OTA không có file cờ nên chỉ thấy mục trong menu.
 - "Để sau" hoặc không có mạng: không ghi dấu, lần đăng nhập sau hỏi lại. Cài xong hoặc bấm "Hoàn tất": ghi dấu.
 

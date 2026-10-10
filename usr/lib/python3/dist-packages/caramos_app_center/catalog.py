@@ -111,6 +111,8 @@ class Step:
     allow_none: bool
     apps: tuple[str, ...]
     default: tuple[str, ...]
+    # Category slug on the VNLF app site for the step's "See more" link, e.g. "office".
+    web_category: str = ""
 
 
 @dataclass(frozen=True)
@@ -235,8 +237,10 @@ def parse_catalog(data: Mapping[str, object], recipe_dir: Path | None = None) ->
             _require(app_id in apps, f"{where}: unknown app {app_id}")
         _require(set(default) <= set(step_apps), f"{where}: default must be among its apps")
         _require(choice == "multi" or len(default) <= 1, f"{where}: single choice allows one default")
+        web_category = str(raw.get("web_category") or "")
+        _require(not web_category or bool(ID_RE.fullmatch(web_category)), f"{where}: invalid web_category")
         steps.append(Step(step_id, _bilingual(raw, "title", where), _bilingual(raw, "subtitle", where), choice,
-                          bool(raw.get("allow_none")), step_apps, default))
+                          bool(raw.get("allow_none")), step_apps, default, web_category))
     return Catalog(apps=apps, steps=tuple(steps), categories=tuple(categories))
 
 
@@ -249,11 +253,11 @@ def load_catalog(path: Path = CATALOG_FILE, recipe_dir: Path | None = RECIPE_DIR
     return parse_catalog(data, recipe_dir)
 
 
-def more_apps_url(query: str = "") -> str:
-    """The VNLF app site, searching for query when given."""
+def more_apps_url(query: str = "", category: str = "") -> str:
+    """The VNLF app site, searching for query and/or showing one of its categories when given."""
 
-    query = query.strip()
-    return f"{MORE_APPS_URL}?{urllib.parse.urlencode({'q': query})}" if query else MORE_APPS_URL
+    params = {key: value for key, value in (("q", query.strip()), ("category", category)) if value}
+    return f"{MORE_APPS_URL}?{urllib.parse.urlencode(params)}" if params else MORE_APPS_URL
 
 
 def data_dir() -> Path:

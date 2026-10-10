@@ -1,4 +1,9 @@
-"""Main window: loading, offline, first-run wizard, install progress, done page and store."""
+"""Main window: loading, offline, app picker, install progress and done page.
+
+The store list (StoreView) is hidden for now and only opens with --store: it should list apps from the
+VNLF app site API, which is not ready. Everything else, including the Desktop and menu launchers, opens
+the picker.
+"""
 
 from __future__ import annotations
 
@@ -18,18 +23,19 @@ from .wizard import WizardView
 
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, application: Adw.Application, catalog: Catalog, *, wizard: bool, first_run: bool) -> None:
+    def __init__(self, application: Adw.Application, catalog: Catalog, *, store: bool, first_run: bool) -> None:
         super().__init__(application=application, title=_("CaramOS App Center"), default_width=1080,
                          default_height=760)
         self.set_size_request(360, 480)
         self.catalog = catalog
-        self.want_wizard = wizard
+        self.want_store = store
         self.first_run = first_run
         self.installed: set[str] = set()
         self.install_view: InstallView | None = None
         self.store: StoreView | None = None
         self.wizard: WizardView | None = None
         self.hidden_install = False
+        self.reopen_hint_shown = False
 
         self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=220)
         self.toasts = Adw.ToastOverlay(child=self.stack)
@@ -79,10 +85,10 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _on_detected(self, installed: set[str]) -> bool:
         self.installed = installed
-        if self.want_wizard:
-            self.show_wizard()
-        else:
+        if self.want_store:
             self.show_store()
+        else:
+            self.show_wizard()
         return False
 
     def _online(self) -> bool:
@@ -97,7 +103,7 @@ class MainWindow(Adw.ApplicationWindow):
             self.stack.set_visible_child_name("wizard")
             return
         self.wizard = WizardView(self.catalog, self.installed, on_install=self._install_from_wizard,
-                                 on_finish=self._finish_wizard, on_later=self.close)
+                                 on_finish=self._finish_wizard, on_later=self.close if self.first_run else None)
         self._set_page("wizard", self.wizard)
 
     def _show_offline(self) -> None:
@@ -177,7 +183,8 @@ class MainWindow(Adw.ApplicationWindow):
     def _finish_wizard(self) -> None:
         if self.first_run:
             firstrun.mark_done()
-        self.show_store()
+        self.reopen_hint_shown = True
+        self.close()
 
     def _show_done(self, results: Results) -> None:
         if self.first_run:
@@ -198,9 +205,9 @@ class MainWindow(Adw.ApplicationWindow):
             else:
                 page.set_icon_name("emblem-ok-symbolic")
         buttons = Gtk.Box(spacing=12, halign=Gtk.Align.CENTER)
-        store = Gtk.Button(label=_("Open the App Center"))
+        store = Gtk.Button(label=_("Choose more apps"))
         store.add_css_class("pill")
-        store.connect("clicked", lambda _b: self.show_store())
+        store.connect("clicked", lambda _b: self.show_wizard())
         close = Gtk.Button(label=_("Done"))
         close.add_css_class("suggested-action")
         close.add_css_class("pill")
@@ -233,7 +240,25 @@ class MainWindow(Adw.ApplicationWindow):
             self.get_application().hold()
             self.set_visible(False)
             return True
+        # Only the autostarted picker explains where to find it again; a user who opened it knows.
+        if self.first_run and not self.reopen_hint_shown and \
+                self.stack.get_visible_child_name() in ("wizard", "offline"):
+            self._show_reopen_hint()
+            return True
         return False
+
+    def _show_reopen_hint(self) -> None:
+        """Closing the picker without installing: tell where to find the App Center again."""
+
+        self.reopen_hint_shown = True
+        dialog = Adw.AlertDialog(heading=_("Open the App Center again any time"),
+                                 body=_("Double-click App Center on the Desktop, or look for “App Center” in the "
+                                        "Start menu."))
+        dialog.add_response("ok", _("Got it"))
+        dialog.set_default_response("ok")
+        dialog.set_close_response("ok")
+        dialog.connect("response", lambda *_args: self.close())
+        dialog.present(self)
 
     def _notify_and_quit(self, results: Results) -> None:
         if self.first_run:

@@ -96,11 +96,16 @@ class FirstRunTests(unittest.TestCase):
         firstrun.mark_done(self.home)
         self.assertFalse(self.should_run())
 
-    def test_never_on_ota_machines_live_session_or_system_users(self) -> None:
-        self.assertFalse(self.should_run(flag=self.root / "absent"))
+    def test_also_in_the_live_session_for_its_uid_999_user(self) -> None:
         self.cmdline.write_text("boot=casper locale=vi_VN.UTF-8 quiet splash\n", encoding="utf-8")
-        self.assertFalse(self.should_run())
+        self.assertTrue(firstrun.is_live_session(self.cmdline))
+        self.assertTrue(self.should_run(uid=999))
+        self.assertFalse(self.should_run(uid=998))
+
+    def test_never_on_ota_machines_or_for_system_users(self) -> None:
+        self.assertFalse(self.should_run(flag=self.root / "absent"))
         self.assertFalse(self.should_run(uid=0))
+        self.assertFalse(self.should_run(uid=999))
 
 
 class EventTests(unittest.TestCase):

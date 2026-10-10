@@ -9,6 +9,7 @@ from gi.repository import Gtk
 from ..i18n import _
 
 from ..catalog import App
+from ..plan import format_size
 from .common import app_icon, badge, badge_text, label, pros_cons_box, size_text, source_chip
 
 
@@ -24,17 +25,16 @@ class AppCard(Gtk.ToggleButton):
 
         body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
 
-        header = Gtk.Box(spacing=14)
-        header.append(app_icon(app, 56))
-        titles = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4, valign=Gtk.Align.CENTER, hexpand=True)
-        name_row = Gtk.Box(spacing=8)
-        name_row.append(label(app.name, "app-name", wrap=False))
-        if installed:
-            name_row.append(badge(_("Installed"), "installed"))
-        elif badge_text(app):
-            name_row.append(badge(badge_text(app), app.badge))
-        titles.append(name_row)
-        titles.append(label(app.summary_text(), "app-summary", "dim-label"))
+        # Labels get a bounded natural width so the step grids fit three cards per row.
+        header = Gtk.Box(spacing=12)
+        header.append(app_icon(app, 48))
+        titles = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, valign=Gtk.Align.CENTER, hexpand=True)
+        name = label(app.name, "app-name")
+        name.set_max_width_chars(14)
+        titles.append(name)
+        summary = label(app.summary_text(), "app-summary", "dim-label")
+        summary.set_max_width_chars(20)
+        titles.append(summary)
         header.append(titles)
         mark = Gtk.Image.new_from_icon_name("emblem-ok-symbolic" if not installed else "object-select-symbolic")
         mark.set_pixel_size(22)
@@ -43,12 +43,16 @@ class AppCard(Gtk.ToggleButton):
         header.append(mark)
         body.append(header)
 
-        pros_cons = pros_cons_box(app)
+        pros_cons = pros_cons_box(app, max_width_chars=23)
         pros_cons.set_vexpand(True)
         body.append(pros_cons)
 
-        footer = Gtk.Box(spacing=8)
+        footer = Gtk.Box(spacing=6)
         footer.add_css_class("card-footer")
+        if installed:
+            footer.append(badge(_("Installed"), "installed"))
+        elif badge_text(app):
+            footer.append(badge(badge_text(app), app.badge))
         footer.append(source_chip(app))
         footer.append(_size_label(app))
         body.append(footer)
@@ -62,7 +66,9 @@ class AppCard(Gtk.ToggleButton):
 
 
 def _size_label(app: App) -> Gtk.Label:
-    widget = label(size_text(app), "dim-label", wrap=False, xalign=1.0)
+    # Bare size: the footer must stay narrow enough for three cards per row.
+    widget = label(format_size(app.size_mb), "dim-label", wrap=False, xalign=1.0)
+    widget.set_tooltip_text(size_text(app))
     widget.set_hexpand(True)
     return widget
 

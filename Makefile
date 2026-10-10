@@ -2,10 +2,6 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -euo pipefail -c
 
 PACKAGE := caramos-app-center
-PPA ?= ppa:vietnamlinuxfamily/caram-os
-GPG_KEY ?= ledungb11@gmail.com
-GPG_TTY ?= $(shell tty 2>/dev/null || true)
-export GPG_TTY
 VERSION ?=
 
 PY := PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=usr/lib/python3/dist-packages python3
@@ -15,7 +11,7 @@ UI_SOURCES := $(sort $(wildcard usr/lib/python3/dist-packages/caramos_app_center
 DOMAIN := caramos-app-center
 CURRENT_VERSION = $(shell dpkg-parsechangelog -S Version)
 
-.PHONY: help compile test pot build source changelog check-release gpg-unlock upload release run clean
+.PHONY: help compile test pot build changelog check-release release run clean
 
 help:
 	@echo 'CaramOS App Center'
@@ -24,7 +20,7 @@ help:
 	@echo '  make build                Build the .deb into dist/'
 	@echo '  make pot                  Refresh the translation template and merge it into vi.po'
 	@echo '  make changelog VERSION=x  Open a debian/changelog entry for version x (edit it after)'
-	@echo '  make release VERSION=x    Test, build, sign and upload version x to $(PPA)'
+	@echo '  make release VERSION=x    Test, build and tag vx; pushing the tag publishes it (GitHub Actions)'
 
 # Python byte-compile check and translation catalogs (run by debian/rules too).
 compile:
@@ -56,10 +52,6 @@ build: clean compile
 	cp -f ../$(PACKAGE)_$(CURRENT_VERSION)_all.deb dist/
 	@echo "[OK] dist/$(PACKAGE)_$(CURRENT_VERSION)_all.deb"
 
-source: clean
-	dpkg-buildpackage -S -sa -us -uc
-	@echo "[OK] ../$(PACKAGE)_$(CURRENT_VERSION)_source.changes"
-
 changelog:
 	@test -n '$(VERSION)' || { echo 'Usage: make changelog VERSION=0.2.0' >&2; exit 2; }
 	./tools/new-changelog-entry.py '$(VERSION)'
@@ -69,17 +61,12 @@ check-release:
 	@test '$(CURRENT_VERSION)' = '$(VERSION)' || { echo "debian/changelog is at $(CURRENT_VERSION), not $(VERSION). Run: make changelog VERSION=$(VERSION)" >&2; exit 1; }
 	@! grep -q 'Describe the changes' debian/changelog || { echo 'Write the changes into debian/changelog first.' >&2; exit 1; }
 
-gpg-unlock:
-	@printf 'CaramOS App Center release signing\n' | gpg --pinentry-mode error --clearsign -u '$(GPG_KEY)' >/dev/null 2>&1 \
-		|| { echo 'Enter the GPG passphrase for $(GPG_KEY):'; \
-		     printf 'CaramOS App Center release signing\n' | gpg --pinentry-mode loopback --clearsign -u '$(GPG_KEY)' >/dev/null; }
-
-upload:
-	changes='../$(PACKAGE)_$(CURRENT_VERSION)_source.changes'; \
-	gpg --verify "$$changes" >/dev/null 2>&1 || debsign -k'$(GPG_KEY)' "$$changes"; \
-	dput '$(PPA)' "$$changes"
-
-release: check-release test build source gpg-unlock upload
+# GitHub Actions (.github/workflows/release.yml) builds, signs and publishes the tag; CaramOS machines
+# install it from the GitHub release within a day.
+release: check-release test build
+	@git diff --quiet && git diff --cached --quiet || { echo 'Commit the release (debian/changelog) first.' >&2; exit 1; }
+	git tag -a 'v$(VERSION)' -m 'CaramOS App Center $(VERSION)'
+	@echo "[OK] Tagged v$(VERSION). Publish it: git push origin HEAD v$(VERSION)"
 
 run:
 	rm -rf .run-locale && mkdir -p .run-locale/vi/LC_MESSAGES

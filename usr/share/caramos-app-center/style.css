@@ -1,46 +1,140 @@
-/* CaramOS App Center. libadwaita colours with the CaramOS orange as accent. */
+/* CaramOS App Center. Vietnam Linux Family colours: forest green, cream paper, caramel orange
+ * (the palette of vietnamlinuxfamily.net and the CaramOS site). style-dark.css redefines every colour. */
 
-@define-color accent_bg_color #e07b0e;
+@define-color vnlf_green_900 #1f4f32;
+@define-color vnlf_green_800 #285f3d;
+@define-color vnlf_green_700 #2f7048;
+@define-color vnlf_orange #f59f22;
+@define-color vnlf_caramel #7a5514;
+@define-color vnlf_line #e3dfd1;
+@define-color vnlf_muted #657064;
+
+@define-color accent_bg_color @vnlf_green_700;
 @define-color accent_fg_color #ffffff;
-@define-color accent_color #a65700;
-@define-color caramos_green #4f8a68;
+@define-color accent_color @vnlf_green_800;
+@define-color window_bg_color #f7f3e9;
+@define-color window_fg_color #1f2a22;
+@define-color view_bg_color #fffdf7;
+@define-color view_fg_color #1f2a22;
+@define-color card_bg_color #fffdf7;
+@define-color card_fg_color #1f2a22;
+@define-color headerbar_bg_color @vnlf_green_900;
+@define-color headerbar_fg_color #fffaf0;
+@define-color headerbar_backdrop_color @vnlf_green_800;
+@define-color headerbar_border_color @vnlf_green_900;
+@define-color headerbar_shade_color alpha(black, 0.12);
+@define-color sidebar_bg_color #efe9da;
+@define-color sidebar_fg_color #1f2a22;
+@define-color sidebar_backdrop_color #f2eddf;
+@define-color popover_bg_color #fffdf7;
+@define-color popover_fg_color #1f2a22;
+@define-color dialog_bg_color #fffdf7;
+@define-color dialog_fg_color #1f2a22;
+@define-color success_color @vnlf_green_700;
+@define-color warning_color #b36b00;
+@define-color card_shadow alpha(black, 0.06);
 
-/* Welcome */
-.welcome {
-  background-image:
-    radial-gradient(circle at 12% 8%, alpha(@accent_bg_color, 0.22), transparent 55%),
-    radial-gradient(circle at 92% 92%, alpha(@caramos_green, 0.20), transparent 50%);
+window {
+  font-family: "Be Vietnam Pro", "Cantarell", sans-serif;
 }
-.hero-title {
-  font-size: 34px;
+
+/* Header bars: the green bar of the VNLF site on every page, including the flat bars of
+ * toolbar views (store, done page). */
+headerbar {
+  background-color: @headerbar_bg_color;
+  color: @headerbar_fg_color;
+  box-shadow: inset 0 -1px alpha(black, 0.10);
+}
+headerbar:backdrop {
+  background-color: @headerbar_backdrop_color;
+}
+
+/* Buttons */
+button.suggested-action {
+  background-image: linear-gradient(135deg, @vnlf_green_800, @vnlf_green_700);
   font-weight: 800;
-  letter-spacing: -0.5px;
 }
-.hero-subtitle {
-  font-size: 17px;
+button.suggested-action:hover {
+  background-image: linear-gradient(135deg, shade(@vnlf_green_800, 1.08), shade(@vnlf_green_700, 1.08));
 }
-.welcome-points label {
-  font-size: 15px;
-}
-.welcome-points image {
-  color: @accent_bg_color;
+button.pill {
+  font-weight: 700;
 }
 button.pill.large {
-  padding: 12px 34px;
-  font-size: 16px;
+  padding: 12px 30px;
+  font-size: 15px;
+}
+button.pill:not(.suggested-action):not(.destructive-action):not(.flat) {
+  background-color: @card_bg_color;
+  box-shadow: inset 0 0 0 1px @vnlf_line;
+  color: @vnlf_green_900;
+}
+button.pill:not(.suggested-action):not(.destructive-action):not(.flat):hover {
+  box-shadow: inset 0 0 0 1px alpha(@vnlf_green_700, 0.45);
 }
 
-/* Step pages */
-.step-eyebrow {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: @accent_color;
+/* Welcome card at the top of the first-run page */
+.welcome {
+  background-color: @window_bg_color;
+  background-image:
+    radial-gradient(circle at 0% 0%, alpha(@vnlf_orange, 0.16), transparent 40%),
+    radial-gradient(circle at 100% 100%, alpha(@vnlf_green_700, 0.10), transparent 45%);
 }
-.step-title {
+.hero-card {
+  padding: 22px 26px;
+  border-radius: 24px;
+  background-color: @card_bg_color;
+  border: 1px solid @vnlf_line;
+  box-shadow: 0 1px 2px alpha(black, 0.04), 0 10px 28px @card_shadow;
+}
+.hero-title {
   font-size: 28px;
   font-weight: 800;
+  letter-spacing: -0.5px;
+  color: @vnlf_green_900;
+}
+.hero-subtitle {
+  font-size: 16px;
+}
+.hero-point image {
+  color: @vnlf_green_700;
+}
+.hero-point label {
+  font-size: 13px;
+}
+
+/* "See more" links: one per section and one under the last section */
+button.see-more {
+  color: @vnlf_green_700;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+.more-apps label {
+  font-size: 14px;
+}
+
+/* Custom page sections */
+.section-number {
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 999px;
+  background-color: @vnlf_green_700;
+  color: #ffffff;
+  font-weight: 800;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
   letter-spacing: -0.3px;
+  color: @vnlf_green_900;
+}
+.section-hint {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background-color: alpha(@vnlf_green_700, 0.10);
+  color: @vnlf_green_800;
 }
 
 /* App cards (first-run choices) */
@@ -50,34 +144,34 @@ button.app-card {
   color: @window_fg_color;
   font-weight: normal;
   border-radius: 18px;
-  padding: 18px 18px 14px 18px;
-  border: 2px solid alpha(@window_fg_color, 0.08);
-  box-shadow: 0 1px 2px alpha(black, 0.05), 0 6px 18px alpha(black, 0.05);
+  padding: 16px 16px 12px 16px;
+  border: 2px solid @vnlf_line;
+  box-shadow: 0 8px 22px alpha(@vnlf_green_900, 0.05);
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 button.app-card:hover {
-  background-color: mix(@card_bg_color, @accent_bg_color, 0.04);
-  border-color: alpha(@accent_bg_color, 0.45);
+  background-color: mix(@card_bg_color, @vnlf_green_700, 0.03);
+  border-color: alpha(@vnlf_green_700, 0.45);
 }
 button.app-card:checked {
-  background-color: mix(@card_bg_color, @accent_bg_color, 0.07);
-  border-color: @accent_bg_color;
-  box-shadow: 0 0 0 4px alpha(@accent_bg_color, 0.16), 0 6px 18px alpha(black, 0.06);
+  background-color: mix(@card_bg_color, @vnlf_green_700, 0.06);
+  border-color: @vnlf_green_700;
+  box-shadow: 0 0 0 4px alpha(@vnlf_green_700, 0.14), 0 8px 22px alpha(@vnlf_green_900, 0.08);
 }
 button.app-card.installed,
 button.app-card.installed:hover {
   background-color: @card_bg_color;
-  border-color: alpha(@success_color, 0.45);
+  border-color: @vnlf_line;
   box-shadow: none;
 }
 button.app-card:disabled {
   opacity: 1;
 }
 button.app-card.none-card {
-  padding: 14px 18px;
+  padding: 12px 18px;
 }
 .app-card .check {
-  color: @accent_bg_color;
+  color: @vnlf_green_700;
   opacity: 0;
   transition: opacity 150ms ease;
 }
@@ -85,17 +179,17 @@ button.app-card:checked .check {
   opacity: 1;
 }
 .app-card .installed-mark {
-  color: @success_color;
+  color: @vnlf_muted;
 }
 .app-name {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
 }
 .app-summary {
   font-size: 13px;
 }
 .pro-icon {
-  color: @success_color;
+  color: @vnlf_green_700;
 }
 .con-icon {
   color: @warning_color;
@@ -106,7 +200,7 @@ button.app-card:checked .check {
 }
 .card-footer {
   font-size: 12px;
-  border-top: 1px solid alpha(@window_fg_color, 0.07);
+  border-top: 1px solid @vnlf_line;
   padding-top: 10px;
 }
 
@@ -116,16 +210,16 @@ button.app-card:checked .check {
   font-weight: 800;
   padding: 2px 9px;
   border-radius: 999px;
-  background-color: alpha(@accent_bg_color, 0.15);
-  color: @accent_color;
+  background-color: alpha(@vnlf_orange, 0.20);
+  color: @vnlf_caramel;
 }
 .badge.popular {
-  background-color: alpha(@blue_3, 0.15);
-  color: @blue_4;
+  background-color: alpha(#2670e8, 0.12);
+  color: #1f5bbf;
 }
 .badge.installed {
-  background-color: alpha(@success_color, 0.14);
-  color: @success_color;
+  background-color: alpha(@vnlf_muted, 0.14);
+  color: @vnlf_muted;
 }
 .chip {
   font-size: 11px;
@@ -135,27 +229,31 @@ button.app-card:checked .check {
   background-color: alpha(@window_fg_color, 0.06);
 }
 .chip.verified {
-  background-color: alpha(@success_color, 0.12);
-  color: @success_color;
+  background-color: alpha(@vnlf_green_700, 0.12);
+  color: @vnlf_green_800;
 }
 
-/* Bottom navigation bar of the wizard */
-.wizard-bar {
-  padding: 10px 18px;
-  border-top: 1px solid alpha(@window_fg_color, 0.08);
-  background-color: @window_bg_color;
+/* Sticky install bar of the custom page */
+.install-bar {
+  padding: 12px 24px;
+  border-top: 1px solid @vnlf_line;
+  background-color: @card_bg_color;
+  box-shadow: 0 -10px 30px alpha(@vnlf_green_900, 0.06);
+}
+.bar-total {
+  font-size: 16px;
+  font-weight: 800;
+  color: @vnlf_green_900;
+}
+.bar-detail {
+  font-size: 12px;
 }
 
-/* Summary and progress */
-.total-card {
-  border-radius: 16px;
-  padding: 18px 22px;
-  background-color: alpha(@accent_bg_color, 0.09);
-}
+/* Progress */
 .total-size {
   font-size: 30px;
   font-weight: 800;
-  color: @accent_color;
+  color: @vnlf_green_700;
 }
 progressbar.app-progress trough,
 progressbar.app-progress progress {
@@ -179,13 +277,13 @@ button.store-tile {
   font-weight: normal;
   border-radius: 16px;
   padding: 14px;
-  border: 1px solid alpha(@window_fg_color, 0.08);
-  box-shadow: 0 1px 2px alpha(black, 0.05);
+  border: 1px solid @vnlf_line;
+  box-shadow: 0 6px 18px alpha(@vnlf_green_900, 0.04);
   transition: background-color 160ms ease, border-color 160ms ease;
 }
 button.store-tile:hover {
-  border-color: alpha(@accent_bg_color, 0.5);
-  background-color: mix(@card_bg_color, @accent_bg_color, 0.04);
+  border-color: alpha(@vnlf_green_700, 0.5);
+  background-color: mix(@card_bg_color, @vnlf_green_700, 0.04);
 }
 .detail-hero {
   padding: 8px 0 18px 0;
@@ -193,8 +291,16 @@ button.store-tile:hover {
 .detail-name {
   font-size: 30px;
   font-weight: 800;
+  color: @vnlf_green_900;
 }
 .section-heading {
   font-size: 15px;
   font-weight: 800;
+}
+.navigation-sidebar > row:selected {
+  background-color: alpha(@vnlf_green_700, 0.14);
+  color: @vnlf_green_900;
+}
+.navigation-sidebar > row:selected image {
+  color: @vnlf_green_700;
 }

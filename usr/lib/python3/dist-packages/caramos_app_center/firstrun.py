@@ -1,8 +1,9 @@
 """When the first-run app picker shows up.
 
-Only on systems installed from a CaramOS ISO that enables it (/etc/caramos-app-center/first-run comes
-from the ISO overlay), never in the live session (apps installed there are lost at shutdown), and once
-per user. Machines that get the App Center through an OTA update only get the menu entry.
+On systems started or installed from a CaramOS ISO that enables it (/etc/caramos-app-center/first-run
+comes from the ISO overlay), once per user: in the live session from the USB (its home is in RAM, so
+every boot of the USB shows it again) and at the first login after installing. Machines that get the
+App Center through an OTA update only get the menu entry and the Desktop launcher.
 """
 
 from __future__ import annotations
@@ -35,7 +36,10 @@ def should_run(
 ) -> bool:
     home = Path.home() if home is None else home
     uid = os.getuid() if uid is None else uid
-    if uid < 1000 or not flag.exists() or is_live_session(cmdline):
+    # The CaramOS live user is uid 1000, but casper's default live user is uid 999; installed systems
+    # start desktop users at 1000.
+    first_user_uid = 999 if is_live_session(cmdline) else 1000
+    if uid < first_user_uid or not flag.exists():
         return False
     return not marker_path(home).exists()
 

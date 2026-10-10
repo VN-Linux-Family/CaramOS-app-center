@@ -3,6 +3,7 @@
   "steps": [
     {
       "id": "office",
+      "web_category": "office",
       "title": {"vi": "Bộ ứng dụng văn phòng", "en": "Office suite"},
       "subtitle": {
         "vi": "Soạn văn bản, bảng tính và trình chiếu. Chọn một bộ, cài thêm bộ khác sau trong App Center.",
@@ -15,6 +16,7 @@
     },
     {
       "id": "browser",
+      "web_category": "network",
       "title": {"vi": "Trình duyệt web", "en": "Web browsers"},
       "subtitle": {
         "vi": "Firefox đã có sẵn. Chọn thêm trình duyệt bạn quen dùng.",
@@ -26,6 +28,7 @@
     },
     {
       "id": "chat",
+      "web_category": "communication",
       "title": {"vi": "Liên lạc và họp trực tuyến", "en": "Chat and meetings"},
       "subtitle": {
         "vi": "Zalo bản nhẹ đã có sẵn. Chọn bản gọi được nếu bạn cần gọi thoại, gọi video.",
@@ -37,6 +40,7 @@
     },
     {
       "id": "extras",
+      "web_category": "utility",
       "title": {"vi": "Tiện ích thường dùng", "en": "Everyday tools"},
       "subtitle": {
         "vi": "Phông chữ cho file Word, xem phim, quay màn hình, hỗ trợ từ xa.",
