@@ -32,6 +32,8 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertTrue(steps["office"].allow_none)
         self.assertIn("zalo-full", steps["chat"].apps)
         self.assertEqual(("google-chrome",), steps["browser"].default)
+        # CaramOS 1.0.21 ships no Zalo, so the recommended set installs it.
+        self.assertEqual(("zalo-full",), steps["chat"].default)
 
     def test_every_app_has_an_icon_and_both_languages(self) -> None:
         for app in self.catalog.apps.values():

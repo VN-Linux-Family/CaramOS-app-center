@@ -53,7 +53,7 @@ Máy CaramOS tự nhận bản mới trong vòng một ngày: lần kiểm tra O
 | Cách cài (`install` trong catalog) | Dùng khi | Ví dụ |
 |---|---|---|
 | `flatpak` | Flathub có bản chính chủ (verified) | ONLYOFFICE, LibreOffice, Brave, Telegram |
-| `recipe` | Phải dùng gói chính hãng của nhà phát hành, hoặc Flathub chỉ có bản cộng đồng/cũ | WPS, Chrome, Edge, Cốc Cốc, Zoom, Zalo bản gọi được |
+| `recipe` | Phải dùng gói chính hãng của nhà phát hành, hoặc Flathub chỉ có bản cộng đồng/cũ | WPS, Chrome, Edge, Cốc Cốc, Zoom, Zalo |
 | `apt` | Gói trong kho Ubuntu/Mint là đủ | VLC |
 | `preinstalled` | Có sẵn trong CaramOS, chỉ để hiển thị | Firefox |
 

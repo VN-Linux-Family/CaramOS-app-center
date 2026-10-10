@@ -31,12 +31,12 @@
       "web_category": "communication",
       "title": {"vi": "Liên lạc và họp trực tuyến", "en": "Chat and meetings"},
       "subtitle": {
-        "vi": "Zalo bản nhẹ đã có sẵn. Chọn bản gọi được nếu bạn cần gọi thoại, gọi video.",
-        "en": "The light Zalo is already installed. Pick the calling build if you need voice or video calls."
+        "vi": "Nhắn tin, gọi thoại, gọi video và họp trực tuyến. Zalo đã được chọn sẵn.",
+        "en": "Messages, voice and video calls, and online meetings. Zalo is selected for you."
       },
       "choice": "multi",
       "apps": ["zalo-full", "telegram", "zoom", "teams", "discord"],
-      "default": []
+      "default": ["zalo-full"]
     },
     {
       "id": "extras",
@@ -216,14 +216,14 @@
       "name": "Zalo",
       "category": "chat",
       "icon": "zalo.svg",
-      "summary": {"vi": "Bản gọi thoại, gọi video được", "en": "Build with voice and video calls"},
+      "summary": {"vi": "Nhắn tin, gọi thoại, gọi video", "en": "Messages, voice and video calls"},
       "pros": {
-        "vi": ["Gọi thoại, gọi video như trên Windows", "Thay bản nhẹ đang có, giữ nguyên tin nhắn"],
-        "en": ["Voice and video calls like on Windows", "Replaces the light build and keeps your messages"]
+        "vi": ["Gọi thoại, gọi video như trên Windows", "Máy đã có Zalo bản nhẹ thì thay bằng bản này, giữ nguyên tin nhắn"],
+        "en": ["Voice and video calls like on Windows", "Replaces an installed light build and keeps your messages"]
       },
       "cons": {
-        "vi": ["Nặng hơn bản nhẹ khoảng 100 MB", "Gọi điện cần mạng cho phép kết nối trực tiếp"],
-        "en": ["About 100 MB larger than the light build", "Calls need a network that allows direct connections"]
+        "vi": ["Bản cho Linux do cộng đồng đóng gói, không phải của Zalo", "Gọi điện cần mạng cho phép kết nối trực tiếp"],
+        "en": ["Linux build packaged by the community, not by Zalo", "Calls need a network that allows direct connections"]
       },
       "size_mb": 310,
       "website": "https://github.com/VN-Linux-Family/zalo-for-linux",

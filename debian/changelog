@@ -1,3 +1,14 @@
+caramos-app-center (0.1.1) noble; urgency=medium
+
+  * CaramOS 1.0.21 ships no Zalo: the recommended set now preselects Zalo
+    (the build with voice and video calls) and the chat section no longer
+    says a light Zalo is installed.
+  * The Zalo recipe writes its menu launcher with the App Center's Zalo icon
+    and removes Zalo entirely on remove, since there is no light build to
+    go back to.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Sat, 10 Oct 2026 09:39:23 +0700
+
 caramos-app-center (0.1.0) noble; urgency=medium
 
   * Rewrite the CaramOS App Center in Python, GTK4 and libadwaita (#46).

@@ -72,6 +72,11 @@ class RecipeTests(unittest.TestCase):
             else:
                 self.assertIn('("install", "remove")', source)
 
+    def test_zalo_launcher_uses_an_icon_the_package_ships(self) -> None:
+        source = (RECIPES / "zalo-full").read_text(encoding="utf-8")
+        self.assertIn("Icon=/usr/share/caramos-app-center/icons/zalo.svg", source)
+        self.assertTrue((ROOT / "usr/share/caramos-app-center/icons/zalo.svg").is_file())
+
     def test_bash_recipes_parse(self) -> None:
         bash = shutil.which("bash")
         if bash is None:

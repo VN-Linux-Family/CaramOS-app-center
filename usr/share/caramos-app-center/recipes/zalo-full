@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-"""Switch Zalo between the light build and the calling (Full) build of VN-Linux-Family/zalo-for-linux.
+"""Install Zalo for Linux, the calling (Full) build of VN-Linux-Family/zalo-for-linux.
 
-install: put the latest Full build (Wine wrapper for voice and video calls) at /usr/local/bin/Zalo.AppImage.
-remove:  go back to the light build CaramOS ships.
+install: put the latest Full build (Wine wrapper for voice and video calls) at /usr/local/bin/Zalo.AppImage,
+         replacing the light build that CaramOS 1.0.20 and earlier shipped, and add its menu launcher.
+remove:  remove Zalo. CaramOS 1.0.21 and later ship no Zalo, so there is no light build to go back to.
 
 The file is checked against the sha256 GitHub publishes for the asset. The state file is the one the
 Zalo OTA migration writes, with "flavour" added so later Zalo updates keep the build the user chose.
@@ -28,10 +29,11 @@ FLAVOURS = {
     "full": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-Full-x86_64\.AppImage$"),
     "light": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-x86_64\.AppImage$"),
 }
+# The App Center's own icon: the ISO no longer downloads /usr/share/pixmaps/zalo.png.
 LAUNCHER_CONTENT = f"""[Desktop Entry]
 Name=Zalo
 Exec={APPIMAGE}
-Icon=/usr/share/pixmaps/zalo.png
+Icon=/usr/share/caramos-app-center/icons/zalo.svg
 Terminal=false
 Type=Application
 Categories=Network;Chat;
@@ -97,11 +99,27 @@ def switch(flavour: str) -> None:
     say("Zalo is updated. If Zalo is open, quit it from the system tray and open it again.")
 
 
+def remove() -> None:
+    APPIMAGE.unlink(missing_ok=True)
+    # Only the launcher this recipe or CaramOS wrote; one the user edited to run something else stays.
+    try:
+        if f"Exec={APPIMAGE}" in LAUNCHER.read_text(encoding="utf-8"):
+            LAUNCHER.unlink()
+    except OSError:
+        pass
+    STATE_FILE.unlink(missing_ok=True)
+    say("PROGRESS 100")
+    say("Zalo is removed.")
+
+
 def main(argv: list[str]) -> int:
     if len(argv) != 2 or argv[1] not in ("install", "remove"):
         print(f"usage: {argv[0]} install|remove", file=sys.stderr)
         return 2
-    switch("full" if argv[1] == "install" else "light")
+    if argv[1] == "install":
+        switch("full")
+    else:
+        remove()
     return 0
 
 
