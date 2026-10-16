@@ -69,8 +69,11 @@ class InstallView(Gtk.Box):
         else:
             title = _("Removing %s") % apps[0].name
         box.append(label(title, "step-title"))
-        box.append(label(_("You can keep using the computer. Closing this window does not stop the installation."),
-                         "dim-label"))
+        if installing:
+            note = _("You can keep using the computer. Closing this window does not stop the installation.")
+        else:
+            note = _("You can keep using the computer. Closing this window does not stop the removal.")
+        box.append(label(note, "dim-label"))
         self.overall = Gtk.ProgressBar()
         self.overall.add_css_class("overall")
         self.overall.set_margin_top(14)
@@ -123,7 +126,7 @@ class InstallView(Gtk.Box):
         for app in self.apps:
             if app.id not in self.results:
                 self.results[app.id] = (False, _("not started"))
-                self.rows[app.id].finish(False, _("Not installed"))
+                self.rows[app.id].finish(False, _("Not installed") if self.action == "install" else _("Not removed"))
         self.overall.set_fraction(1.0)
         self.on_done(self.results)
 

@@ -1,6 +1,6 @@
 # App Center CaramOS
 
-App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc và tiện ích, bộ đề xuất được chọn sẵn, mỗi ứng dụng ghi rõ ưu và nhược điểm. Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
+App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc và tiện ích, bộ đề xuất được chọn sẵn, mỗi ứng dụng ghi rõ ưu và nhược điểm. Ứng dụng đã cài có nút **Gỡ** ngay trên thẻ của nó (hỏi lại trước khi gỡ; ứng dụng có sẵn trong CaramOS như Firefox thì không có). Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
 
 App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): nút "Xem thêm" của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính.
 

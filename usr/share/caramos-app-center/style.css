@@ -158,14 +158,25 @@ button.app-card:checked {
   border-color: @vnlf_green_700;
   box-shadow: 0 0 0 4px alpha(@vnlf_green_700, 0.14), 0 8px 22px alpha(@vnlf_green_900, 0.08);
 }
-button.app-card.installed,
-button.app-card.installed:hover {
+/* An installed app: not a choice, with a Remove button when the App Center can remove it */
+.app-card.installed-card {
   background-color: @card_bg_color;
-  border-color: @vnlf_line;
-  box-shadow: none;
+  border-radius: 18px;
+  padding: 16px 16px 12px 16px;
+  border: 2px solid @vnlf_line;
 }
-button.app-card:disabled {
-  opacity: 1;
+button.remove-app {
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 0;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background-color: alpha(@error_color, 0.08);
+  background-image: none;
+  color: @error_color;
+}
+button.remove-app:hover {
+  background-color: alpha(@error_color, 0.16);
 }
 button.app-card.none-card {
   padding: 12px 18px;

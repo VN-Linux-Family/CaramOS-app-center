@@ -1,4 +1,4 @@
-"""App cards: the selectable cards of the first-run steps and the tiles of the store grid."""
+"""App cards: the cards of the first-run steps (a choice, or an installed app) and the tiles of the store grid."""
 
 from __future__ import annotations
 
@@ -16,53 +16,79 @@ from .common import app_icon, badge, badge_text, label, pros_cons_box, size_text
 class AppCard(Gtk.ToggleButton):
     """A choice in a first-run step. Single-choice steps group the cards like radio buttons."""
 
-    def __init__(self, app: App, installed: bool) -> None:
+    def __init__(self, app: App) -> None:
         super().__init__()
         self.app = app
-        self.installed = installed
+        self.installed = False
         self.add_css_class("app-card")
         self.set_valign(Gtk.Align.FILL)
-
-        body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-
-        # Labels get a bounded natural width so the step grids fit three cards per row.
-        header = Gtk.Box(spacing=12)
-        header.append(app_icon(app, 48))
-        titles = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, valign=Gtk.Align.CENTER, hexpand=True)
-        name = label(app.name, "app-name")
-        name.set_max_width_chars(14)
-        titles.append(name)
-        summary = label(app.summary_text(), "app-summary", "dim-label")
-        summary.set_max_width_chars(20)
-        titles.append(summary)
-        header.append(titles)
-        mark = Gtk.Image.new_from_icon_name("emblem-ok-symbolic" if not installed else "object-select-symbolic")
-        mark.set_pixel_size(22)
-        mark.add_css_class("installed-mark" if installed else "check")
-        mark.set_valign(Gtk.Align.START)
-        header.append(mark)
-        body.append(header)
-
-        pros_cons = pros_cons_box(app, max_width_chars=23)
-        pros_cons.set_vexpand(True)
-        body.append(pros_cons)
-
+        mark = Gtk.Image.new_from_icon_name("emblem-ok-symbolic")
+        mark.add_css_class("check")
         footer = Gtk.Box(spacing=6)
-        footer.add_css_class("card-footer")
-        if installed:
-            footer.append(badge(_("Installed"), "installed"))
-        elif badge_text(app):
+        if badge_text(app):
             footer.append(badge(badge_text(app), app.badge))
         footer.append(source_chip(app))
         footer.append(_size_label(app))
-        body.append(footer)
-
-        self.set_child(body)
+        self.set_child(_card_body(app, mark, footer))
         self.update_property([Gtk.AccessibleProperty.LABEL], [f"{app.name}. {app.summary_text()}"])
-        if installed:
-            self.add_css_class("installed")
-            self.set_sensitive(False)
-            self.set_tooltip_text(_("%s is already installed") % app.name)
+
+
+class InstalledCard(Gtk.Box):
+    """An installed app in a first-run step: not a choice. With on_remove (apps the App Center can install,
+    not the ones that come with CaramOS) it has a Remove button."""
+
+    def __init__(self, app: App, on_remove: Callable[[App], None] | None) -> None:
+        super().__init__()
+        self.app = app
+        self.installed = True
+        self.add_css_class("app-card")
+        self.add_css_class("installed-card")
+        self.set_valign(Gtk.Align.FILL)
+        mark = Gtk.Image.new_from_icon_name("object-select-symbolic")
+        mark.add_css_class("installed-mark")
+        footer = Gtk.Box(spacing=6)
+        footer.append(badge(_("Installed"), "installed"))
+        footer.append(source_chip(app))
+        spacer = Gtk.Box(hexpand=True)
+        footer.append(spacer)
+        if on_remove is not None:
+            remove = Gtk.Button(label=_("Remove"), valign=Gtk.Align.CENTER)
+            remove.add_css_class("remove-app")
+            remove.set_tooltip_text(_("Remove %s from this computer") % app.name)
+            remove.connect("clicked", lambda _button: on_remove(app))
+            footer.append(remove)
+        else:
+            self.set_tooltip_text(_("%s comes with CaramOS") % app.name)
+        self.append(_card_body(app, mark, footer))
+        self.update_property([Gtk.AccessibleProperty.LABEL], [f"{app.name}. {_('Installed')}"])
+
+
+def _card_body(app: App, mark: Gtk.Image, footer: Gtk.Box) -> Gtk.Box:
+    body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, hexpand=True)
+
+    # Labels get a bounded natural width so the step grids fit three cards per row.
+    header = Gtk.Box(spacing=12)
+    header.append(app_icon(app, 48))
+    titles = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, valign=Gtk.Align.CENTER, hexpand=True)
+    name = label(app.name, "app-name")
+    name.set_max_width_chars(14)
+    titles.append(name)
+    summary = label(app.summary_text(), "app-summary", "dim-label")
+    summary.set_max_width_chars(20)
+    titles.append(summary)
+    header.append(titles)
+    mark.set_pixel_size(22)
+    mark.set_valign(Gtk.Align.START)
+    header.append(mark)
+    body.append(header)
+
+    pros_cons = pros_cons_box(app, max_width_chars=23)
+    pros_cons.set_vexpand(True)
+    body.append(pros_cons)
+
+    footer.add_css_class("card-footer")
+    body.append(footer)
+    return body
 
 
 def _size_label(app: App) -> Gtk.Label:

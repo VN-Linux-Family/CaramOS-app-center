@@ -1,4 +1,7 @@
-"""First-run app picker: one page with the recommended apps already ticked and an always-visible install bar."""
+"""First-run app picker: one page with the recommended apps already ticked and an always-visible install bar.
+
+Installed apps are not choices: their cards say so, and the ones the App Center installs have a Remove button.
+"""
 
 from __future__ import annotations
 
@@ -9,21 +12,28 @@ from gi.repository import Adw, Gtk
 from ..i18n import _, ngettext
 
 from .. import firstrun
-from ..catalog import Catalog, Step, localized, more_apps_url
+from ..catalog import App, Catalog, Step, localized, more_apps_url
 from ..plan import Plan, default_selection, format_size, make_plan
-from .cards import AppCard, NoneCard
+from .cards import AppCard, InstalledCard, NoneCard
 from .common import clamp, label, logo, open_more_apps, scrolled
 
 
 class WizardView(Gtk.Box):
     def __init__(self, catalog: Catalog, installed: set[str], *, on_install: Callable[[list[str]], None],
-                 on_finish: Callable[[], None], on_later: Callable[[], None] | None) -> None:
+                 on_remove: Callable[[App], None], on_finish: Callable[[], None],
+                 on_later: Callable[[], None] | None, selection: dict[str, set[str]] | None = None) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.catalog = catalog
         self.installed = installed
         self.on_install = on_install
+        self.on_remove = on_remove
         self.on_finish = on_finish
-        self.selection = default_selection(catalog, installed)
+        # The choices made before an app was removed stay, without what is installed now.
+        if selection is None:
+            self.selection = default_selection(catalog, installed)
+        else:
+            self.selection = {step.id: {app_id for app_id in selection.get(step.id, set()) if app_id not in installed}
+                              for step in catalog.steps}
 
         header = Adw.HeaderBar()
         header.set_title_widget(Adw.WindowTitle(title=_("Set up your apps"), subtitle=_("CaramOS App Center")))
@@ -123,13 +133,16 @@ class WizardView(Gtk.Box):
         chosen = self.selection[step.id]
         for app_id in step.apps:
             app = self.catalog.app(app_id)
-            card = AppCard(app, app_id in self.installed or app.preinstalled)
-            if step.choice == "single" and not card.installed:
+            if app_id in self.installed or app.preinstalled:
+                flow.append(InstalledCard(app, None if app.preinstalled else self.on_remove))
+                continue
+            card = AppCard(app)
+            if step.choice == "single":
                 if group is None:
                     group = card
                 else:
                     card.set_group(group)
-            card.set_active(app_id in chosen and not card.installed)
+            card.set_active(app_id in chosen)
             card.connect("toggled", self._on_card_toggled, step)
             flow.append(card)
         box.append(flow)

@@ -1,3 +1,12 @@
+caramos-app-center (0.2.0) noble; urgency=medium
+
+  * Remove apps from the app picker: an installed app's card has a Remove
+    button. It asks first, removes the app for every user (documents and
+    other files stay) and shows the progress like an installation. Apps that
+    come with CaramOS (Firefox) have none.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Thu, 15 Oct 2026 20:06:31 +0700
+
 caramos-app-center (0.1.1) noble; urgency=medium
 
   * CaramOS 1.0.21 ships no Zalo: the recommended set now preselects Zalo

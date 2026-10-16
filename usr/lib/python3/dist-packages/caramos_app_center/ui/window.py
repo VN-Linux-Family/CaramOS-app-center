@@ -1,4 +1,4 @@
-"""Main window: loading, offline, app picker, install progress and done page.
+"""Main window: loading, offline, app picker, install (or remove) progress and done page.
 
 The store list (StoreView) is hidden for now and only opens with --store: it should list apps from the
 VNLF app site API, which is not ready. Everything else, including the Desktop and menu launchers, opens
@@ -35,6 +35,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.store: StoreView | None = None
         self.wizard: WizardView | None = None
         self.hidden_install = False
+        self.running_action = "install"
         self.reopen_hint_shown = False
 
         self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=220)
@@ -95,7 +96,7 @@ class MainWindow(Adw.ApplicationWindow):
         return self.network.get_network_available() and \
             self.network.get_connectivity() in (Gio.NetworkConnectivity.FULL, Gio.NetworkConnectivity.LIMITED)
 
-    def show_wizard(self, *, keep_choices: bool = False) -> None:
+    def show_wizard(self, *, keep_choices: bool = False, selection: dict[str, set[str]] | None = None) -> None:
         if not self._online():
             self._show_offline()
             return
@@ -103,7 +104,8 @@ class MainWindow(Adw.ApplicationWindow):
             self.stack.set_visible_child_name("wizard")
             return
         self.wizard = WizardView(self.catalog, self.installed, on_install=self._install_from_wizard,
-                                 on_finish=self._finish_wizard, on_later=self.close if self.first_run else None)
+                                 on_remove=self._remove_from_wizard, on_finish=self._finish_wizard,
+                                 on_later=self.close if self.first_run else None, selection=selection)
         self._set_page("wizard", self.wizard)
 
     def _show_offline(self) -> None:
@@ -149,6 +151,7 @@ class MainWindow(Adw.ApplicationWindow):
             self.install_view = None
             self._detect_after(results, after)
 
+        self.running_action = action
         self.install_view = InstallView(apps, action=action, on_done=done, on_cancelled=cancelled)
         self._set_page("install", self.install_view)
         self.install_view.start()
@@ -179,6 +182,31 @@ class MainWindow(Adw.ApplicationWindow):
                 self._show_done(results)
 
         self._start_install(apps, "install", after)
+
+    def _remove_from_wizard(self, app: App) -> None:
+        dialog = Adw.AlertDialog(heading=_("Remove %s?") % app.name,
+                                 body=_("It is removed from this computer for every user. Your documents and other "
+                                        "files stay."))
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("remove", _("Remove"))
+        dialog.set_response_appearance("remove", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response("cancel")
+        dialog.set_close_response("cancel")
+
+        def respond(_dialog, response: str) -> None:
+            if response != "remove":
+                return
+            selection = self.wizard.selection if self.wizard is not None else None
+
+            def after(results: Results | None) -> None:
+                self.show_wizard(selection=selection)
+                if results is not None:
+                    self.toasts.add_toast(Adw.Toast(title=_change_text(app, "remove", results), timeout=6))
+
+            self._start_install([app], "remove", after)
+
+        dialog.connect("response", respond)
+        dialog.present(self)
 
     def _finish_wizard(self) -> None:
         if self.first_run:
@@ -220,14 +248,8 @@ class MainWindow(Adw.ApplicationWindow):
     def _store_action(self, app: App, action: str) -> None:
         def after(results: Results | None) -> None:
             self.show_store()
-            if results is None:
-                return
-            ok, error = results.get(app.id, (False, ""))
-            if ok:
-                text = _("%s is installed") % app.name if action == "install" else _("%s was removed") % app.name
-            else:
-                text = _("Could not change %(app)s: %(error)s") % {"app": app.name, "error": error or _("unknown error")}
-            self.toasts.add_toast(Adw.Toast(title=text, timeout=6))
+            if results is not None:
+                self.toasts.add_toast(Adw.Toast(title=_change_text(app, action, results), timeout=6))
 
         self._start_install([app], action, after)
 
@@ -267,7 +289,10 @@ class MainWindow(Adw.ApplicationWindow):
         application = self.get_application()
         failed = sum(1 for ok, _err in results.values() if not ok)
         notification = Gio.Notification.new(_("CaramOS App Center"))
-        if failed:
+        if self.running_action == "remove":
+            app = self.catalog.app(next(iter(results)))
+            notification.set_body(_change_text(app, "remove", results))
+        elif failed:
             notification.set_body(ngettext("%d app could not be installed.", "%d apps could not be installed.",
                                            failed) % failed)
         else:
@@ -276,3 +301,10 @@ class MainWindow(Adw.ApplicationWindow):
         application.send_notification("installed", notification)
         application.release()
         self.close()
+
+
+def _change_text(app: App, action: str, results: Results) -> str:
+    ok, error = results.get(app.id, (False, ""))
+    if ok:
+        return _("%s is installed") % app.name if action == "install" else _("%s was removed") % app.name
+    return _("Could not change %(app)s: %(error)s") % {"app": app.name, "error": error or _("unknown error")}
