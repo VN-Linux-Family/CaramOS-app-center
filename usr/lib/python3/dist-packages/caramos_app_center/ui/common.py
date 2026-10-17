@@ -93,25 +93,26 @@ def badge_text(app: App) -> str:
 
 
 def source_text(app: App) -> str:
-    if app.method == "flatpak":
-        return _("Flathub")
-    if app.method == "apt":
-        return _("Ubuntu repository")
-    if app.method == "preinstalled":
-        return _("Comes with CaramOS")
-    return _("From the developer")
+    return {
+        "flathub": _("Flathub"),
+        "ubuntu": _("Ubuntu repository"),
+        "caramos": _("Comes with CaramOS"),
+        "community": _("Community package"),
+        "developer": _("From the developer"),
+    }[app.source]
 
 
 def source_chip(app: App) -> Gtk.Label:
     chip = label(source_text(app), "chip", wrap=False)
-    if app.method == "flatpak":
+    if app.source == "flathub":
         chip.add_css_class("verified")
     chip.set_tooltip_text({
-        "flatpak": _("Verified app from Flathub, installed in a sandbox"),
-        "apt": _("Package from the Ubuntu archive"),
-        "recipe": _("Downloaded from the developer's website and installed as a system package"),
-        "preinstalled": _("Already part of CaramOS"),
-    }[app.method])
+        "flathub": _("Verified app from Flathub, installed in a sandbox"),
+        "ubuntu": _("Package from the Ubuntu archive"),
+        "caramos": _("Already part of CaramOS"),
+        "community": _("Linux build packaged by the community, not by the app's developer"),
+        "developer": _("Downloaded from the developer's website and installed as a system package"),
+    }[app.source])
     return chip
 
 

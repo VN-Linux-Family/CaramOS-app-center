@@ -72,6 +72,16 @@ class App:
     icon_name: str = ""
     badge: str = ""
     detect: Mapping[str, str] | None = None
+    # A recipe that installs a Linux build made by the community rather than by the app's developer.
+    community: bool = False
+
+    @property
+    def source(self) -> str:
+        """Where the app comes from, as its card says: flathub, ubuntu, caramos, developer or community."""
+
+        if self.method == "recipe":
+            return "community" if self.community else "developer"
+        return {"flatpak": "flathub", "apt": "ubuntu", "preinstalled": "caramos"}[self.method]
 
     @property
     def flatpak_id(self) -> str:
@@ -187,6 +197,9 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
     _require(bool(raw.get("icon") or raw.get("icon_name")), f"{where}: needs icon or icon_name")
     size = raw.get("size_mb")
     _require(isinstance(size, int) and size > 0, f"{where}: size_mb must be a positive integer")
+    community = raw.get("community", False)
+    _require(isinstance(community, bool), f"{where}: community must be true or false")
+    _require(not community or method == "recipe", f"{where}: community only applies to a recipe")
     return App(
         id=app_id,
         name=str(raw.get("name") or app_id),
@@ -202,6 +215,7 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
         icon_name=str(raw.get("icon_name") or ""),
         badge=badge,
         detect=dict(detect) if detect else None,
+        community=community,
     )
 
 

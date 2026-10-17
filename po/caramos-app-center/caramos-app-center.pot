@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caramos-app-center\n"
 "Report-Msgid-Bugs-To: developer@vietnamlinuxfamily.net\n"
-"POT-Creation-Date: 2026-10-15 20:05+0700\n"
+"POT-Creation-Date: 2026-10-16 22:41+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,16 +61,20 @@ msgstr ""
 msgid "Flathub"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:99
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:98
 msgid "Ubuntu repository"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:101
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:99
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:177
 msgid "Comes with CaramOS"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:102
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:100
+msgid "Community package"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:101
 msgid "From the developer"
 msgstr ""
 
@@ -83,15 +87,19 @@ msgid "Package from the Ubuntu archive"
 msgstr ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:112
+msgid "Already part of CaramOS"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:113
+msgid "Linux build packaged by the community, not by the app's developer"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:114
 msgid ""
 "Downloaded from the developer's website and installed as a system package"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:113
-msgid "Already part of CaramOS"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:119
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:120
 #, python-format
 msgid "About %s"
 msgstr ""

@@ -54,6 +54,17 @@ class ShippedCatalogTests(unittest.TestCase):
             self.assertEqual("recipe", methods[app_id], app_id)
         self.assertEqual("preinstalled", methods["firefox"])
 
+    def test_each_card_says_where_the_app_comes_from(self) -> None:
+        # Zalo for Linux is built by VN-Linux-Family/zalo-for-linux, not by Zalo: its card must not say
+        # "From the developer".
+        sources = {app.id: app.source for app in self.catalog.apps.values()}
+        self.assertEqual("community", sources["zalo-full"])
+        for app_id in ("wps-office", "google-chrome", "microsoft-edge", "coccoc", "zoom"):
+            self.assertEqual("developer", sources[app_id], app_id)
+        self.assertEqual("flathub", sources["telegram"])
+        self.assertEqual("ubuntu", sources["vlc"])
+        self.assertEqual("caramos", sources["firefox"])
+
     def test_more_apps_link_goes_to_the_vnlf_app_site(self) -> None:
         self.assertEqual("https://apps.vietnamlinuxfamily.net/browse", more_apps_url())
         self.assertEqual("https://apps.vietnamlinuxfamily.net/browse?q=k%E1%BA%BF+to%C3%A1n", more_apps_url(" kế toán "))
@@ -98,6 +109,10 @@ class ValidationTests(unittest.TestCase):
     def test_rejects_missing_translation(self) -> None:
         self.broken(lambda d: d["apps"][0]["summary"].pop("en"))
         self.broken(lambda d: d["apps"][0]["pros"].update(vi=[]))
+
+    def test_community_is_a_flag_of_recipes(self) -> None:
+        self.broken(lambda d: d["apps"][0].update(community=True))   # ONLYOFFICE, from Flathub
+        self.broken(lambda d: d["apps"][1].update(community="yes"))
 
     def test_rejects_duplicate_ids(self) -> None:
         self.broken(lambda d: d["apps"].append(copy.deepcopy(d["apps"][0])))

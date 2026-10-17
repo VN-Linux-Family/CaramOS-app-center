@@ -228,6 +228,7 @@
       "size_mb": 310,
       "website": "https://github.com/VN-Linux-Family/zalo-for-linux",
       "install": {"recipe": "zalo-full"},
+      "community": true,
       "detect": {"zalo_flavour": "full"}
     },
     {

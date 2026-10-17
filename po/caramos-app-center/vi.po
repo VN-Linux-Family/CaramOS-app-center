@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caramos-app-center\n"
 "Report-Msgid-Bugs-To: developer@vietnamlinuxfamily.net\n"
-"POT-Creation-Date: 2026-10-15 20:05+0700\n"
+"POT-Creation-Date: 2026-10-16 22:41+0700\n"
 "PO-Revision-Date: 2026-10-06 19:48+0700\n"
 "Last-Translator: Vietnam Linux Family <developer@vietnamlinuxfamily.net>\n"
 "Language-Team: Vietnamese <developer@vietnamlinuxfamily.net>\n"
@@ -57,16 +57,20 @@ msgstr "Phổ biến"
 msgid "Flathub"
 msgstr "Flathub"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:99
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:98
 msgid "Ubuntu repository"
 msgstr "Kho Ubuntu"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:101
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:99
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:177
 msgid "Comes with CaramOS"
 msgstr "Có sẵn trong CaramOS"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:102
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:100
+msgid "Community package"
+msgstr "Gói cộng đồng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:101
 msgid "From the developer"
 msgstr "Từ nhà phát triển"
 
@@ -79,15 +83,19 @@ msgid "Package from the Ubuntu archive"
 msgstr "Gói từ kho phần mềm Ubuntu"
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:112
+msgid "Already part of CaramOS"
+msgstr "Đã có sẵn trong CaramOS"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:113
+msgid "Linux build packaged by the community, not by the app's developer"
+msgstr "Bản cho Linux do cộng đồng đóng gói, không phải của nhà phát triển ứng dụng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:114
 msgid ""
 "Downloaded from the developer's website and installed as a system package"
 msgstr "Tải từ trang web của nhà phát triển và cài như một gói của hệ thống"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:113
-msgid "Already part of CaramOS"
-msgstr "Đã có sẵn trong CaramOS"
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:119
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:120
 #, python-format
 msgid "About %s"
 msgstr "Khoảng %s"

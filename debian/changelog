@@ -1,3 +1,12 @@
+caramos-app-center (0.2.1) noble; urgency=medium
+
+  * Zalo's card says "Community package" ("Gói cộng đồng") instead of
+    "From the developer": its Linux build comes from
+    VN-Linux-Family/zalo-for-linux, not from Zalo. A catalog entry marks such a
+    recipe with "community": true.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Fri, 16 Oct 2026 22:53:06 +0700
+
 caramos-app-center (0.2.0) noble; urgency=medium
 
   * Remove apps from the app picker: an installed app's card has a Remove
