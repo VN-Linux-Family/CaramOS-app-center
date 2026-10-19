@@ -1,3 +1,23 @@
+caramos-app-center (0.2.2) noble; urgency=medium
+
+  * Zalo installs again (tickets H-1039 and H-1060). Zalo for Linux 26.10.11
+    makes voice and video calls with its own Linux engine and no longer
+    publishes the Wine-based "Full" build the recipe looked for, so every
+    Zalo install failed. The recipe now installs the newest ZaDark x86_64
+    build, falling back to an older release when the newest one lacks it,
+    and installs python3, libopus0 and pulseaudio-utils for calls when
+    they are missing. The card says about 170 MB and calls without Wine.
+  * A failed install says why. The helper reports the last line a recipe
+    printed (its own message, curl or apt-get) instead of "exited with 1",
+    and the page after a failed install shows that reason instead of always
+    blaming the network connection.
+  * "Ask for help" ("Nhờ giúp đỡ") after a failed install or removal opens
+    Feedback & Help (caramos-help, from caramos-ota) with a bug report
+    started and the failed apps' installer output attached, for the VNLF
+    team only; Feedback & Help takes personal data out of it first.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Mon, 19 Oct 2026 16:45:00 +0700
+
 caramos-app-center (0.2.1) noble; urgency=medium
 
   * Zalo's card says "Community package" ("Gói cộng đồng") instead of

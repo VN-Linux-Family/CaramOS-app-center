@@ -148,11 +148,12 @@ class HelperRunTests(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.recipes = Path(self._tmp.name)
         self.write_recipe("good", "echo PROGRESS 40\necho fetching\necho PROGRESS 100\n")
-        self.write_recipe("bad", "echo boom >&2\nexit 3\n")
+        self.write_recipe("bad", "echo fetching\necho 'curl: (6) Could not resolve host' >&2\necho PROGRESS 10\nexit 3\n")
+        self.write_recipe("silent", "exit 4\n")
         data = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
         base = next(app for app in data["apps"] if app["id"] == "zoom")
         apps = []
-        for app_id, recipe in (("good-app", "good"), ("bad-app", "bad")):
+        for app_id, recipe in (("good-app", "good"), ("bad-app", "bad"), ("silent-app", "silent")):
             app = dict(base, id=app_id, install={"recipe": recipe}, detect={"deb": app_id})
             apps.append(app)
         apps.append(next(app for app in data["apps"] if app["id"] == "firefox"))
@@ -174,11 +175,17 @@ class HelperRunTests(unittest.TestCase):
         self.assertEqual(helper.EXIT_FAILED, code)
         kinds = [(e["event"], e.get("id")) for e in events]
         self.assertIn(("log", "bad-app"), kinds)
-        self.assertIn({"event": "done", "id": "bad-app", "ok": False, "error": "bad install exited with 3"}, events)
+        # The last line the recipe printed is the reason the App Center shows.
+        self.assertIn({"event": "done", "id": "bad-app", "ok": False, "error": "curl: (6) Could not resolve host"}, events)
         self.assertIn({"event": "progress", "id": "good-app", "percent": 40, "message": ""}, events)
         self.assertIn({"event": "log", "id": "good-app", "line": "fetching"}, events)
         self.assertIn({"event": "done", "id": "good-app", "ok": True}, events)
         self.assertEqual({"event": "finished", "ok": False, "failed": ["bad-app"]}, events[-1])
+
+    def test_a_recipe_that_prints_nothing_reports_its_exit_code(self) -> None:
+        code, events = self.run_helper(["silent-app"])
+        self.assertEqual(helper.EXIT_FAILED, code)
+        self.assertIn({"event": "done", "id": "silent-app", "ok": False, "error": "silent install exited with 4"}, events)
 
     def test_unknown_and_preinstalled_apps_are_reported_not_run(self) -> None:
         code, events = self.run_helper(["firefox", "nope"])

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Callable
 from typing import Any
 
@@ -9,6 +10,7 @@ from gi.repository import Adw, Gtk
 
 from ..i18n import _, ngettext
 
+from .. import problem
 from ..catalog import App
 from ..runner import HelperRun
 from .common import app_icon, clamp, label, scrolled
@@ -51,6 +53,8 @@ class InstallView(Gtk.Box):
         self.on_done = on_done
         self.on_cancelled = on_cancelled
         self.results: Results = {}
+        # Each app's helper output, for asking VNLF for help when it fails (problem.py).
+        self.logs: dict[str, deque[str]] = {}
         self.run: HelperRun | None = None
         installing = action == "install"
 
@@ -89,6 +93,7 @@ class InstallView(Gtk.Box):
 
     def start(self) -> None:
         self.results = {}
+        self.logs = {}
         for row in self.rows.values():
             row.set_fraction(0.0)
         self.run = HelperRun(self.action, [app.id for app in self.apps], self._on_event, self._on_exit)
@@ -102,7 +107,9 @@ class InstallView(Gtk.Box):
         kind = event["event"]
         if row is None:
             return
-        if kind == "start":
+        if kind == "log":
+            self.logs.setdefault(str(event["id"]), deque(maxlen=problem.MAX_LINES)).append(str(event.get("line", "")))
+        elif kind == "start":
             row.row.set_subtitle(_("Downloading and installing…") if self.action == "install" else _("Removing…"))
         elif kind == "progress":
             row.set_fraction(event["percent"] / 100)

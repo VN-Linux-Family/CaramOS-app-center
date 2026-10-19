@@ -8,15 +8,16 @@ the picker.
 from __future__ import annotations
 
 import threading
+from datetime import datetime
 
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from ..i18n import _, ngettext
 
-from .. import firstrun
+from .. import firstrun, problem
 from ..catalog import App, Catalog
 from ..detect import installed_apps
-from .common import label, logo_path
+from .common import clamp, label, logo_path
 from .install import InstallView, Results
 from .store import StoreView
 from .wizard import WizardView
@@ -36,6 +37,10 @@ class MainWindow(Adw.ApplicationWindow):
         self.wizard: WizardView | None = None
         self.hidden_install = False
         self.running_action = "install"
+        # The last install or removal, for asking VNLF for help when an app failed (problem.py).
+        self.last_apps: list[App] = []
+        self.last_logs: dict[str, list[str]] = {}
+        self.last_finished: datetime | None = None
         self.reopen_hint_shown = False
 
         self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=220)
@@ -148,6 +153,10 @@ class MainWindow(Adw.ApplicationWindow):
             after(None)
 
         def done(results: Results) -> None:
+            if self.install_view is not None:
+                self.last_apps = list(apps)
+                self.last_logs = {app_id: list(lines) for app_id, lines in self.install_view.logs.items()}
+                self.last_finished = datetime.now()
             self.install_view = None
             self._detect_after(results, after)
 
@@ -201,7 +210,7 @@ class MainWindow(Adw.ApplicationWindow):
             def after(results: Results | None) -> None:
                 self.show_wizard(selection=selection)
                 if results is not None:
-                    self.toasts.add_toast(Adw.Toast(title=_change_text(app, "remove", results), timeout=6))
+                    self.toasts.add_toast(self._result_toast(app, "remove", results))
 
             self._start_install([app], "remove", after)
 
@@ -217,12 +226,25 @@ class MainWindow(Adw.ApplicationWindow):
     def _show_done(self, results: Results) -> None:
         if self.first_run:
             firstrun.mark_done()
-        failed = [self.catalog.app(app_id).name for app_id, (ok, _err) in results.items() if not ok]
+        failed = {self.catalog.app(app_id).name: error for app_id, (ok, error) in results.items() if not ok}
         done = len(results) - len(failed)
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
         if failed:
+            if problem.help_available():
+                text = _("Not installed: %s. Try again from the App Center later. If it keeps failing, press Ask "
+                         "for help to send VNLF the reason below with what the installer logged.")
+            else:
+                text = _("Not installed: %s. Try again from the App Center later. If it keeps failing, send the "
+                         "reason below from Feedback & Help.")
+            # The description is Pango markup: "&" in "Feedback & Help" would hide it.
             page = Adw.StatusPage(icon_name="dialog-warning-symbolic", title=_("Some apps were not installed"),
-                                  description=_("Not installed: %s. Check the connection and try again from the "
-                                                "App Center.") % ", ".join(failed))
+                                  description=GLib.markup_escape_text(text % ", ".join(failed)))
+            # The reason is what the installer reported, in English: enough for whoever answers the request.
+            reasons = "\n".join(f"{name}: {error}" for name, error in failed.items() if error)
+            if reasons:
+                details = label(reasons, "dim-label", xalign=0.5)
+                details.set_justify(Gtk.Justification.CENTER)
+                content.append(clamp(details, 640))
         else:
             page = Adw.StatusPage(title=_("CaramOS is ready"),
                                   description=ngettext("%d app was installed. You can find it in the menu.",
@@ -241,17 +263,40 @@ class MainWindow(Adw.ApplicationWindow):
         close.add_css_class("pill")
         close.connect("clicked", lambda _b: self.close())
         buttons.append(store)
+        if failed and problem.help_available():
+            ask = Gtk.Button(label=_("Ask for help"))
+            ask.add_css_class("pill")
+            ask.connect("clicked", lambda _b: self._ask_for_help("install", results))
+            buttons.append(ask)
         buttons.append(close)
-        page.set_child(buttons)
+        content.append(buttons)
+        page.set_child(content)
         self._set_page("done", self._with_header(page))
 
     def _store_action(self, app: App, action: str) -> None:
         def after(results: Results | None) -> None:
             self.show_store()
             if results is not None:
-                self.toasts.add_toast(Adw.Toast(title=_change_text(app, action, results), timeout=6))
+                self.toasts.add_toast(self._result_toast(app, action, results))
 
         self._start_install([app], action, after)
+
+    def _result_toast(self, app: App, action: str, results: Results) -> Adw.Toast:
+        toast = Adw.Toast(title=_change_text(app, action, results), timeout=6)
+        if not results.get(app.id, (False, ""))[0] and problem.help_available():
+            toast.set_button_label(_("Ask for help"))
+            toast.set_timeout(0)   # the user may want the button: it stays until dismissed
+            toast.connect("button-clicked", lambda _toast: self._ask_for_help(action, results))
+        return toast
+
+    def _ask_for_help(self, action: str, results: Results) -> None:
+        names = ", ".join(app.name for app in problem.failed(self.last_apps, results))
+        if action == "remove":
+            message = _("The App Center could not remove %s.") % names
+        else:
+            message = _("The App Center could not install %s.") % names
+        if not problem.ask_for_help(action, self.last_apps, results, self.last_logs, message, self.last_finished):
+            self.toasts.add_toast(Adw.Toast(title=_("Feedback & Help could not be opened."), timeout=6))
 
     # Closing while installing ----------------------------------------------------------------
 

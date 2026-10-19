@@ -1,12 +1,15 @@
 #!/usr/bin/python3
-"""Install Zalo for Linux, the calling (Full) build of VN-Linux-Family/zalo-for-linux.
+"""Install Zalo for Linux, the build of VN-Linux-Family/zalo-for-linux with voice and video calls.
 
-install: put the latest Full build (Wine wrapper for voice and video calls) at /usr/local/bin/Zalo.AppImage,
-         replacing the light build that CaramOS 1.0.20 and earlier shipped, and add its menu launcher.
-remove:  remove Zalo. CaramOS 1.0.21 and later ship no Zalo, so there is no light build to go back to.
+install: put the newest x86_64 ZaDark build at /usr/local/bin/Zalo.AppImage and add its menu launcher.
+         Since 26.10.11 every build makes calls with its own Linux engine. The Wine-based "Full" build,
+         which took a long time to open, is no longer published. The call engine needs python3, libopus0
+         and pulseaudio-utils; the ones that are missing are installed first.
+remove:  remove Zalo. CaramOS 1.0.21 and later ship no Zalo, so there is no other build to go back to.
 
-The file is checked against the sha256 GitHub publishes for the asset. The state file is the one the
-Zalo OTA migration writes, with "flavour" added so later Zalo updates keep the build the user chose.
+The file is checked against the sha256 GitHub publishes for the asset. The newest release that has the
+build is used, so a release published without it does not stop the install. The state file is the one the
+Zalo OTA migrations write; "flavour": "full" marks the build with calls, which the catalog looks for.
 """
 
 from __future__ import annotations
@@ -15,20 +18,25 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import urllib.request
 from pathlib import Path
+from typing import NamedTuple
 
 REPOSITORY = "VN-Linux-Family/zalo-for-linux"
-API_URL = f"https://api.github.com/repos/{REPOSITORY}/releases/latest"
+API_URL = f"https://api.github.com/repos/{REPOSITORY}/releases?per_page=10"
+DOWNLOAD_PREFIX = f"https://github.com/{REPOSITORY}/releases/download/"
 APPIMAGE = Path("/usr/local/bin/Zalo.AppImage")
 LAUNCHER = Path("/usr/share/applications/zalo.desktop")
 STATE_FILE = Path("/var/lib/caramos-ota/zalo-appimage.json")
-FLAVOURS = {
-    "full": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-Full-x86_64\.AppImage$"),
-    "light": re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-x86_64\.AppImage$"),
-}
+# ZaDark for x86_64 PCs: not the "Original" build without ZaDark, nor the old Wine "-Full-" build.
+ASSET = re.compile(r"^Zalo-[0-9.]+\+ZaDark-[0-9.]+-[0-9a-f]{7}-x86_64\.AppImage$")
+FLAVOUR = "full"
+CALL_PACKAGES = ("python3", "libopus0", "pulseaudio-utils")
+APT_GET = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Options::=--force-confdef",
+           "-o", "Dpkg::Options::=--force-confold"]
 # The App Center's own icon: the ISO no longer downloads /usr/share/pixmaps/zalo.png.
 LAUNCHER_CONTENT = f"""[Desktop Entry]
 Name=Zalo
@@ -41,43 +49,86 @@ Categories=Network;Chat;
 TIMEOUT = 60
 
 
+class Asset(NamedTuple):
+    name: str
+    url: str
+    sha256: str
+    size: int
+    tag: str
+
+
 def say(line: str) -> None:
     print(line, flush=True)
 
 
-def latest_asset(flavour: str) -> tuple[str, str, str, int, str]:
-    request = urllib.request.Request(API_URL, headers={"Accept": "application/vnd.github+json", "User-Agent": "caramos-app-center"})
+def newest_asset(releases: object) -> Asset:
+    """The build in the newest published release that has it, with the sha256 GitHub gives for it."""
+
+    for release in releases if isinstance(releases, list) else []:
+        if not isinstance(release, dict) or release.get("draft") or release.get("prerelease"):
+            continue
+        matches = [item for item in release.get("assets") or []
+                   if isinstance(item, dict) and ASSET.fullmatch(str(item.get("name", "")))]
+        if len(matches) != 1:
+            continue
+        item = matches[0]
+        digest = str(item.get("digest") or "")
+        url = str(item.get("browser_download_url") or "")
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest) or not url.startswith(DOWNLOAD_PREFIX):
+            continue
+        return Asset(item["name"], url, digest.removeprefix("sha256:"), int(item.get("size") or 0),
+                     str(release.get("tag_name") or "?"))
+    raise RuntimeError(f"no recent {REPOSITORY} release has a ZaDark x86_64 build with a sha256")
+
+
+def fetch_releases() -> object:
+    request = urllib.request.Request(API_URL, headers={"Accept": "application/vnd.github+json",
+                                                       "User-Agent": "caramos-app-center"})
     with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-        release = json.load(response)
-    for asset in release.get("assets", []):
-        if FLAVOURS[flavour].fullmatch(asset.get("name", "")):
-            digest = str(asset.get("digest") or "")
-            if not digest.startswith("sha256:"):
-                raise RuntimeError(f"GitHub publishes no sha256 for {asset['name']}")
-            return asset["name"], asset["browser_download_url"], digest[7:], int(asset["size"]), release["tag_name"]
-    raise RuntimeError(f"no {flavour} Zalo build in release {release.get('tag_name')}")
+        return json.load(response)
 
 
-def download(url: str, size: int, sha256: str) -> Path:
+def missing_packages(packages: tuple[str, ...] = CALL_PACKAGES) -> list[str]:
+    missing = []
+    for package in packages:
+        result = subprocess.run(["dpkg-query", "-W", "-f=${db:Status-Status}", package],
+                                check=False, capture_output=True, text=True)
+        if result.returncode != 0 or result.stdout.strip() != "installed":
+            missing.append(package)
+    return missing
+
+
+def install_call_packages() -> None:
+    missing = missing_packages()
+    if not missing:
+        return
+    say(f"Installing {', '.join(missing)} for Zalo calls")
+    subprocess.run([*APT_GET, "update"], check=False)
+    if subprocess.run([*APT_GET, "install", "-y", "--", *missing], check=False).returncode != 0:
+        # Messages work without them, and the first call says what is missing.
+        say(f"Could not install {', '.join(missing)}: Zalo opens, but calls need them")
+
+
+def download(asset: Asset) -> Path:
     APPIMAGE.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix=".Zalo.AppImage.", dir=APPIMAGE.parent)
     target = Path(name)
     digest = hashlib.sha256()
     done = 0
     try:
-        request = urllib.request.Request(url, headers={"User-Agent": "caramos-app-center"})
+        request = urllib.request.Request(asset.url, headers={"User-Agent": "caramos-app-center"})
         with os.fdopen(fd, "wb") as out, urllib.request.urlopen(request, timeout=TIMEOUT) as response:
             last = -1
             while chunk := response.read(1024 * 1024):
                 out.write(chunk)
                 digest.update(chunk)
                 done += len(chunk)
-                percent = done * 95 // size if size else 0
+                percent = 5 + done * 90 // asset.size if asset.size else 5
                 if percent != last:
                     say(f"PROGRESS {percent}")
                     last = percent
-        if done != size or digest.hexdigest() != sha256:
-            raise RuntimeError("downloaded Zalo does not match the sha256 GitHub published")
+        if done != asset.size or digest.hexdigest() != asset.sha256:
+            raise RuntimeError(f"{asset.name} does not match the sha256 GitHub published")
         target.chmod(0o755)
         return target
     except BaseException:
@@ -85,18 +136,22 @@ def download(url: str, size: int, sha256: str) -> Path:
         raise
 
 
-def switch(flavour: str) -> None:
-    name, url, sha256, size, tag = latest_asset(flavour)
-    say(f"Downloading {name}")
-    staged = download(url, size, sha256)
+def install() -> None:
+    asset = newest_asset(fetch_releases())
+    install_call_packages()
+    say("PROGRESS 5")
+    say(f"Downloading {asset.name}")
+    staged = download(asset)
+    # A running Zalo keeps the old file open, so replacing it is safe; the new one starts next time.
     os.replace(staged, APPIMAGE)
     if not LAUNCHER.is_file():
         LAUNCHER.write_text(LAUNCHER_CONTENT, encoding="utf-8")
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    record = {"repository": REPOSITORY, "tag": tag, "asset": name, "sha256": sha256, "flavour": flavour}
+    record = {"repository": REPOSITORY, "tag": asset.tag, "asset": asset.name, "sha256": asset.sha256,
+              "flavour": FLAVOUR}
     STATE_FILE.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     say("PROGRESS 100")
-    say("Zalo is updated. If Zalo is open, quit it from the system tray and open it again.")
+    say(f"Zalo {asset.tag} is installed. If Zalo is open, quit it from the system tray and open it again.")
 
 
 def remove() -> None:
@@ -116,10 +171,15 @@ def main(argv: list[str]) -> int:
     if len(argv) != 2 or argv[1] not in ("install", "remove"):
         print(f"usage: {argv[0]} install|remove", file=sys.stderr)
         return 2
-    if argv[1] == "install":
-        switch("full")
-    else:
-        remove()
+    try:
+        if argv[1] == "install":
+            install()
+        else:
+            remove()
+    except (OSError, ValueError, RuntimeError) as error:
+        # The App Center shows the last line of a failed recipe as the reason.
+        say(f"Zalo could not be {'installed' if argv[1] == 'install' else 'removed'}: {error}")
+        return 1
     return 0
 
 

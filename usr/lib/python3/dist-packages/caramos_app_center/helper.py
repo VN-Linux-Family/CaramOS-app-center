@@ -28,6 +28,7 @@ RECIPE_TIMEOUT = 3600
 RECIPE_ENV = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8", "HOME": "/root", "DEBIAN_FRONTEND": "noninteractive"}
 APT_BASE = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "APT::Status-Fd=1", "-y"]
 PROGRESS_RE = re.compile(r"^PROGRESS\s+(\d{1,3})\s*$")
+REASON_MAX = 300
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -102,16 +103,21 @@ class Helper:
         if not (recipe.is_file() and os.access(recipe, os.X_OK)):
             raise RuntimeError(f"recipe {app.recipe} is missing")
 
+        last_line = ""
+
         def on_line(line: str) -> None:
+            nonlocal last_line
             match = PROGRESS_RE.match(line)
             if match:
                 self._progress(app, int(match.group(1)))
             else:
                 self._log(app, line)
+                last_line = line.strip() or last_line
 
         code = _stream([str(recipe), action], on_line, env=dict(RECIPE_ENV))
         if code != 0:
-            raise RuntimeError(f"{app.recipe} {action} exited with {code}")
+            # What a recipe printed last says why it stopped (its own message, curl or apt-get).
+            raise RuntimeError(last_line[:REASON_MAX] or f"{app.recipe} {action} exited with {code}")
 
     def _apt(self, app: App, action: str) -> None:
         env = dict(RECIPE_ENV)
