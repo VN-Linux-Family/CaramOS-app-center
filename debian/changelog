@@ -1,3 +1,27 @@
+caramos-app-center (0.2.3) noble; urgency=medium
+
+  * An app installs while another package is broken (ticket H-1094). When
+    dpkg could not finish a package, an NVIDIA 470 driver whose module does
+    not build on Linux 6.14 for instance, apt-get configured it again on
+    every install and failed, so every app failed too. An app that got
+    installed now counts as installed, with the broken packages in its log;
+    when it did not get installed, the page names the packages dpkg could
+    not finish and, for an NVIDIA driver, points to Driver Check.
+  * Installing on the live USB while the CaramOS installer runs (ticket
+    H-1091). The installer keeps debconf locked, so packages that ask a
+    debconf question (Microsoft fonts) failed with "config.dat is locked":
+    such an install now waits for the lock, up to 15 minutes, and tries
+    once more, or says another program is installing software; other apps
+    install meanwhile without waiting. A failed apt-get update (the CD-ROM
+    source the installer adds, another program's repository) no longer
+    stops an install: apt installs from the lists it has.
+  * Downloads that the server cuts off go on (tickets H-1091 and H-1096).
+    curl --retry does not repeat "Connection reset by peer" (curl exit 56),
+    which the WPS Office server often sends: a recipe download now tries
+    up to five times and continues from the bytes it already has.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Thu, 05 Nov 2026 11:09:13 +0700
+
 caramos-app-center (0.2.2) noble; urgency=medium
 
   * Zalo installs again (tickets H-1039 and H-1060). Zalo for Linux 26.10.11

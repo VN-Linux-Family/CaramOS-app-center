@@ -15,10 +15,11 @@ import re
 import subprocess
 import sys
 import threading
+import time
 from collections.abc import Callable
 from pathlib import Path
 
-from . import flatpak_ops
+from . import detect, flatpak_ops
 from .catalog import CATALOG_FILE, ID_RE, RECIPE_DIR, App, Catalog, CatalogError, load_catalog
 from .events import emit
 
@@ -29,6 +30,14 @@ RECIPE_ENV = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8", "HOME"
 APT_BASE = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "APT::Status-Fd=1", "-y"]
 PROGRESS_RE = re.compile(r"^PROGRESS\s+(\d{1,3})\s*$")
 REASON_MAX = 300
+# debconf's database, which a running installer keeps locked (ubiquity on the live USB, Update Manager): a
+# package that asks a debconf question cannot be installed meanwhile ("config.dat is locked", ticket H-1091).
+DEBCONF_DB = Path("/var/cache/debconf/config.dat")
+DEBCONF_LOCKED = "config.dat is locked by another process"
+DEBCONF_WAIT = 900
+DEBCONF_POLL = 3
+# The line dpkg prints before the packages it could not configure.
+DPKG_ERRORS = "Errors were encountered while processing:"
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -37,6 +46,50 @@ EXIT_USAGE = 2
 
 class UsageError(ValueError):
     pass
+
+
+class InstallError(RuntimeError):
+    """A failure the App Center explains in the user's language (code), with the packages it is about."""
+
+    def __init__(self, message: str, code: str = "", packages: tuple[str, ...] = ()) -> None:
+        super().__init__(message)
+        self.code = code
+        self.packages = packages
+
+
+def debconf_locked(path: Path = DEBCONF_DB) -> bool:
+    try:
+        with path.open("rb") as handle:
+            try:
+                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return True
+            fcntl.flock(handle, fcntl.LOCK_UN)
+    except OSError:
+        return False
+    return False
+
+
+class DpkgErrors:
+    """Reads the packages dpkg could not configure, and whether debconf's database was locked, out of apt-get or
+    recipe output."""
+
+    def __init__(self) -> None:
+        self.packages: list[str] = []
+        self.debconf_locked = False
+        self._listing = False
+
+    def feed(self, line: str) -> None:
+        if DEBCONF_LOCKED in line:
+            self.debconf_locked = True
+        if line.strip() == DPKG_ERRORS:
+            self._listing = True
+        elif self._listing and line.startswith(" ") and line.strip():
+            name = line.strip()
+            if name not in self.packages:
+                self.packages.append(name)
+        else:
+            self._listing = False
 
 
 def parse_args(argv: list[str]) -> tuple[str, list[str]]:
@@ -87,6 +140,10 @@ class Helper:
         self.recipe_dir = recipe_dir
         self.stream = stream
         self.apt_updated = False
+        self.dpkg_errors = DpkgErrors()
+        self.debconf_locked = debconf_locked
+        self.debconf_wait = DEBCONF_WAIT
+        self.installed_apps = detect.installed_apps
 
     def emit(self, event: str, **fields) -> None:
         emit(event, self.stream, **fields)
@@ -112,6 +169,7 @@ class Helper:
                 self._progress(app, int(match.group(1)))
             else:
                 self._log(app, line)
+                self.dpkg_errors.feed(line)
                 last_line = line.strip() or last_line
 
         code = _stream([str(recipe), action], on_line, env=dict(RECIPE_ENV))
@@ -128,11 +186,14 @@ class Helper:
                 self._progress(app, percent)
             elif not line.startswith(("dlstatus:", "pmstatus:", "media-change:")):
                 self._log(app, line)
+                self.dpkg_errors.feed(line)
 
         if action == "install" and not self.apt_updated:
             self._log(app, "apt-get update")
+            # A source that no longer works (another program's repository, the CD-ROM line the installer adds
+            # on the live USB) fails apt-get update as a whole, though the other lists are fresh.
             if _stream(["apt-get", "-o", "DPkg::Lock::Timeout=600", "update"], lambda line: self._log(app, line), env=env) != 0:
-                raise RuntimeError("apt-get update failed")
+                self._log(app, "apt-get update reported errors; installing from the lists it has")
             self.apt_updated = True
         verb = "install" if action == "install" else "remove"
         if _stream([*APT_BASE, verb, "--", *app.apt_packages], on_line, env=env) != 0:
@@ -143,13 +204,54 @@ class Helper:
         operation = flatpak_ops.install if action == "install" else flatpak_ops.uninstall
         operation(app.flatpak_id, lambda percent, message: self._progress(app, percent, message), lambda line: self._log(app, line))
 
+    def _wait_for_debconf(self, app: App) -> None:
+        if not self.debconf_locked():
+            return
+        self._log(app, "Waiting for another program to finish installing software (debconf is locked)")
+        deadline = time.monotonic() + self.debconf_wait
+        while self.debconf_locked():
+            if time.monotonic() > deadline:
+                raise InstallError("another program is installing software and keeps debconf locked", code="busy")
+            time.sleep(DEBCONF_POLL)
+
+    def _installed_now(self, app: App) -> bool:
+        try:
+            return app.id in self.installed_apps(self.catalog)
+        except Exception:  # noqa: BLE001 - a failed check only means the failure stands
+            return False
+
     def run_one(self, app: App, action: str) -> bool:
+        self.dpkg_errors = DpkgErrors()
         try:
             if app.preinstalled:
                 raise RuntimeError(f"{app.name} comes with CaramOS")
-            {"recipe": self._recipe, "apt": self._apt, "flatpak": self._flatpak}[app.method](app, action)
+            method = {"recipe": self._recipe, "apt": self._apt, "flatpak": self._flatpak}[app.method]
+            try:
+                method(app, action)
+            except Exception:
+                # A package that asks a debconf question (the Microsoft fonts) fails while another program keeps
+                # debconf's database locked; most apps install meanwhile, so only a failure that says so waits
+                # for it, and tries once more.
+                if action != "install" or not self.dpkg_errors.debconf_locked:
+                    raise
+                self._wait_for_debconf(app)
+                self._log(app, "debconf is free again; trying once more")
+                self.dpkg_errors = DpkgErrors()
+                method(app, action)
         except Exception as exc:  # report and carry on with the next app
-            self.emit("done", id=app.id, ok=False, error=str(exc))
+            broken = tuple(self.dpkg_errors.packages)
+            # apt-get also configures every package dpkg left unfinished; one that keeps failing (an NVIDIA
+            # driver whose module does not build, ticket H-1094) fails each install, though the app was installed.
+            if action == "install" and broken and self._installed_now(app):
+                self._log(app, f"{app.name} is installed; dpkg could not finish other packages: {', '.join(broken)}")
+                self.emit("done", id=app.id, ok=True)
+                return True
+            fields = {}
+            if isinstance(exc, InstallError) and exc.code:
+                fields = {"code": exc.code, "packages": list(exc.packages)}
+            elif broken:
+                fields = {"code": "broken-packages", "packages": list(broken)}
+            self.emit("done", id=app.id, ok=False, error=str(exc), **fields)
             return False
         self.emit("done", id=app.id, ok=True)
         return True

@@ -18,7 +18,8 @@ ROOT = Path(__file__).parents[1]
 DIST = ROOT / "usr/lib/python3/dist-packages"
 PO = ROOT / "po/caramos-app-center/vi.po"
 POT = ROOT / "po/caramos-app-center/caramos-app-center.pot"
-UI_SOURCES = sorted((DIST / "caramos_app_center/ui").glob("*.py"))
+# The window and the problem module, which explains failed installs; the Makefile extracts the same files.
+UI_SOURCES = sorted((DIST / "caramos_app_center/ui").glob("*.py")) + [DIST / "caramos_app_center/problem.py"]
 VIETNAMESE = re.compile(r"[À-ỹĐđ]")
 
 

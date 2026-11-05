@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .catalog import App
+from .i18n import _
 
 HELP_COMMAND = "/usr/bin/caramos-help"
 MAX_LINES = 400   # the end of each app's output
@@ -82,3 +83,19 @@ def ask_for_help(action: str, apps: Sequence[App], results: Mapping[str, tuple[b
     except OSError:
         return False
     return True
+
+
+def failure_text(event: dict) -> str:
+    """Why an app was not installed: in the user's language when the helper knows, else what it reported."""
+
+    code = event.get("code")
+    packages = ", ".join(str(name) for name in event.get("packages") or [])
+    if code == "broken-packages" and packages:
+        text = _("dpkg could not finish installing %s, and that stops every install.") % packages
+        if "nvidia" in packages:
+            text += " " + _("Open Driver Check to replace the NVIDIA driver, then try again.")
+        return text
+    if code == "busy":
+        return _("Another program is installing software (the CaramOS installer or the Update Manager). "
+                 "Wait until it is done, then try again.")
+    return str(event.get("error") or "")

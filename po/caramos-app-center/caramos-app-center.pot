@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caramos-app-center\n"
 "Report-Msgid-Bugs-To: developer@vietnamlinuxfamily.net\n"
-"POT-Creation-Date: 2026-10-18 13:11+0700\n"
+"POT-Creation-Date: 2026-11-05 10:40+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -461,4 +461,19 @@ msgstr ""
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:222
 #, python-format
 msgid "Open %s in the web browser"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/problem.py:94
+#, python-format
+msgid "dpkg could not finish installing %s, and that stops every install."
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/problem.py:96
+msgid "Open Driver Check to replace the NVIDIA driver, then try again."
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/problem.py:99
+msgid ""
+"Another program is installing software (the CaramOS installer or the Update "
+"Manager). Wait until it is done, then try again."
 msgstr ""

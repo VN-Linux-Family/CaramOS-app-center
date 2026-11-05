@@ -17,21 +17,39 @@ progress() {
     echo "PROGRESS $1"
 }
 
+DOWNLOAD_ATTEMPTS=5
+
 # download URL OUTPUT: fetch over HTTPS with retries; reports 0-80 % while downloading.
+# A connection cut in the middle ("curl: (56) Recv failure: Connection reset by peer", common with the WPS
+# server, tickets H-1091 and H-1096) is not one of the errors curl --retry repeats, so each attempt goes on
+# from the bytes already there (-C -).
 download() {
-    local url="$1" out="$2" total now pid
+    local url="$1" out="$2" total now pid attempt=1 code
     total=$(curl -fsIL --retry 3 --connect-timeout 30 "$url" \
         | tr -d '\r' | awk 'tolower($1)=="content-length:" {v=$2} END {print v+0}')
-    curl -fL --retry 3 --connect-timeout 30 --silent --show-error -o "$out" "$url" &
-    pid=$!
-    while kill -0 "$pid" 2>/dev/null; do
-        if [ "${total:-0}" -gt 0 ]; then
-            now=$(stat -c %s "$out" 2>/dev/null || echo 0)
-            progress $(( now * 80 / total ))
+    rm -f "$out"
+    while :; do
+        code=0
+        curl -fL --retry 3 --connect-timeout 30 --silent --show-error -C - -o "$out" "$url" &
+        pid=$!
+        while kill -0 "$pid" 2>/dev/null; do
+            if [ "${total:-0}" -gt 0 ]; then
+                now=$(stat -c %s "$out" 2>/dev/null || echo 0)
+                progress $(( now * 80 / total ))
+            fi
+            sleep 1
+        done
+        wait "$pid" || code=$?
+        [ "$code" -eq 0 ] && return 0
+        if [ "$attempt" -ge "$DOWNLOAD_ATTEMPTS" ]; then
+            return "$code"
         fi
-        sleep 1
+        # 33: the server cannot resume; start over.
+        [ "$code" -eq 33 ] && rm -f "$out"
+        echo "Download interrupted (curl exit $code), trying again ($attempt/$DOWNLOAD_ATTEMPTS)"
+        attempt=$((attempt + 1))
+        sleep $((attempt * 3))
     done
-    wait "$pid"
 }
 
 # install_deb FILE: install a downloaded package and its dependencies (80-100 %).

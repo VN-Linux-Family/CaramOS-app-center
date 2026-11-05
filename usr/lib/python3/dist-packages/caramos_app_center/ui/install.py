@@ -116,7 +116,7 @@ class InstallView(Gtk.Box):
             self._update_overall()
         elif kind == "done":
             ok = bool(event.get("ok"))
-            error = str(event.get("error") or "")
+            error = problem.failure_text(event)
             self.results[event["id"]] = (ok, error)
             if ok:
                 text = _("Installed") if self.action == "install" else _("Removed")
