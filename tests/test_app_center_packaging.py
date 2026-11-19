@@ -49,6 +49,8 @@ class PackagingTests(unittest.TestCase):
         self.assertIn("Exec=/usr/bin/caramos-app-center\n", menu)
         self.assertIn("Exec=/usr/bin/caramos-app-center --first-run\n", autostart)
         self.assertIn("NoDisplay=true", autostart)
+        # CaramOS Xfce (2 GB computers, school labs) shows the first-run picker too.
+        self.assertIn("OnlyShowIn=X-Cinnamon;XFCE;\n", autostart)
 
     def test_translations_are_compiled_at_build_time(self) -> None:
         rules = (ROOT / "debian/rules").read_text(encoding="utf-8")

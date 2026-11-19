@@ -26,7 +26,7 @@ class ShippedCatalogTests(unittest.TestCase):
 
     def test_first_run_steps_offer_the_choices_from_issue_46(self) -> None:
         steps = {step.id: step for step in self.catalog.steps}
-        self.assertEqual(["office", "browser", "chat", "extras"], [step.id for step in self.catalog.steps])
+        self.assertEqual(["office", "browser", "chat", "extras", "education"], [step.id for step in self.catalog.steps])
         self.assertEqual({"wps-office", "onlyoffice", "libreoffice"}, set(steps["office"].apps))
         self.assertEqual("single", steps["office"].choice)
         self.assertTrue(steps["office"].allow_none)
@@ -34,6 +34,24 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual(("google-chrome",), steps["browser"].default)
         # CaramOS 1.0.21 ships no Zalo, so the recommended set installs it.
         self.assertEqual(("zalo-full",), steps["chat"].default)
+
+    def test_learning_apps_for_school_computers(self) -> None:
+        # A teacher's request (2026-11-17): CaramOS for school computer labs. Nothing is picked by default, so a
+        # home install does not download them; apt where Ubuntu has a current version (lighter than Flatpak
+        # runtimes on 2 GB lab computers), Flathub for Scratch 3 and GeoGebra 6.
+        steps = {step.id: step for step in self.catalog.steps}
+        education = steps["education"]
+        self.assertEqual((), education.default)
+        self.assertTrue(education.allow_none)
+        self.assertEqual("multi", education.choice)
+        self.assertEqual({"gcompris", "tuxpaint", "klavaro", "turbowarp", "kturtle", "thonny", "geogebra", "stellarium"},
+                         set(education.apps))
+        self.assertEqual(set(education.apps), {app.id for app in self.catalog.apps_in("education")})
+        methods = {app_id: self.catalog.app(app_id).method for app_id in education.apps}
+        self.assertEqual({"turbowarp": "flatpak", "geogebra": "flatpak"},
+                         {app_id: method for app_id, method in methods.items() if method != "apt"})
+        self.assertEqual(("org.turbowarp.TurboWarp",), self.catalog.app("turbowarp").targets)
+        self.assertEqual(("gcompris-qt",), self.catalog.app("gcompris").targets)
 
     def test_every_app_has_an_icon_and_both_languages(self) -> None:
         for app in self.catalog.apps.values():

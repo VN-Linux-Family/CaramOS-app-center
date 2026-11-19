@@ -49,10 +49,24 @@
       "choice": "multi",
       "apps": ["ms-fonts", "vlc", "obs-studio", "rustdesk", "gimp", "thunderbird"],
       "default": ["ms-fonts", "vlc"]
+    },
+    {
+      "id": "education",
+      "web_category": "education",
+      "title": {"vi": "Học tập và dạy học", "en": "Learning and teaching"},
+      "subtitle": {
+        "vi": "Cho tiết Tin học và các môn học: tập dùng chuột và gõ phím, vẽ, lập trình Scratch và Python, Toán, thiên văn. Hợp cho máy ở trường hay máy của con.",
+        "en": "For computer lessons and school subjects: mouse and typing practice, drawing, Scratch and Python, maths, astronomy. For school computers or your children's."
+      },
+      "choice": "multi",
+      "allow_none": true,
+      "apps": ["gcompris", "tuxpaint", "klavaro", "turbowarp", "kturtle", "thonny", "geogebra", "stellarium"],
+      "default": []
     }
   ],
   "categories": [
     {"id": "office", "title": {"vi": "Văn phòng", "en": "Office"}, "icon": "x-office-document-symbolic"},
+    {"id": "education", "title": {"vi": "Giáo dục", "en": "Education"}, "icon": "applications-education-symbolic"},
     {"id": "internet", "title": {"vi": "Trình duyệt", "en": "Browsers"}, "icon": "web-browser-symbolic"},
     {"id": "chat", "title": {"vi": "Liên lạc", "en": "Chat"}, "icon": "user-available-symbolic"},
     {"id": "media", "title": {"vi": "Đa phương tiện", "en": "Media"}, "icon": "applications-multimedia-symbolic"},
@@ -468,6 +482,158 @@
       "size_mb": 400,
       "website": "https://obsidian.md/",
       "install": {"flatpak": "md.obsidian.Obsidian"}
+    },
+    {
+      "id": "gcompris",
+      "name": "GCompris",
+      "category": "education",
+      "icon": "gcompris.png",
+      "badge": "recommended",
+      "summary": {"vi": "Hơn 180 trò chơi học tập cho bé từ 2 đến 10 tuổi", "en": "More than 180 learning activities for children aged 2 to 10"},
+      "pros": {
+        "vi": ["Tập dùng chuột, bàn phím: hợp các tiết Tin học tiểu học", "Toán, đọc, khoa học, địa lý qua trò chơi", "Miễn phí, mã nguồn mở"],
+        "en": ["Mouse and keyboard practice for primary school computer lessons", "Maths, reading, science and geography as games", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Một số hoạt động dùng tiếng Anh"],
+        "en": ["Some activities are in English"]
+      },
+      "size_mb": 98,
+      "website": "https://gcompris.net/",
+      "install": {"apt": ["gcompris-qt"]},
+      "detect": {"deb": "gcompris-qt"}
+    },
+    {
+      "id": "tuxpaint",
+      "name": "Tux Paint",
+      "category": "education",
+      "icon": "tuxpaint.png",
+      "summary": {"vi": "Vẽ tranh cho trẻ em, có con dấu và âm thanh vui", "en": "Drawing for children, with stamps and fun sounds"},
+      "pros": {
+        "vi": ["Dễ dùng hơn Paint, hợp học sinh tiểu học", "Giao diện tiếng Việt", "Miễn phí, mã nguồn mở"],
+        "en": ["Easier than Paint, made for primary school pupils", "Vietnamese interface", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Dành cho trẻ nhỏ, không có lớp vẽ (layer)"],
+        "en": ["Made for young children: no layers"]
+      },
+      "size_mb": 276,
+      "website": "https://tuxpaint.org/",
+      "install": {"apt": ["tuxpaint"]},
+      "detect": {"deb": "tuxpaint"}
+    },
+    {
+      "id": "klavaro",
+      "name": "Klavaro",
+      "category": "education",
+      "icon": "klavaro.png",
+      "summary": {"vi": "Luyện gõ bàn phím bằng 10 ngón", "en": "Touch typing tutor"},
+      "pros": {
+        "vi": ["Luyện từ hàng phím cơ sở đến gõ nhanh", "Có bài luyện bằng chữ tiếng Việt", "Rất nhẹ, chạy tốt trên máy cũ"],
+        "en": ["From the home row to typing fast", "Has exercises with Vietnamese text", "Very light, runs well on old computers"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh"],
+        "en": ["English interface"]
+      },
+      "size_mb": 4,
+      "website": "https://klavaro.sourceforge.io/",
+      "install": {"apt": ["klavaro"]},
+      "detect": {"deb": "klavaro"}
+    },
+    {
+      "id": "kturtle",
+      "name": "KTurtle",
+      "category": "education",
+      "icon": "kturtle.png",
+      "summary": {"vi": "Lập trình đầu tiên: ra lệnh cho chú rùa vẽ hình", "en": "First programming: give orders to a turtle that draws"},
+      "pros": {
+        "vi": ["Câu lệnh đơn giản kiểu Logo, thấy ngay kết quả", "Hợp làm quen với câu lệnh, vòng lặp", "Miễn phí, mã nguồn mở"],
+        "en": ["Simple Logo-like commands with instant results", "A gentle start with commands and loops", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh", "Cài thêm vài thư viện của KDE"],
+        "en": ["English interface", "Installs some KDE libraries"]
+      },
+      "size_mb": 82,
+      "website": "https://apps.kde.org/kturtle/",
+      "install": {"apt": ["kturtle"]},
+      "detect": {"deb": "kturtle"}
+    },
+    {
+      "id": "turbowarp",
+      "name": "Scratch 3 (TurboWarp)",
+      "category": "education",
+      "icon": "turbowarp.png",
+      "badge": "recommended",
+      "summary": {"vi": "Lập trình kéo thả Scratch 3, chạy không cần mạng", "en": "Scratch 3 block programming that works offline"},
+      "pros": {
+        "vi": ["Mở và lưu dự án .sb3 như Scratch trên web", "Có tiếng Việt", "Miễn phí, mã nguồn mở"],
+        "en": ["Opens and saves .sb3 projects like Scratch on the web", "Vietnamese interface", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Lần đầu tải thêm bộ chạy Flatpak"],
+        "en": ["Downloads a Flatpak runtime the first time"]
+      },
+      "size_mb": 400,
+      "website": "https://turbowarp.org/",
+      "install": {"flatpak": "org.turbowarp.TurboWarp"}
+    },
+    {
+      "id": "thonny",
+      "name": "Thonny",
+      "category": "education",
+      "icon": "thonny.png",
+      "summary": {"vi": "Viết Python cho người mới học", "en": "Python for beginners"},
+      "pros": {
+        "vi": ["Có sẵn Python, mở là viết được", "Chạy từng dòng để xem biến thay đổi", "Gọn nhẹ, hợp Tin học THCS, THPT"],
+        "en": ["Python included: open it and start writing", "Run line by line and watch the variables", "Light, fits secondary school lessons"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh"],
+        "en": ["English interface"]
+      },
+      "size_mb": 88,
+      "website": "https://thonny.org/",
+      "install": {"apt": ["thonny"]},
+      "detect": {"deb": "thonny"}
+    },
+    {
+      "id": "geogebra",
+      "name": "GeoGebra",
+      "category": "education",
+      "icon": "geogebra.png",
+      "summary": {"vi": "Hình học, đồ thị hàm số, đại số động cho môn Toán", "en": "Interactive geometry, graphs and algebra for maths"},
+      "pros": {
+        "vi": ["Vẽ hình, đồ thị kéo thả được", "Có tiếng Việt", "Mở được tệp .ggb của GeoGebra trên web"],
+        "en": ["Drag-and-drop shapes and graphs", "Vietnamese interface", "Opens .ggb files from GeoGebra on the web"]
+      },
+      "cons": {
+        "vi": ["Miễn phí cho học tập nhưng không phải mã nguồn mở", "Lần đầu tải thêm bộ chạy Flatpak"],
+        "en": ["Free for learning but not open source", "Downloads a Flatpak runtime the first time"]
+      },
+      "size_mb": 350,
+      "website": "https://www.geogebra.org/",
+      "install": {"flatpak": "org.geogebra.GeoGebra"}
+    },
+    {
+      "id": "stellarium",
+      "name": "Stellarium",
+      "category": "education",
+      "icon": "stellarium.png",
+      "summary": {"vi": "Bầu trời sao 3D: hành tinh, chòm sao, nhật thực", "en": "A 3D planetarium: planets, constellations, eclipses"},
+      "pros": {
+        "vi": ["Giao diện tiếng Việt", "Hợp môn Khoa học tự nhiên, Địa lý", "Miễn phí, mã nguồn mở"],
+        "en": ["Vietnamese interface", "Fits science and geography lessons", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Cần card đồ hoạ khá, tải khoảng 300 MB"],
+        "en": ["Needs decent graphics, about 300 MB to download"]
+      },
+      "size_mb": 575,
+      "website": "https://stellarium.org/",
+      "install": {"apt": ["stellarium"]},
+      "detect": {"deb": "stellarium"}
     }
   ]
 }

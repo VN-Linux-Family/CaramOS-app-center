@@ -8,6 +8,6 @@ Exec=/usr/bin/caramos-app-center --first-run
 Icon=caramos-logo
 Terminal=false
 NoDisplay=true
-OnlyShowIn=X-Cinnamon;
+OnlyShowIn=X-Cinnamon;XFCE;
 X-GNOME-Autostart-Phase=Applications
 X-GNOME-Autostart-Delay=8

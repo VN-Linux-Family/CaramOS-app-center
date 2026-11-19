@@ -1,3 +1,15 @@
+caramos-app-center (0.2.4) noble; urgency=medium
+
+  * Apps for school computer labs (a Tin học teacher's request for CaramOS
+    1.4): the first-run picker has a "Học tập và dạy học" (Learning and
+    teaching) step, and the App Center an Education category, with
+    GCompris, Tux Paint, Klavaro, KTurtle, Thonny and Stellarium from
+    Ubuntu, and TurboWarp (Scratch 3) and GeoGebra 6 from Flathub. Nothing
+    is picked by default, so a home computer downloads none of them.
+  * The first-run picker opens on the new CaramOS Xfce edition too.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Thu, 19 Nov 2026 21:05:31 +0700
+
 caramos-app-center (0.2.3) noble; urgency=medium
 
   * An app installs while another package is broken (ticket H-1094). When
