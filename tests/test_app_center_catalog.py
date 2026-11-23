@@ -26,7 +26,7 @@ class ShippedCatalogTests(unittest.TestCase):
 
     def test_first_run_steps_offer_the_choices_from_issue_46(self) -> None:
         steps = {step.id: step for step in self.catalog.steps}
-        self.assertEqual(["office", "browser", "chat", "extras", "education"], [step.id for step in self.catalog.steps])
+        self.assertEqual(["office", "browser", "chat", "extras", "education", "business"], [step.id for step in self.catalog.steps])
         self.assertEqual({"wps-office", "onlyoffice", "libreoffice"}, set(steps["office"].apps))
         self.assertEqual("single", steps["office"].choice)
         self.assertTrue(steps["office"].allow_none)

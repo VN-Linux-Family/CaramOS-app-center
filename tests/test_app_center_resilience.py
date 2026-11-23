@@ -137,6 +137,26 @@ echo PROGRESS 100
         self.assertTrue(self.done(events, "vlc-test")["ok"])
 
 
+    def test_dpkg_asks_nothing_about_configuration_files(self) -> None:
+        """The helper has no terminal: at a configuration file question dpkg read end-of-file and failed (H-1207)."""
+
+        calls = []
+
+        def fake_stream(args, on_line, *, env=None, timeout=helper.RECIPE_TIMEOUT):
+            calls.append((args, env))
+            return 0
+
+        with patch.object(helper, "_stream", side_effect=fake_stream):
+            code, _events = self.run_helper(["vlc-test"])
+        self.assertEqual(helper.EXIT_OK, code)
+        args, env = next(call for call in calls if "install" in call[0])
+        options = args[:args.index("install")]
+        for option in ("Dpkg::Options::=--force-confdef", "Dpkg::Options::=--force-confold"):
+            self.assertEqual("-o", options[options.index(option) - 1])
+        self.assertEqual("noninteractive", env["DEBIAN_FRONTEND"])
+        common = (DATA / "recipes/lib/common.sh").read_text(encoding="utf-8")
+        self.assertIn("-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold", common)
+
 class DpkgErrorsTests(unittest.TestCase):
     def test_reads_the_packages_dpkg_could_not_configure(self) -> None:
         errors = helper.DpkgErrors()

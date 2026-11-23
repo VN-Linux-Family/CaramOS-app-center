@@ -210,7 +210,8 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
     _require(not caramos or method == "apt", f"{where}: caramos only applies to an apt package")
     return App(
         id=app_id,
-        name=str(raw.get("name") or app_id),
+        # "name_en": the name in English sessions, for the few apps whose name is Vietnamese (CaramOS Doanh nghiệp).
+        name=str((raw.get("name_en") if raw.get("name_en") and not prefers_vietnamese() else raw.get("name")) or app_id),
         category=str(raw.get("category") or ""),
         method=method,
         targets=targets,

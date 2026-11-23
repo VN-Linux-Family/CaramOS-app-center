@@ -257,7 +257,8 @@ class MainWindow(Adw.ApplicationWindow):
                                   title=ngettext("Installed %d app", "Installed %d apps", done) % done,
                                   description=ngettext("You can find it in the Start menu.",
                                                        "You can find them in the Start menu.", done))
-            buttons.append(_pill(_("Choose more apps"), self.show_wizard))
+            # Nothing ticked: the recommended apps were ticked once, at the first run, and are not wanted again.
+            buttons.append(_pill(_("Choose more apps"), lambda: self.show_wizard(selection={})))
         buttons.append(_pill(_("Close"), self.close, suggested=True))
         content.append(buttons)
         page.set_child(content)

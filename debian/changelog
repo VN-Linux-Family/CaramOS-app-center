@@ -1,3 +1,18 @@
+caramos-app-center (0.3.1) noble; urgency=medium
+
+  * A "Dùng cho công ty" (For your company) step in the app picker, with
+    CaramOS Doanh nghiệp and Remmina, nothing ticked. The Business category
+    was only in the hidden store list, so these apps could not be reached.
+  * CaramOS Doanh nghiệp is called CaramOS Business in English sessions
+    (a new optional "name_en" in the catalogue).
+  * "Choose more apps" after an install opens the picker with nothing
+    ticked, instead of ticking the recommended apps (about 3 GB) again.
+  * Installs and removals never stop at a dpkg configuration-file question:
+    apt runs with --force-confdef/--force-confold and noninteractive
+    frontends, as the CaramOS updates do (ticket H-1207).
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Tue, 24 Nov 2026 06:43:04 +0700
+
 caramos-app-center (0.3.0) noble; urgency=medium
 
   * A new design, closer to the rest of the desktop: plain lists instead of

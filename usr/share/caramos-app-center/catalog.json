@@ -62,6 +62,19 @@
       "allow_none": true,
       "apps": ["gcompris", "tuxpaint", "klavaro", "turbowarp", "kturtle", "thonny", "geogebra", "stellarium"],
       "default": []
+    },
+    {
+      "id": "business",
+      "web_category": "office",
+      "title": {"vi": "Dùng cho công ty", "en": "For your company"},
+      "subtitle": {
+        "vi": "Quản lý máy nhân viên từ một máy trong văn phòng, và dùng máy Windows của công ty ngay trên CaramOS. Máy ở nhà thì bỏ qua bước này.",
+        "en": "Manage staff computers from one computer in the office, and use the office's Windows computers from CaramOS. Skip this step on a home computer."
+      },
+      "choice": "multi",
+      "allow_none": true,
+      "apps": ["caramos-business", "remmina"],
+      "default": []
     }
   ],
   "categories": [
@@ -669,6 +682,7 @@
     {
       "id": "caramos-business",
       "name": "CaramOS Doanh nghiệp",
+      "name_en": "CaramOS Business",
       "category": "business",
       "icon_name": "network-server",
       "summary": {"vi": "Quản lý máy nhân viên từ một máy, trong mạng của công ty", "en": "Manage staff computers from one computer on the office network"},

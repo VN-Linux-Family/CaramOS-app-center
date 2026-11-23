@@ -27,7 +27,11 @@ LOCK_FILE = Path("/run/caramos-app-center.lock")
 MAX_APPS = 40
 RECIPE_TIMEOUT = 3600
 RECIPE_ENV = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8", "HOME": "/root", "DEBIAN_FRONTEND": "noninteractive"}
-APT_BASE = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "APT::Status-Fd=1", "-y"]
+# dpkg asks nothing about configuration files, as in the recipes (recipes/lib/common.sh): nobody can answer it here,
+# and at its question it read end-of-file and failed (CaramOS ticket H-1207). A configuration file someone changed
+# stays as it is; any other takes the package's version.
+APT_BASE = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "APT::Status-Fd=1",
+            "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "-y"]
 PROGRESS_RE = re.compile(r"^PROGRESS\s+(\d{1,3})\s*$")
 REASON_MAX = 300
 # debconf's database, which a running installer keeps locked (ubiquity on the live USB, Update Manager): a
