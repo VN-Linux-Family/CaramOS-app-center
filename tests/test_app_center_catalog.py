@@ -82,6 +82,34 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual("flathub", sources["telegram"])
         self.assertEqual("ubuntu", sources["vlc"])
         self.assertEqual("caramos", sources["firefox"])
+        self.assertEqual("caramos-package", sources["caramos-business"])  # from the CaramOS PPA, not Ubuntu's
+
+    def test_business_apps(self) -> None:
+        # CaramOS Doanh nghiệp: the company's wallpaper and shared folders, a package of the CaramOS PPA.
+        app = self.catalog.apps["caramos-business"]
+        self.assertEqual("business", app.category)
+        self.assertEqual(("caramos-business",), app.apt_packages)
+        self.assertEqual({"deb": "caramos-business"}, dict(app.detect))
+
+    def test_remmina_reaches_windows_only_software(self) -> None:
+        # The Windows migration kit: MISA SME and HTKK run only on Windows, so an office keeps one Windows computer
+        # or server and its staff open it from CaramOS over RDP. Remmina from Ubuntu, with the RDP and VNC plugins
+        # and the keyring plugin (a Recommends, which Mint does not install) that saves the password.
+        app = self.catalog.apps["remmina"]
+        self.assertEqual("business", app.category)
+        self.assertEqual(("remmina", "remmina-plugin-rdp", "remmina-plugin-vnc", "remmina-plugin-secret"),
+                         app.apt_packages)
+        self.assertEqual({"deb": "remmina"}, dict(app.detect))
+        self.assertEqual("ubuntu", app.source)
+        for language in ("vi", "en"):
+            text = " ".join([app.summary[language], *app.pros[language], *app.cons[language]])
+            self.assertIn("Windows", text)
+            self.assertIn("MISA SME", text)
+            self.assertIn("HTKK", text)
+        icon = DATA / "icons" / app.icon
+        self.assertEqual(b"\x89PNG", icon.read_bytes()[:4])
+        self.assertEqual((128, 128), (int.from_bytes(icon.read_bytes()[16:20], "big"),
+                                      int.from_bytes(icon.read_bytes()[20:24], "big")))
 
     def test_more_apps_link_goes_to_the_vnlf_app_site(self) -> None:
         self.assertEqual("https://apps.vietnamlinuxfamily.net/browse", more_apps_url())
@@ -117,6 +145,8 @@ class ValidationTests(unittest.TestCase):
         self.broken(lambda d: d["apps"][0].update(install={"flatpak": "not a ref"}))
         self.broken(lambda d: d["apps"][0].update(install={"apt": ["bad name!"]}))
         self.broken(lambda d: d["apps"][1].update(install={"recipe": "does-not-exist"}))
+        self.broken(lambda d: d["apps"][0].update(caramos="yes"))
+        self.broken(lambda d: d["apps"][0].update(install={"flatpak": "org.x.Y"}, caramos=True))  # only apt
 
     def test_rejects_inconsistent_steps(self) -> None:
         self.broken(lambda d: d["steps"][0].update(apps=["unknown-app"]))

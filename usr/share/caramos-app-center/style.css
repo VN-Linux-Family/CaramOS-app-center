@@ -1,317 +1,105 @@
-/* CaramOS App Center. Vietnam Linux Family colours: forest green, cream paper, caramel orange
- * (the palette of vietnamlinuxfamily.net and the CaramOS site). style-dark.css redefines every colour. */
+/* CaramOS App Center, after CaramOS's design rules (DESIGN.md in the CaramOS repository): libadwaita's own
+ * header bars, surfaces and lists, and the forest green accent as the only colour of CaramOS's own. The font is
+ * the system's (Be Vietnam Pro): this file only sets sizes and the two weights, 400 and 600.
+ * style-dark.css has the dark values and is loaded on top when the system uses a dark style.
+ * The rules here win over libadwaita's whatever their selectors, so they stay narrow. */
 
-@define-color vnlf_green_900 #1f4f32;
-@define-color vnlf_green_800 #285f3d;
-@define-color vnlf_green_700 #2f7048;
-@define-color vnlf_orange #f59f22;
-@define-color vnlf_caramel #7a5514;
-@define-color vnlf_line #e3dfd1;
-@define-color vnlf_muted #657064;
-
-@define-color accent_bg_color @vnlf_green_700;
+@define-color accent_bg_color #2b6a44;
 @define-color accent_fg_color #ffffff;
-@define-color accent_color @vnlf_green_800;
-@define-color window_bg_color #f7f3e9;
-@define-color window_fg_color #1f2a22;
-@define-color view_bg_color #fffdf7;
-@define-color view_fg_color #1f2a22;
-@define-color card_bg_color #fffdf7;
-@define-color card_fg_color #1f2a22;
-@define-color headerbar_bg_color @vnlf_green_900;
-@define-color headerbar_fg_color #fffaf0;
-@define-color headerbar_backdrop_color @vnlf_green_800;
-@define-color headerbar_border_color @vnlf_green_900;
-@define-color headerbar_shade_color alpha(black, 0.12);
-@define-color sidebar_bg_color #efe9da;
-@define-color sidebar_fg_color #1f2a22;
-@define-color sidebar_backdrop_color #f2eddf;
-@define-color popover_bg_color #fffdf7;
-@define-color popover_fg_color #1f2a22;
-@define-color dialog_bg_color #fffdf7;
-@define-color dialog_fg_color #1f2a22;
-@define-color success_color @vnlf_green_700;
-@define-color warning_color #b36b00;
-@define-color card_shadow alpha(black, 0.06);
+@define-color accent_color #276140;
+@define-color caramos_line_color rgba(0, 0, 0, 0.09);
 
-window {
-  font-family: "Be Vietnam Pro", "Cantarell", sans-serif;
+/* Two weights. libadwaita's titles are 700 to 800 and its buttons bold. */
+.title-1,
+.title-2,
+.title-3,
+.title-4,
+.heading,
+headerbar .title,
+windowtitle .title,
+button {
+  font-weight: 600;
+}
+button.link,
+button.card {
+  font-weight: inherit;
 }
 
-/* Header bars: the green bar of the VNLF site on every page, including the flat bars of
- * toolbar views (store, done page). */
-headerbar {
-  background-color: @headerbar_bg_color;
-  color: @headerbar_fg_color;
-  box-shadow: inset 0 -1px alpha(black, 0.10);
-}
-headerbar:backdrop {
-  background-color: @headerbar_backdrop_color;
-}
-
-/* Buttons */
-button.suggested-action {
-  background-image: linear-gradient(135deg, @vnlf_green_800, @vnlf_green_700);
-  font-weight: 800;
-}
-button.suggested-action:hover {
-  background-image: linear-gradient(135deg, shade(@vnlf_green_800, 1.08), shade(@vnlf_green_700, 1.08));
-}
-button.pill {
-  font-weight: 700;
-}
-button.pill.large {
-  padding: 12px 30px;
-  font-size: 15px;
-}
-button.pill:not(.suggested-action):not(.destructive-action):not(.flat) {
-  background-color: @card_bg_color;
-  box-shadow: inset 0 0 0 1px @vnlf_line;
-  color: @vnlf_green_900;
-}
-button.pill:not(.suggested-action):not(.destructive-action):not(.flat):hover {
-  box-shadow: inset 0 0 0 1px alpha(@vnlf_green_700, 0.45);
-}
-
-/* Welcome card at the top of the first-run page */
-.welcome {
-  background-color: @window_bg_color;
-  background-image:
-    radial-gradient(circle at 0% 0%, alpha(@vnlf_orange, 0.16), transparent 40%),
-    radial-gradient(circle at 100% 100%, alpha(@vnlf_green_700, 0.10), transparent 45%);
-}
-.hero-card {
-  padding: 22px 26px;
-  border-radius: 24px;
-  background-color: @card_bg_color;
-  border: 1px solid @vnlf_line;
-  box-shadow: 0 1px 2px alpha(black, 0.04), 0 10px 28px @card_shadow;
-}
-.hero-title {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: @vnlf_green_900;
-}
-.hero-subtitle {
-  font-size: 16px;
-}
-.hero-point image {
-  color: @vnlf_green_700;
-}
-.hero-point label {
-  font-size: 13px;
-}
-
-/* "See more" links: one per section and one under the last section */
-button.see-more {
-  color: @vnlf_green_700;
-  font-weight: 700;
-  padding: 4px 10px;
-}
-.more-apps label {
-  font-size: 14px;
-}
-
-/* Custom page sections */
-.section-number {
-  min-width: 30px;
-  min-height: 30px;
-  border-radius: 999px;
-  background-color: @vnlf_green_700;
-  color: #ffffff;
-  font-weight: 800;
+/* Type scale */
+.page-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  line-height: 1.25;
 }
 .section-title {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
-  color: @vnlf_green_900;
+  font-size: 1.15em;
+  font-weight: 600;
 }
-.section-hint {
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background-color: alpha(@vnlf_green_700, 0.10);
-  color: @vnlf_green_800;
+.row-title {
+  font-weight: 600;
+}
+.secondary {
+  font-size: 0.92em;
+}
+.paragraph {
+  line-height: 1.5;
+}
+.details-text {
+  font-size: 0.92em;
 }
 
-/* App cards (first-run choices) */
-button.app-card {
-  background-color: @card_bg_color;
-  background-image: none;
-  color: @window_fg_color;
-  font-weight: normal;
-  border-radius: 18px;
-  padding: 16px 16px 12px 16px;
-  border: 2px solid @vnlf_line;
-  box-shadow: 0 8px 22px alpha(@vnlf_green_900, 0.05);
-  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+/* Boxed lists: a thin line around and between the rows, no shadow. */
+list.boxed-list {
+  box-shadow: 0 0 0 1px @caramos_line_color;
 }
-button.app-card:hover {
-  background-color: mix(@card_bg_color, @vnlf_green_700, 0.03);
-  border-color: alpha(@vnlf_green_700, 0.45);
+list.boxed-list > row,
+list.boxed-list > row.expander row.header,
+row.expander list.nested > row {
+  border-color: @caramos_line_color;
 }
-button.app-card:checked {
-  background-color: mix(@card_bg_color, @vnlf_green_700, 0.06);
-  border-color: @vnlf_green_700;
-  box-shadow: 0 0 0 4px alpha(@vnlf_green_700, 0.14), 0 8px 22px alpha(@vnlf_green_900, 0.08);
+row.app-row,
+row.text-row {
+  padding: 12px 14px;
 }
-/* An installed app: not a choice, with a Remove button when the App Center can remove it */
-.app-card.installed-card {
-  background-color: @card_bg_color;
-  border-radius: 18px;
-  padding: 16px 16px 12px 16px;
-  border: 2px solid @vnlf_line;
+list.boxed-list > row.expander row.header > box.header {
+  margin-left: 14px;
+  margin-right: 14px;
 }
-button.remove-app {
-  font-size: 12px;
-  font-weight: 700;
-  min-height: 0;
-  padding: 3px 12px;
-  border-radius: 999px;
-  background-color: alpha(@error_color, 0.08);
-  background-image: none;
-  color: @error_color;
+
+/* Status pages (done, nothing to show, offline): a 64px icon and the page title size. */
+statuspage > scrolledwindow > viewport > box > clamp > box > .icon {
+  -gtk-icon-size: 64px;
 }
-button.remove-app:hover {
-  background-color: alpha(@error_color, 0.16);
+statuspage > scrolledwindow > viewport > box > clamp > box > .title {
+  font-size: 1.8em;
+  line-height: 1.25;
 }
-button.app-card.none-card {
-  padding: 12px 18px;
+
+/* The picker's bar at the bottom: the totals at the left, the install button at the right. */
+.action-bar {
+  padding: 12px 24px;
 }
-.app-card .check {
-  color: @vnlf_green_700;
-  opacity: 0;
-  transition: opacity 150ms ease;
+
+/* "Find more apps" at the bottom of the store's sidebar */
+.sidebar-footer {
+  padding: 6px;
 }
-button.app-card:checked .check {
+button.more-apps {
+  padding: 8px 10px;
+  font-weight: inherit;
+}
+
+/* The info button of each picker row: quiet until pointed at. */
+button.row-info > image {
+  opacity: 0.6;
+}
+button.row-info:hover > image,
+button.row-info:focus-visible > image {
   opacity: 1;
 }
-.app-card .installed-mark {
-  color: @vnlf_muted;
-}
-.app-name {
-  font-size: 17px;
-  font-weight: 800;
-}
-.app-summary {
-  font-size: 13px;
-}
-.pro-icon {
-  color: @vnlf_green_700;
-}
-.con-icon {
-  color: @warning_color;
-}
-.pro-text,
-.con-text {
-  font-size: 13px;
-}
-.card-footer {
-  font-size: 12px;
-  border-top: 1px solid @vnlf_line;
-  padding-top: 10px;
-}
 
-/* Badges and chips */
-.badge {
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background-color: alpha(@vnlf_orange, 0.20);
-  color: @vnlf_caramel;
-}
-.badge.popular {
-  background-color: alpha(#2670e8, 0.12);
-  color: #1f5bbf;
-}
-.badge.installed {
-  background-color: alpha(@vnlf_muted, 0.14);
-  color: @vnlf_muted;
-}
-.chip {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background-color: alpha(@window_fg_color, 0.06);
-}
-.chip.verified {
-  background-color: alpha(@vnlf_green_700, 0.12);
-  color: @vnlf_green_800;
-}
-
-/* Sticky install bar of the custom page */
-.install-bar {
-  padding: 12px 24px;
-  border-top: 1px solid @vnlf_line;
-  background-color: @card_bg_color;
-  box-shadow: 0 -10px 30px alpha(@vnlf_green_900, 0.06);
-}
-.bar-total {
-  font-size: 16px;
-  font-weight: 800;
-  color: @vnlf_green_900;
-}
-.bar-detail {
-  font-size: 12px;
-}
-
-/* Progress */
-.total-size {
-  font-size: 30px;
-  font-weight: 800;
-  color: @vnlf_green_700;
-}
-progressbar.app-progress trough,
-progressbar.app-progress progress {
-  min-height: 6px;
-  border-radius: 999px;
-}
-progressbar.overall trough,
-progressbar.overall progress {
-  min-height: 10px;
-  border-radius: 999px;
-}
-.row-icon {
-  border-radius: 10px;
-}
-
-/* Store */
-button.store-tile {
-  background-color: @card_bg_color;
-  background-image: none;
-  color: @window_fg_color;
-  font-weight: normal;
-  border-radius: 16px;
-  padding: 14px;
-  border: 1px solid @vnlf_line;
-  box-shadow: 0 6px 18px alpha(@vnlf_green_900, 0.04);
-  transition: background-color 160ms ease, border-color 160ms ease;
-}
-button.store-tile:hover {
-  border-color: alpha(@vnlf_green_700, 0.5);
-  background-color: mix(@card_bg_color, @vnlf_green_700, 0.04);
-}
-.detail-hero {
-  padding: 8px 0 18px 0;
-}
-.detail-name {
-  font-size: 30px;
-  font-weight: 800;
-  color: @vnlf_green_900;
-}
-.section-heading {
-  font-size: 15px;
-  font-weight: 800;
-}
-.navigation-sidebar > row:selected {
-  background-color: alpha(@vnlf_green_700, 0.14);
-  color: @vnlf_green_900;
-}
-.navigation-sidebar > row:selected image {
-  color: @vnlf_green_700;
+/* Secondary text that holds a link. GTK draws a label's links with the label's transparency, so this grey is
+ * opaque: the colour .dim-label text has on the window background. style-dark.css has the dark one. */
+.secondary-text {
+  color: mix(@window_bg_color, black, 0.44);
 }

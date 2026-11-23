@@ -74,13 +74,18 @@ class App:
     detect: Mapping[str, str] | None = None
     # A recipe that installs a Linux build made by the community rather than by the app's developer.
     community: bool = False
+    # An apt package that CaramOS makes, from its package archive (the PPA every CaramOS has), not Ubuntu's.
+    caramos: bool = False
 
     @property
     def source(self) -> str:
-        """Where the app comes from, as its card says: flathub, ubuntu, caramos, developer or community."""
+        """Where the app comes from, as its card says: flathub, ubuntu, caramos, caramos-package, developer or
+        community."""
 
         if self.method == "recipe":
             return "community" if self.community else "developer"
+        if self.method == "apt" and self.caramos:
+            return "caramos-package"
         return {"flatpak": "flathub", "apt": "ubuntu", "preinstalled": "caramos"}[self.method]
 
     @property
@@ -200,6 +205,9 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
     community = raw.get("community", False)
     _require(isinstance(community, bool), f"{where}: community must be true or false")
     _require(not community or method == "recipe", f"{where}: community only applies to a recipe")
+    caramos = raw.get("caramos", False)
+    _require(isinstance(caramos, bool), f"{where}: caramos must be true or false")
+    _require(not caramos or method == "apt", f"{where}: caramos only applies to an apt package")
     return App(
         id=app_id,
         name=str(raw.get("name") or app_id),
@@ -216,6 +224,7 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
         badge=badge,
         detect=dict(detect) if detect else None,
         community=community,
+        caramos=caramos,
     )
 
 

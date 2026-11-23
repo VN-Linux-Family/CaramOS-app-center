@@ -91,7 +91,7 @@ def failure_text(event: dict) -> str:
     code = event.get("code")
     packages = ", ".join(str(name) for name in event.get("packages") or [])
     if code == "broken-packages" and packages:
-        text = _("dpkg could not finish installing %s, and that stops every install.") % packages
+        text = _("%s did not finish installing, so every other install fails too.") % packages
         if "nvidia" in packages:
             text += " " + _("Open Driver Check to replace the NVIDIA driver, then try again.")
         return text

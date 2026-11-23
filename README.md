@@ -1,12 +1,12 @@
 # App Center CaramOS
 
-App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc và tiện ích, bộ đề xuất được chọn sẵn, mỗi ứng dụng ghi rõ ưu và nhược điểm. Ứng dụng đã cài có nút **Gỡ** ngay trên thẻ của nó (hỏi lại trước khi gỡ; ứng dụng có sẵn trong CaramOS như Firefox thì không có). Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
+App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc, tiện ích và học tập; mỗi nhóm là một danh sách (chọn một hoặc chọn nhiều), bộ đề xuất được chọn sẵn, nút thông tin trên mỗi dòng mở điểm mạnh và điều cần biết của ứng dụng. Ứng dụng đã cài có nút **Gỡ** ngay trên dòng của nó (hỏi lại trước khi gỡ; ứng dụng có sẵn trong CaramOS như Firefox thì không có). Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
 
-App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): nút "Xem thêm" của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính.
+App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): liên kết "Xem thêm" trong lời mô tả của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính.
 
 Trang danh sách ứng dụng có ô tìm kiếm (`ui/store.py`) đang tạm ẩn: sau này nó lấy danh sách từ API của apps.vietnamlinuxfamily.net. Lập trình viên vẫn mở được bằng `caramos-app-center --store`.
 
-Giao diện: Python + GTK4 + libadwaita, chạy trên CaramOS (Linux Mint 22.3 / Ubuntu 24.04). Bản C++/GTK3 cũ vẫn còn trong lịch sử git (tag `legacy-cpp`).
+Giao diện: Python + GTK4 + libadwaita, chạy trên CaramOS (Linux Mint 22.3 / Ubuntu 24.04). Kiểu dáng theo `DESIGN.md` của CaramOS: thanh tiêu đề và nền của libadwaita, chỉ đổi màu nhấn sang xanh rừng (`usr/share/caramos-app-center/style.css`, `style-dark.css`), danh sách khung thay cho thẻ. Bản C++/GTK3 cũ vẫn còn trong lịch sử git (tag `legacy-cpp`).
 
 ## Phát triển
 
@@ -94,7 +94,7 @@ caramos-app-center (user)  ──pkexec──>  /usr/lib/caramos-app-center/cara
    - `size_mb`: dung lượng sau khi cài (ước lượng). Runtime Flathub dùng chung tính riêng (`FLATPAK_RUNTIME_MB` trong `plan.py`).
 2. Thêm icon PNG 128×128 vào `usr/share/caramos-app-center/icons/` (với app Flathub, lấy từ `https://flathub.org/api/v2/appstream/<id>` trường `icon`), hoặc đặt `icon_name` theo theme icon.
 3. Muốn hiện ở trình chọn lần đầu: thêm ID vào `apps` của một bước trong `steps` (`default` là các mục được chọn sẵn).
-4. Chạy `make test`, rồi `make run` để xem thẻ mới trong trình chọn.
+4. Chạy `make test`, rồi `make run` để xem dòng mới trong trình chọn.
 
 ## Viết công thức cài (`recipe`)
 

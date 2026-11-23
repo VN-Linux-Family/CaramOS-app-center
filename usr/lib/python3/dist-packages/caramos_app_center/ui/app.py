@@ -13,7 +13,7 @@ import sys
 
 from ..i18n import _
 
-from .. import firstrun
+from .. import firstrun, renderer
 from ..catalog import CatalogError, data_dir, load_catalog
 
 APP_ID = "net.vietnamlinuxfamily.CaramOSAppCenter"
@@ -36,6 +36,7 @@ def main(argv: list[str] | None = None) -> int:
         print(exc, file=sys.stderr)
         return 1
 
+    renderer.apply()  # cairo where OpenGL would run on the CPU
     import gi
 
     gi.require_version("Gtk", "4.0")

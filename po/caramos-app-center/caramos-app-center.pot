@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caramos-app-center\n"
 "Report-Msgid-Bugs-To: developer@vietnamlinuxfamily.net\n"
-"POT-Creation-Date: 2026-11-05 10:40+0700\n"
+"POT-Creation-Date: 2026-11-21 13:20+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,176 +18,186 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/app.py:49
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:63
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/app.py:50
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:28
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:336
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:39
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:359
 msgid "CaramOS App Center"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/cards.py:50
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/cards.py:137
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:122
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:172
-msgid "Installed"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/cards.py:55
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:179
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:200
-msgid "Remove"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/cards.py:57
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:149
 #, python-format
-msgid "Remove %s from this computer"
+msgid "From Flathub, about %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/cards.py:61
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:150
 #, python-format
-msgid "%s comes with CaramOS"
+msgid "From the Ubuntu software archive, about %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:92
-msgid "Recommended"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:151
+msgid "Comes with CaramOS."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:92
-msgid "Popular"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:97
-msgid "Flathub"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:98
-msgid "Ubuntu repository"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:99
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:177
-msgid "Comes with CaramOS"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:100
-msgid "Community package"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:101
-msgid "From the developer"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:110
-msgid "Verified app from Flathub, installed in a sandbox"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:111
-msgid "Package from the Ubuntu archive"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:112
-msgid "Already part of CaramOS"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:113
-msgid "Linux build packaged by the community, not by the app's developer"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:114
-msgid ""
-"Downloaded from the developer's website and installed as a system package"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:120
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:152
 #, python-format
-msgid "About %s"
+msgid "From the CaramOS software archive, about %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:62
-msgid "Installing apps"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:153
+#, python-format
+msgid "A Linux version made by the community, about %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:62
-msgid "Removing app"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:154
+#, python-format
+msgid "From the developer's website, about %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:72
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:34
+msgid "Strengths"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:35
+msgid "Good to know"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:61
+msgid "Website"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:68
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:105
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:109
+#, python-format
+msgid "Open %s in the web browser"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:41
+#, python-format
+msgid "Removing %s"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:43
+#, python-format
+msgid "Installing %s"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:45
 #, python-format
 msgid "Installing %d app"
 msgid_plural "Installing %d apps"
 msgstr[0] ""
 msgstr[1] ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:74
-#, python-format
-msgid "Removing %s"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:48
 msgid ""
 "You can keep using the computer. Closing this window does not stop the "
 "installation."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:79
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:50
 msgid ""
 "You can keep using the computer. Closing this window does not stop the "
 "removal."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:88
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:55
 msgid "Waiting"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:113
-msgid "Downloading and installing…"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:73
+msgid "Installing…"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:113
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:73
+#, python-format
+msgid "Installing… %d%%"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:74
 msgid "Removing…"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:122
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:74
+#, python-format
+msgid "Removing… %d%%"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
+msgid "Could not install"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
+msgid "Could not remove"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:96
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:58
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:60
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:142
+msgid "Installed"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:96
 msgid "Removed"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:124
-#, python-format
-msgid "Failed: %s"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:98
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:378
+msgid "unknown error"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:124
-msgid "Failed"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:135
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:108
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:109
 msgid "not started"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:136
-msgid "Not installed"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:58
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:142
+msgid "Included"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:136
-msgid "Not removed"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:61
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:201
+msgid "Remove"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:42
-msgid "No suggested app matches your search."
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:61
+#, python-format
+msgid "Remove %s from this computer"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:49
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:82
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:201
+msgid "Install"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:83
+#, python-format
+msgid "Install %s"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:108
+msgid "Recommended for most people."
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:111
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:116
+#, python-format
+msgid "More about %s"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:47
 msgid "Search apps"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:58
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:59
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:56
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:57
 msgid "Apps"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:65
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:128
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:68
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:144
 msgid "All apps"
 msgstr ""
 
@@ -204,268 +214,271 @@ msgstr ""
 msgid "App Center"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:99
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:98
 msgid "Find more apps"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:132
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:137
 #, python-format
-msgid "Search “%s” on apps.vietnamlinuxfamily.net"
+msgid "Results for “%s”"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:183
-msgid "Install"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:141
+#, python-format
+msgid "No suggested app matches “%s”."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:191
-msgid "Strengths and weaknesses"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:142
+#, python-format
+msgid "Search %s"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:194
-msgid "Website"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:82
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:83
 msgid "Checking installed apps…"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:117
-msgid "No Internet connection"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:118
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:119
 msgid ""
 "Connect to Wi-Fi or a network cable to download apps. CaramOS asks again at "
 "the next login."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:121
-msgid "Try again"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:122
+msgid "Connect to Wi-Fi or a network cable to download apps."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:125
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:42
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:123
+msgid "No Internet connection"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:126
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:46
 msgid "Later"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:152
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:127
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:254
+msgid "Try again"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:150
 msgid "Authentication was cancelled. Nothing was changed."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:196
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:197
 #, python-format
 msgid "Remove %s?"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:197
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:198
 msgid ""
 "It is removed from this computer for every user. Your documents and other "
 "files stay."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:199
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:200
 msgid "Cancel"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:234
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:236
 #, python-format
+msgid "%s was not installed"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:238
+#, python-format
+msgid "%d app was not installed"
+msgid_plural "%d apps were not installed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:241
+#, python-format
+msgid "%d other app is installed."
+msgid_plural "%d other apps are installed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:243
 msgid ""
-"Not installed: %s. Try again from the App Center later. If it keeps failing, "
-"press Ask for help to send VNLF the reason below with what the installer "
-"logged."
+"Try again now or later. If it still fails, press Ask for help to send VNLF "
+"what the installer logged."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:237
-#, python-format
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:246
 msgid ""
-"Not installed: %s. Try again from the App Center later. If it keeps failing, "
-"send the reason below from Feedback & Help."
+"Try again now or later. If it still fails, send the details below from "
+"Feedback & Help."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:240
-msgid "Some apps were not installed"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:253
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:310
+msgid "Ask for help"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:249
-msgid "CaramOS is ready"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:250
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:257
 #, python-format
-msgid "%d app was installed. You can find it in the menu."
-msgid_plural "%d apps were installed. You can find them in the menu."
+msgid "Installed %d app"
+msgid_plural "Installed %d apps"
 msgstr[0] ""
 msgstr[1] ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:258
+msgid "You can find it in the Start menu."
+msgid_plural "You can find them in the Start menu."
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:260
 msgid "Choose more apps"
 msgstr ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:261
-msgid "Done"
+msgid "Close"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:267
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:287
-msgid "Ask for help"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:286
+msgid "Details"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:295
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:318
 #, python-format
 msgid "The App Center could not remove %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:297
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:320
 #, python-format
 msgid "The App Center could not install %s."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:299
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:322
 msgid "Feedback & Help could not be opened."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:321
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:344
 msgid "Open the App Center again any time"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:322
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:345
 msgid ""
 "Double-click App Center on the Desktop, or look for “App Center” in the "
 "Start menu."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:324
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:347
 msgid "Got it"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:341
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:364
 #, python-format
 msgid "%d app could not be installed."
 msgid_plural "%d apps could not be installed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:344
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:367
 msgid "Your apps are installed and ready in the menu."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:354
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:377
 #, python-format
 msgid "%s is installed"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:354
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:377
 #, python-format
 msgid "%s was removed"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:355
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:380
 #, python-format
-msgid "Could not change %(app)s: %(error)s"
+msgid "Could not install %(app)s: %(error)s"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:355
-msgid "unknown error"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:39
-msgid "Set up your apps"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:381
+#, python-format
+msgid "Could not remove %(app)s: %(error)s"
 msgstr ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:43
+msgid "Choose apps for this computer"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:47
 msgid "Close now and ask again at the next login"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:86
-msgid "Welcome to CaramOS"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:57
+msgid "Can't find the app you need?"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:87
-msgid "Pick the apps you need. CaramOS downloads and installs them for you."
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:57
+#, python-format
+msgid "Find more on %s"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:90
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:75
+msgid "Pick the apps you need"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:76
 msgid ""
-"The recommended apps are already selected. Press Install at the bottom, or "
-"change any choice below."
+"CaramOS downloads and installs them in the background while you keep using "
+"the computer. Add or remove apps later in the App Center."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:92
-msgid ""
-"Apps install in the background while you use the computer. Add more any time "
-"from the App Center in the menu."
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:96
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:79
 msgid ""
 "You are trying CaramOS from the USB: apps installed now are lost when the "
 "computer turns off. Install CaramOS to keep them."
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:119
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:103
+msgid "Not now"
+msgstr ""
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:105
 msgid "Pick one"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:119
-msgid "Pick any"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:105
+msgid "Pick as many as you like"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:151
-msgid "Not now, I will choose later"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:108
+msgid "See more"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:163
-msgid "Can't find the app you want?"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:184
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:147
 #, python-format
-msgid "%d app"
-msgid_plural "%d apps"
+msgid "%(count)d app, about %(size)s"
+msgid_plural "%(count)d apps, about %(size)s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:185
-#, python-format
-msgid "About %s on disk"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:186
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:149
 #, python-format
 msgid "Install %d app"
 msgid_plural "Install %d apps"
 msgstr[0] ""
 msgstr[1] ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:188
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:151
 msgid "No apps selected"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:189
-msgid "Finish"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:152
+msgid "Done"
 msgstr ""
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:191
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:155
 #, python-format
-msgid "includes %s of shared Flathub libraries, downloaded once"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:194
-msgid "You can keep using the computer while the apps install."
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:219
-msgid "See more"
-msgstr ""
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:222
-#, python-format
-msgid "Open %s in the web browser"
+msgid "Includes %s shared by the apps from Flathub, downloaded once."
 msgstr ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/problem.py:94
 #, python-format
-msgid "dpkg could not finish installing %s, and that stops every install."
+msgid "%s did not finish installing, so every other install fails too."
 msgstr ""
 
 #: usr/lib/python3/dist-packages/caramos_app_center/problem.py:96

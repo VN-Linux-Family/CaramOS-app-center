@@ -1,3 +1,19 @@
+caramos-app-center (0.3.0) noble; urgency=medium
+
+  * A new design, closer to the rest of the desktop: plain lists instead of
+    cards, one green accent, and the app details on their own page. The
+    first-run picker and the install progress follow it.
+  * A "Doanh nghiệp" (Business) category, with CaramOS Doanh nghiệp (free
+    during its trial) and Remmina, to use the office's Windows computers
+    over Remote Desktop. Apps packaged by CaramOS show "Gói của CaramOS".
+  * Each catalogue app says what its licence lets a company do (free,
+    freeware, commercial), for CaramOS Doanh nghiệp's licence report.
+  * Uses less memory on computers without a GPU driver or with 4 GB or
+    less: GTK draws with cairo there instead of OpenGL.
+  * debian/copyright.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Mon, 23 Nov 2026 16:01:36 +0700
+
 caramos-app-center (0.2.4) noble; urgency=medium
 
   * Apps for school computer labs (a Tin học teacher's request for CaramOS

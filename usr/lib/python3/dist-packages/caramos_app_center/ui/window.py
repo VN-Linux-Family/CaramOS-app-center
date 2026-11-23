@@ -10,14 +10,14 @@ from __future__ import annotations
 import threading
 from datetime import datetime
 
-from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from ..i18n import _, ngettext
 
 from .. import firstrun, problem
 from ..catalog import App, Catalog
 from ..detect import installed_apps
-from .common import clamp, label, logo_path
+from .common import app_icon, boxed_list, clamp, label, secondary
 from .install import InstallView, Results
 from .store import StoreView
 from .wizard import WizardView
@@ -40,6 +40,7 @@ class MainWindow(Adw.ApplicationWindow):
         # The last install or removal, for asking VNLF for help when an app failed (problem.py).
         self.last_apps: list[App] = []
         self.last_logs: dict[str, list[str]] = {}
+        self.last_reasons: dict[str, str] = {}
         self.last_finished: datetime | None = None
         self.reopen_hint_shown = False
 
@@ -114,19 +115,16 @@ class MainWindow(Adw.ApplicationWindow):
         self._set_page("wizard", self.wizard)
 
     def _show_offline(self) -> None:
+        if self.first_run:
+            description = _("Connect to Wi-Fi or a network cable to download apps. CaramOS asks again at the next "
+                            "login.")
+        else:
+            description = _("Connect to Wi-Fi or a network cable to download apps.")
         page = Adw.StatusPage(icon_name="network-offline-symbolic", title=_("No Internet connection"),
-                              description=_("Connect to Wi-Fi or a network cable to download apps. "
-                                            "CaramOS asks again at the next login."))
+                              description=description)
         buttons = Gtk.Box(spacing=12, halign=Gtk.Align.CENTER)
-        retry = Gtk.Button(label=_("Try again"))
-        retry.add_css_class("suggested-action")
-        retry.add_css_class("pill")
-        retry.connect("clicked", lambda _b: self.show_wizard())
-        later = Gtk.Button(label=_("Later"))
-        later.add_css_class("pill")
-        later.connect("clicked", lambda _b: self.close())
-        buttons.append(retry)
-        buttons.append(later)
+        buttons.append(_pill(_("Later"), self.close))
+        buttons.append(_pill(_("Try again"), self.show_wizard, suggested=True))
         page.set_child(buttons)
         self._set_page("offline", self._with_header(page))
 
@@ -156,6 +154,7 @@ class MainWindow(Adw.ApplicationWindow):
             if self.install_view is not None:
                 self.last_apps = list(apps)
                 self.last_logs = {app_id: list(lines) for app_id, lines in self.install_view.logs.items()}
+                self.last_reasons = dict(self.install_view.reasons)
                 self.last_finished = datetime.now()
             self.install_view = None
             self._detect_after(results, after)
@@ -192,7 +191,9 @@ class MainWindow(Adw.ApplicationWindow):
 
         self._start_install(apps, "install", after)
 
-    def _remove_from_wizard(self, app: App) -> None:
+    def _confirm_remove(self, app: App, remove) -> None:
+        """Ask before removing an app; remove() runs when the user agrees."""
+
         dialog = Adw.AlertDialog(heading=_("Remove %s?") % app.name,
                                  body=_("It is removed from this computer for every user. Your documents and other "
                                         "files stay."))
@@ -201,10 +202,11 @@ class MainWindow(Adw.ApplicationWindow):
         dialog.set_response_appearance("remove", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
+        dialog.connect("response", lambda _dialog, response: remove() if response == "remove" else None)
+        dialog.present(self)
 
-        def respond(_dialog, response: str) -> None:
-            if response != "remove":
-                return
+    def _remove_from_wizard(self, app: App) -> None:
+        def remove() -> None:
             selection = self.wizard.selection if self.wizard is not None else None
 
             def after(results: Results | None) -> None:
@@ -214,8 +216,7 @@ class MainWindow(Adw.ApplicationWindow):
 
             self._start_install([app], "remove", after)
 
-        dialog.connect("response", respond)
-        dialog.present(self)
+        self._confirm_remove(app, remove)
 
     def _finish_wizard(self) -> None:
         if self.first_run:
@@ -226,52 +227,71 @@ class MainWindow(Adw.ApplicationWindow):
     def _show_done(self, results: Results) -> None:
         if self.first_run:
             firstrun.mark_done()
-        failed = {self.catalog.app(app_id).name: error for app_id, (ok, error) in results.items() if not ok}
+        failed = [self.catalog.app(app_id) for app_id, (ok, _error) in results.items() if not ok]
         done = len(results) - len(failed)
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-        if failed:
-            if problem.help_available():
-                text = _("Not installed: %s. Try again from the App Center later. If it keeps failing, press Ask "
-                         "for help to send VNLF the reason below with what the installer logged.")
-            else:
-                text = _("Not installed: %s. Try again from the App Center later. If it keeps failing, send the "
-                         "reason below from Feedback & Help.")
-            # The description is Pango markup: "&" in "Feedback & Help" would hide it.
-            page = Adw.StatusPage(icon_name="dialog-warning-symbolic", title=_("Some apps were not installed"),
-                                  description=GLib.markup_escape_text(text % ", ".join(failed)))
-            # The reason is what the installer reported, in English: enough for whoever answers the request.
-            reasons = "\n".join(f"{name}: {error}" for name, error in failed.items() if error)
-            if reasons:
-                details = label(reasons, "dim-label", xalign=0.5)
-                details.set_justify(Gtk.Justification.CENTER)
-                content.append(clamp(details, 640))
-        else:
-            page = Adw.StatusPage(title=_("CaramOS is ready"),
-                                  description=ngettext("%d app was installed. You can find it in the menu.",
-                                                       "%d apps were installed. You can find them in the menu.",
-                                                       done) % done)
-            if logo_path().is_file():
-                page.set_paintable(Gdk.Texture.new_from_filename(str(logo_path())))
-            else:
-                page.set_icon_name("emblem-ok-symbolic")
         buttons = Gtk.Box(spacing=12, halign=Gtk.Align.CENTER)
-        store = Gtk.Button(label=_("Choose more apps"))
-        store.add_css_class("pill")
-        store.connect("clicked", lambda _b: self.show_wizard())
-        close = Gtk.Button(label=_("Done"))
-        close.add_css_class("suggested-action")
-        close.add_css_class("pill")
-        close.connect("clicked", lambda _b: self.close())
-        buttons.append(store)
-        if failed and problem.help_available():
-            ask = Gtk.Button(label=_("Ask for help"))
-            ask.add_css_class("pill")
-            ask.connect("clicked", lambda _b: self._ask_for_help("install", results))
-            buttons.append(ask)
-        buttons.append(close)
+        if failed:
+            if len(failed) == 1:
+                title = _("%s was not installed") % failed[0].name
+            else:
+                title = ngettext("%d app was not installed", "%d apps were not installed", len(failed)) % len(failed)
+            sentences = []
+            if done:
+                sentences.append(ngettext("%d other app is installed.", "%d other apps are installed.", done) % done)
+            if problem.help_available():
+                sentences.append(_("Try again now or later. If it still fails, press Ask for help to send VNLF what "
+                                   "the installer logged."))
+            else:
+                sentences.append(_("Try again now or later. If it still fails, send the details below from "
+                                   "Feedback & Help."))
+            # The description is Pango markup: "&" in "Feedback & Help" would hide it.
+            page = Adw.StatusPage(icon_name="dialog-warning-symbolic", title=title,
+                                  description=GLib.markup_escape_text(" ".join(sentences)))
+            content.append(clamp(self._failed_list(failed, results), 480))
+            if problem.help_available():
+                buttons.append(_pill(_("Ask for help"), lambda: self._ask_for_help("install", results)))
+            buttons.append(_pill(_("Try again"), lambda: self._install_from_wizard([app.id for app in failed])))
+        else:
+            page = Adw.StatusPage(icon_name="emblem-ok-symbolic",
+                                  title=ngettext("Installed %d app", "Installed %d apps", done) % done,
+                                  description=ngettext("You can find it in the Start menu.",
+                                                       "You can find them in the Start menu.", done))
+            buttons.append(_pill(_("Choose more apps"), self.show_wizard))
+        buttons.append(_pill(_("Close"), self.close, suggested=True))
         content.append(buttons)
         page.set_child(content)
         self._set_page("done", self._with_header(page))
+
+    def _failed_list(self, apps: list[App], results: Results) -> Gtk.ListBox:
+        """The apps that were not installed, with what to do when the App Center knows, and the installer's own
+        words under Details."""
+
+        listbox = boxed_list()
+        for app in apps:
+            row = Gtk.ListBoxRow(activatable=False)
+            row.add_css_class("app-row")
+            box = Gtk.Box(spacing=12)
+            box.append(app_icon(app, 40))
+            column = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, valign=Gtk.Align.CENTER, hexpand=True)
+            column.append(label(app.name, "row-title"))
+            advice = results.get(app.id, (False, ""))[1]
+            if advice and advice != self.last_reasons.get(app.id, advice):
+                column.append(secondary(advice))
+            box.append(column)
+            row.set_child(box)
+            listbox.append(row)
+        reasons = "\n".join(f"{app.name}: {self.last_reasons.get(app.id) or results.get(app.id, (False, ''))[1]}"
+                             for app in apps)
+        details = Adw.ExpanderRow(title=_("Details"))
+        text = label(reasons, "monospace", "details-text")
+        text.set_selectable(True)
+        inner = Gtk.ListBoxRow(activatable=False)
+        inner.add_css_class("text-row")
+        inner.set_child(text)
+        details.add_row(inner)
+        listbox.append(details)
+        return listbox
 
     def _store_action(self, app: App, action: str) -> None:
         def after(results: Results | None) -> None:
@@ -279,7 +299,10 @@ class MainWindow(Adw.ApplicationWindow):
             if results is not None:
                 self.toasts.add_toast(self._result_toast(app, action, results))
 
-        self._start_install([app], action, after)
+        if action == "remove":
+            self._confirm_remove(app, lambda: self._start_install([app], action, after))
+        else:
+            self._start_install([app], action, after)
 
     def _result_toast(self, app: App, action: str, results: Results) -> Adw.Toast:
         toast = Adw.Toast(title=_change_text(app, action, results), timeout=6)
@@ -352,4 +375,18 @@ def _change_text(app: App, action: str, results: Results) -> str:
     ok, error = results.get(app.id, (False, ""))
     if ok:
         return _("%s is installed") % app.name if action == "install" else _("%s was removed") % app.name
-    return _("Could not change %(app)s: %(error)s") % {"app": app.name, "error": error or _("unknown error")}
+    values = {"app": app.name, "error": error or _("unknown error")}
+    if action == "install":
+        return _("Could not install %(app)s: %(error)s") % values
+    return _("Could not remove %(app)s: %(error)s") % values
+
+
+def _pill(text: str, on_clicked, *, suggested: bool = False) -> Gtk.Button:
+    """A button of a status page (the done and offline pages)."""
+
+    button = Gtk.Button(label=text)
+    button.add_css_class("pill")
+    if suggested:
+        button.add_css_class("suggested-action")
+    button.connect("clicked", lambda _button: on_clicked())
+    return button
