@@ -1,0 +1,12 @@
+#!/usr/bin/python3 -I
+"""A website app of the CaramOS App Center in its own window: caramos-web-app <app-id> (see caramos_app_center/webapp.py)."""
+
+import sys
+
+sys.path.insert(0, "/usr/lib/python3/dist-packages")
+
+from caramos_app_center.webview import main  # noqa: E402
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

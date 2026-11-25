@@ -13,8 +13,7 @@ from gi.repository import Gtk
 from ..i18n import _
 
 from ..catalog import App
-from ..plan import format_size
-from .common import app_icon, label, secondary, themed_image
+from .common import app_icon, label, secondary, size_text, themed_image
 
 ICON_SIZE = 40
 
@@ -78,7 +77,7 @@ class StoreRow(Gtk.ListBoxRow):
             box.append(installed_controls(app, on_remove))
         else:
             controls = Gtk.Box(spacing=12, valign=Gtk.Align.CENTER)
-            controls.append(_status_text(format_size(app.size_mb)))
+            controls.append(_status_text(size_text(app)))
             controls.append(_button(_("Install"), lambda: on_install(app),
                                     tooltip=_("Install %s") % app.name))
             box.append(controls)
@@ -107,7 +106,7 @@ class ChoiceRow(Gtk.ListBoxRow):
         box.append(app_icon(app, ICON_SIZE))
         note = _("Recommended for most people.") if app.badge == "recommended" else ""
         box.append(_text_column(app, one_line=False, note=note))
-        box.append(_status_text(format_size(app.size_mb)))
+        box.append(_status_text(size_text(app)))
         info = Gtk.Button(valign=Gtk.Align.CENTER, tooltip_text=_("More about %s") % app.name)
         info.set_child(themed_image("info-outline-symbolic", "dialog-information-symbolic"))
         info.add_css_class("flat")

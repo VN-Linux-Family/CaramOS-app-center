@@ -152,6 +152,7 @@ class HelperRunTests(unittest.TestCase):
         self.write_recipe("silent", "exit 4\n")
         data = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
         base = next(app for app in data["apps"] if app["id"] == "zoom")
+        base = {key: value for key, value in base.items() if key != "flathub"}   # each Flathub id once
         apps = []
         for app_id, recipe in (("good-app", "good"), ("bad-app", "bad"), ("silent-app", "silent")):
             app = dict(base, id=app_id, install={"recipe": recipe}, detect={"deb": app_id})

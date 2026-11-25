@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caramos-app-center\n"
 "Report-Msgid-Bugs-To: developer@vietnamlinuxfamily.net\n"
-"POT-Creation-Date: 2026-11-21 13:20+0700\n"
-"PO-Revision-Date: 2026-11-21 13:30+0700\n"
+"POT-Creation-Date: 2026-11-25 20:31+0700\n"
+"PO-Revision-Date: 2026-11-25 15:40+0700\n"
 "Last-Translator: Vietnam Linux Family <developer@vietnamlinuxfamily.net>\n"
 "Language-Team: Vietnamese <developer@vietnamlinuxfamily.net>\n"
 "Language: vi\n"
@@ -14,40 +14,58 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/app.py:50
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:28
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:359
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/app.py:54
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:35
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:526
 msgid "CaramOS App Center"
 msgstr "App Center CaramOS"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:149
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:154
+msgid "A website that opens in your web browser."
+msgstr "Trang web, mở bằng trình duyệt của bạn."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:156
+msgid "A website that opens in its own window, without ads."
+msgstr "Trang web mở trong cửa sổ riêng, không có quảng cáo."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:157
+msgid "A website that opens in its own window."
+msgstr "Trang web mở trong cửa sổ riêng."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:160
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:158
 #, python-format
 msgid "From Flathub, about %s."
 msgstr "Từ Flathub, khoảng %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:150
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:161
 #, python-format
 msgid "From the Ubuntu software archive, about %s."
 msgstr "Từ kho phần mềm Ubuntu, khoảng %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:151
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:162
 msgid "Comes with CaramOS."
 msgstr "Có sẵn trong CaramOS."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:152
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:163
 #, python-format
 msgid "From the CaramOS software archive, about %s."
 msgstr "Từ kho phần mềm CaramOS, khoảng %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:153
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:164
 #, python-format
 msgid "A Linux version made by the community, about %s."
 msgstr "Bản cho Linux do cộng đồng làm, khoảng %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:154
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:165
 #, python-format
 msgid "From the developer's website, about %s."
 msgstr "Từ trang web của nhà phát triển, khoảng %s."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/common.py:172
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:63
+msgid "Website"
+msgstr "Trang web"
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:34
 msgid "Strengths"
@@ -57,129 +75,235 @@ msgstr "Điểm mạnh"
 msgid "Good to know"
 msgstr "Cần biết"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:61
-msgid "Website"
-msgstr "Trang web"
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:68
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/detail.py:70
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:105
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:109
 #, python-format
 msgid "Open %s in the web browser"
 msgstr "Mở %s trong trình duyệt"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:41
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:44
 #, python-format
 msgid "Removing %s"
 msgstr "Đang gỡ %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:43
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:46
 #, python-format
 msgid "Installing %s"
 msgstr "Đang cài %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:45
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:48
 #, python-format
 msgid "Installing %d app"
 msgid_plural "Installing %d apps"
 msgstr[0] "Đang cài %d ứng dụng"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:48
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:51
 msgid ""
 "You can keep using the computer. Closing this window does not stop the "
 "installation."
 msgstr ""
 "Bạn vẫn dùng máy bình thường. Đóng cửa sổ này thì việc cài vẫn chạy tiếp."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:50
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:53
 msgid ""
 "You can keep using the computer. Closing this window does not stop the "
 "removal."
 msgstr ""
 "Bạn vẫn dùng máy bình thường. Đóng cửa sổ này thì việc gỡ vẫn chạy tiếp."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:55
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:58
 msgid "Waiting"
 msgstr "Đang chờ"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:73
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:76
 msgid "Installing…"
 msgstr "Đang cài…"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:73
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:76
 #, python-format
 msgid "Installing… %d%%"
 msgstr "Đang cài… %d%%"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:74
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
 msgid "Removing…"
 msgstr "Đang gỡ…"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:74
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
 #, python-format
 msgid "Removing… %d%%"
 msgstr "Đang gỡ… %d%%"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:80
 msgid "Could not install"
 msgstr "Không cài được"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:77
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:80
 msgid "Could not remove"
 msgstr "Không gỡ được"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:96
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:58
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:60
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:142
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:99
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:57
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:59
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:141
 msgid "Installed"
 msgstr "Đã cài"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:96
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:99
 msgid "Removed"
 msgstr "Đã gỡ"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:98
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:378
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:101
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:546
 msgid "unknown error"
 msgstr "lỗi không rõ"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:108
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:109
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:111
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/install.py:112
 msgid "not started"
 msgstr "chưa bắt đầu"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:58
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:142
-msgid "Included"
-msgstr "Có sẵn"
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:31
+msgid ""
+"Flatpak is not on this computer. The App Center will install Flatpak first, "
+"then the app."
+msgstr "Máy chưa có Flatpak, App Center sẽ cài Flatpak rồi cài ứng dụng."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:61
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:201
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:33
+msgid ""
+"This computer does not use Flathub yet. The App Center will turn Flathub on "
+"first, then install the app."
+msgstr ""
+"Máy chưa dùng kho ứng dụng Flathub, App Center sẽ bật Flathub rồi cài ứng "
+"dụng."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:40
+#, python-format
+msgid "Open source (%s)."
+msgstr "Mã nguồn mở (%s)."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:42
+msgid "Closed source, under its developer's terms."
+msgstr "Mã nguồn đóng, theo điều khoản của nhà phát triển."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:43
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:55
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:124
+msgid "Flathub does not say."
+msgstr "Flathub không ghi."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:49
+#, python-format
+msgid "About %(download)s to download, about %(installed)s once installed."
+msgstr "Tải về khoảng %(download)s, cài xong chiếm khoảng %(installed)s."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:53
+msgid ""
+"The first time, it also downloads a runtime that the apps from Flathub "
+"share, which can take more than 1 GB."
+msgstr ""
+"Lần đầu còn tải thêm bộ chạy dùng chung cho các ứng dụng từ Flathub, có thể "
+"hơn 1 GB."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:71
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:72
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:455
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:313
+msgid "Back"
+msgstr "Quay lại"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:95
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:162
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:81
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:201
+msgid "Install"
+msgstr "Cài đặt"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:126
+#, python-format
+msgid "%s. Verified by Flathub."
+msgstr "%s. Đã được Flathub xác minh."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:127
+msgid "Developer"
+msgstr "Nhà phát triển"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:128
+msgid "Licence"
+msgstr "Giấy phép"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:129
+msgid "Size"
+msgstr "Dung lượng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:130
+msgid "About this app"
+msgstr "Về ứng dụng này"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:132
+msgid ""
+"Flathub is the shared app store for Linux. This app is not on the App "
+"Center's list of suggestions, so the CaramOS team has not tried it on "
+"CaramOS."
+msgstr ""
+"Flathub là kho ứng dụng chung cho Linux. Ứng dụng này không có trong danh "
+"sách App Center gợi ý, nên nhóm CaramOS chưa thử nó trên CaramOS."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:135
+msgid "Its developer no longer updates this app."
+msgstr "Nhà phát triển đã ngừng cập nhật ứng dụng này."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:143
+msgid "An app from Flathub"
+msgstr "Ứng dụng từ Flathub"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:152
+msgid "Installed on this computer."
+msgstr "Đã cài trên máy này."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:155
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:60
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:223
 msgid "Remove"
 msgstr "Gỡ"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:61
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:156
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:284
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:455
+msgid "Close"
+msgstr "Đóng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:161
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:144
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:46
+msgid "Later"
+msgstr "Để sau"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/linkpage.py:174
+msgid "Getting the app's details from Flathub…"
+msgstr "Đang lấy thông tin ứng dụng từ Flathub…"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:57
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:141
+msgid "Included"
+msgstr "Có sẵn"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:60
 #, python-format
 msgid "Remove %s from this computer"
 msgstr "Gỡ %s khỏi máy"
 
 #: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:82
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/store.py:201
-msgid "Install"
-msgstr "Cài đặt"
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:83
 #, python-format
 msgid "Install %s"
 msgstr "Cài %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:108
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:107
 msgid "Recommended for most people."
 msgstr "Đề xuất cho hầu hết mọi người."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:111
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:116
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:110
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/rows.py:115
 #, python-format
 msgid "More about %s"
 msgstr "Xem thêm về %s"
@@ -230,11 +354,11 @@ msgstr "Không có ứng dụng gợi ý nào khớp với “%s”."
 msgid "Search %s"
 msgstr "Tìm trên %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:83
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:97
 msgid "Checking installed apps…"
 msgstr "Đang kiểm tra ứng dụng đã cài…"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:119
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:137
 msgid ""
 "Connect to Wi-Fi or a network cable to download apps. CaramOS asks again at "
 "the next login."
@@ -242,34 +366,33 @@ msgstr ""
 "Kết nối Wi-Fi hoặc cắm dây mạng để tải ứng dụng. CaramOS sẽ hỏi lại ở lần "
 "đăng nhập sau."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:122
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:140
 msgid "Connect to Wi-Fi or a network cable to download apps."
 msgstr "Kết nối Wi-Fi hoặc cắm dây mạng để tải ứng dụng."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:123
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:141
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:447
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:296
 msgid "No Internet connection"
 msgstr "Chưa có kết nối Internet"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:126
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/wizard.py:46
-msgid "Later"
-msgstr "Để sau"
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:127
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:254
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:145
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:276
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:457
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:337
 msgid "Try again"
 msgstr "Thử lại"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:150
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:168
 msgid "Authentication was cancelled. Nothing was changed."
 msgstr "Bạn đã hủy xác thực. Chưa có gì thay đổi."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:197
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:219
 #, python-format
 msgid "Remove %s?"
 msgstr "Gỡ %s?"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:198
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:220
 msgid ""
 "It is removed from this computer for every user. Your documents and other "
 "files stay."
@@ -277,28 +400,28 @@ msgstr ""
 "Ứng dụng bị gỡ khỏi máy, với mọi tài khoản. Tài liệu và các tệp khác của bạn "
 "vẫn còn nguyên."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:200
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:222
 msgid "Cancel"
 msgstr "Hủy"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:236
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:258
 #, python-format
 msgid "%s was not installed"
 msgstr "Chưa cài được %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:238
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:260
 #, python-format
 msgid "%d app was not installed"
 msgid_plural "%d apps were not installed"
 msgstr[0] "Chưa cài được %d ứng dụng"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:241
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:263
 #, python-format
 msgid "%d other app is installed."
 msgid_plural "%d other apps are installed."
 msgstr[0] "%d ứng dụng còn lại đã cài xong."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:243
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:265
 msgid ""
 "Try again now or later. If it still fails, press Ask for help to send VNLF "
 "what the installer logged."
@@ -306,7 +429,7 @@ msgstr ""
 "Thử lại ngay hoặc để sau. Nếu vẫn không được, bấm Nhờ giúp đỡ để gửi VNLF "
 "nhật ký cài đặt."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:246
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:268
 msgid ""
 "Try again now or later. If it still fails, send the details below from "
 "Feedback & Help."
@@ -314,53 +437,84 @@ msgstr ""
 "Thử lại ngay hoặc để sau. Nếu vẫn không được, gửi phần Chi tiết bên dưới qua "
 "Góp ý & hỗ trợ."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:253
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:310
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:275
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:333
 msgid "Ask for help"
 msgstr "Nhờ giúp đỡ"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:257
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:279
 #, python-format
 msgid "Installed %d app"
 msgid_plural "Installed %d apps"
 msgstr[0] "Đã cài %d ứng dụng"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:258
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:280
 msgid "You can find it in the Start menu."
 msgid_plural "You can find them in the Start menu."
 msgstr[0] "Ứng dụng mới đã có trong menu Start."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:260
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:283
 msgid "Choose more apps"
 msgstr "Chọn thêm ứng dụng"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:261
-msgid "Close"
-msgstr "Đóng"
-
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:286
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:309
 msgid "Details"
 msgstr "Chi tiết"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:318
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:341
 #, python-format
 msgid "The App Center could not remove %s."
 msgstr "App Center chưa gỡ được %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:320
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:343
 #, python-format
 msgid "The App Center could not install %s."
 msgstr "App Center chưa cài được %s."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:322
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:345
 msgid "Feedback & Help could not be opened."
 msgstr "Không mở được Góp ý & hỗ trợ."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:344
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:355
+msgid "The link opens once the installation is done."
+msgstr "Liên kết sẽ mở khi cài xong."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:439
+msgid "This link cannot be opened"
+msgstr "Không mở được liên kết này"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:440
+#, python-format
+msgid "The App Center opens only the app install links of %s."
+msgstr "App Center chỉ mở liên kết cài ứng dụng của trang %s."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:443
+msgid "App not found"
+msgstr "Không tìm thấy ứng dụng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:444
+#, python-format
+msgid "Flathub has no app %s."
+msgstr "Flathub không có ứng dụng %s."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:448
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:296
+msgid "Connect to Wi-Fi or a network cable, then try again."
+msgstr "Hãy kết nối Wi-Fi hoặc cắm dây mạng, rồi thử lại."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:450
+msgid "Could not get the app's details"
+msgstr "Không lấy được thông tin ứng dụng"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:451
+msgid "Flathub did not answer. Try again in a moment."
+msgstr "Flathub không trả lời. Lát nữa hãy thử lại."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:511
 msgid "Open the App Center again any time"
 msgstr "Bạn có thể mở lại App Center bất cứ lúc nào"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:345
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:512
 msgid ""
 "Double-click App Center on the Desktop, or look for “App Center” in the "
 "Start menu."
@@ -368,36 +522,36 @@ msgstr ""
 "Nhấp đúp biểu tượng App Center trên màn hình Desktop, hoặc tìm “App Center” "
 "trong menu Start."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:347
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:514
 msgid "Got it"
 msgstr "Đã hiểu"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:364
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:532
 #, python-format
 msgid "%d app could not be installed."
 msgid_plural "%d apps could not be installed."
 msgstr[0] "%d ứng dụng chưa cài được."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:367
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:535
 msgid "Your apps are installed and ready in the menu."
 msgstr "Các ứng dụng đã cài xong, bạn mở chúng từ menu."
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:377
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:545
 #, python-format
 msgid "%s is installed"
 msgstr "Đã cài %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:377
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:545
 #, python-format
 msgid "%s was removed"
 msgstr "Đã gỡ %s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:380
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:548
 #, python-format
 msgid "Could not install %(app)s: %(error)s"
 msgstr "Chưa cài được %(app)s: %(error)s"
 
-#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:381
+#: usr/lib/python3/dist-packages/caramos_app_center/ui/window.py:549
 #, python-format
 msgid "Could not remove %(app)s: %(error)s"
 msgstr "Chưa gỡ được %(app)s: %(error)s"
@@ -496,3 +650,34 @@ msgid ""
 msgstr ""
 "Một chương trình khác đang cài phần mềm (trình cài đặt CaramOS hoặc Trình "
 "quản lý cập nhật). Chờ nó xong rồi thử lại."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:154
+msgid "The page stopped working"
+msgstr "Trang đã ngừng chạy"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:154
+msgid "Press Try again to open it again."
+msgstr "Bấm Thử lại để mở lại trang."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:298
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:304
+msgid "The website did not open"
+msgstr "Trang web không mở được"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:298
+msgid "It did not answer. Try again in a moment."
+msgstr "Trang không trả lời. Lát nữa hãy thử lại."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:305
+msgid ""
+"Its security certificate is not valid, so this may not be the real site."
+msgstr ""
+"Chứng chỉ bảo mật của trang không hợp lệ, có thể đây không phải trang thật."
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:315
+msgid "Start page"
+msgstr "Trang đầu"
+
+#: usr/lib/python3/dist-packages/caramos_app_center/webview.py:316
+msgid "Reload"
+msgstr "Tải lại"

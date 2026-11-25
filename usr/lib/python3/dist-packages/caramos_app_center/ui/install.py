@@ -21,10 +21,13 @@ Results = dict[str, tuple[bool, str]]
 
 class InstallView(Adw.Bin):
     def __init__(self, apps: list[App], *, action: str, on_done: Callable[[Results], None],
-                 on_cancelled: Callable[[], None]) -> None:
+                 on_cancelled: Callable[[], None], helper_action: str = "") -> None:
         super().__init__()
         self.apps = apps
         self.action = action
+        # What the helper is asked to do: action itself, or flathub-install / flathub-remove for an app from Flathub
+        # that the catalog does not have (an install link).
+        self.helper_action = helper_action or action
         self.on_done = on_done
         self.on_cancelled = on_cancelled
         self.results: Results = {}
@@ -66,7 +69,7 @@ class InstallView(Adw.Bin):
         self.results = {}
         self.logs = {}
         self.reasons = {}
-        self.run = HelperRun(self.action, [app.id for app in self.apps], self._on_event, self._on_exit)
+        self.run = HelperRun(self.helper_action, [app.id for app in self.apps], self._on_event, self._on_exit)
 
     def _working_text(self, percent: int | None = None) -> str:
         if self.action == "install":

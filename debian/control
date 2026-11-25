@@ -16,6 +16,8 @@ Depends: ${misc:Depends},
  python3-gi,
  gir1.2-gtk-4.0,
  gir1.2-adw-1,
+ gir1.2-gtk-3.0,
+ gir1.2-webkit2-4.1,
  gir1.2-flatpak-1.0,
  flatpak,
  pkexec,
@@ -28,6 +30,8 @@ Description: CaramOS App Center: first-run app picker and app store
  log in, and install or remove them later from the menu.
  .
  Apps come from Flathub when the publisher maintains them there, otherwise
- from the publisher's own package. A polkit-protected helper only accepts app
- IDs from the packaged catalog. Apps beyond the suggestions are on
- apps.vietnamlinuxfamily.net.
+ from the publisher's own package. A few websites for school children can be
+ added to the menu too: in a window of their own, without the browser around
+ them, or in the web browser where the site's terms ask for that. A
+ polkit-protected helper only accepts app IDs from the packaged catalog. Apps
+ beyond the suggestions are on apps.vietnamlinuxfamily.net.

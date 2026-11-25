@@ -6,8 +6,10 @@ VERSION ?=
 
 PY := PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=usr/lib/python3/dist-packages python3
 PY_SCRIPTS := usr/bin/caramos-app-center usr/lib/caramos-app-center/caramos-app-center-helper \
-	usr/share/caramos-app-center/recipes/zalo-full
-UI_SOURCES := $(sort $(wildcard usr/lib/python3/dist-packages/caramos_app_center/ui/*.py)) usr/lib/python3/dist-packages/caramos_app_center/problem.py
+	usr/lib/caramos-app-center/caramos-web-app usr/share/caramos-app-center/recipes/zalo-full \
+	usr/share/caramos-app-center/recipes/exelearning usr/share/caramos-app-center/recipes/anydesk
+UI_SOURCES := $(sort $(wildcard usr/lib/python3/dist-packages/caramos_app_center/ui/*.py)) \
+	usr/lib/python3/dist-packages/caramos_app_center/problem.py usr/lib/python3/dist-packages/caramos_app_center/webview.py
 DOMAIN := caramos-app-center
 CURRENT_VERSION = $(shell dpkg-parsechangelog -S Version)
 

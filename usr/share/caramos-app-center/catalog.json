@@ -43,24 +43,49 @@
       "web_category": "utility",
       "title": {"vi": "Tiện ích thường dùng", "en": "Everyday tools"},
       "subtitle": {
-        "vi": "Phông chữ cho file Word, xem phim, quay màn hình, hỗ trợ từ xa.",
-        "en": "Fonts for Word files, video, screen recording and remote help."
+        "vi": "Phông chữ cho file Word, thư điện tử, ghi chú, hỗ trợ từ xa và VPN của cơ quan.",
+        "en": "Fonts for Word files, email, notes, remote help and your workplace's VPN."
       },
       "choice": "multi",
-      "apps": ["ms-fonts", "vlc", "obs-studio", "rustdesk", "gimp", "thunderbird"],
-      "default": ["ms-fonts", "vlc"]
+      "apps": ["ms-fonts", "thunderbird", "obsidian", "rustdesk", "anydesk", "openconnect"],
+      "default": ["ms-fonts"]
+    },
+    {
+      "id": "media",
+      "web_category": "audiovideo",
+      "title": {"vi": "Phim, nhạc, ảnh và thiết kế", "en": "Video, music, photos and design"},
+      "subtitle": {
+        "vi": "Xem phim, nghe nhạc, quay màn hình, dựng video, sửa ảnh, vẽ logo và áp phích.",
+        "en": "Watch videos, listen to music, record the screen, edit videos and photos, draw logos and posters."
+      },
+      "choice": "multi",
+      "apps": ["vlc", "spotify", "obs-studio", "kdenlive", "gimp", "inkscape"],
+      "default": ["vlc"]
     },
     {
       "id": "education",
       "web_category": "education",
-      "title": {"vi": "Học tập và dạy học", "en": "Learning and teaching"},
+      "title": {"vi": "Tin học cho các em", "en": "Computer skills for children"},
       "subtitle": {
-        "vi": "Cho tiết Tin học và các môn học: tập dùng chuột và gõ phím, vẽ, lập trình Scratch và Python, Toán, thiên văn. Hợp cho máy ở trường hay máy của con.",
-        "en": "For computer lessons and school subjects: mouse and typing practice, drawing, Scratch and Python, maths, astronomy. For school computers or your children's."
+        "vi": "Tập dùng chuột, gõ phím 10 ngón, vẽ, tô màu và xếp hình cho tiết Tin học tiểu học, thay cho Clickomania, Rapid Typing và Paint trên Windows. Hợp cho máy ở trường hay máy của con.",
+        "en": "Mouse practice, touch typing, drawing, colouring and shape puzzles for primary school computer lessons, in place of Clickomania, Rapid Typing and Paint on Windows. For school computers or your children's."
       },
       "choice": "multi",
       "allow_none": true,
-      "apps": ["gcompris", "tuxpaint", "klavaro", "turbowarp", "kturtle", "thonny", "geogebra", "stellarium"],
+      "apps": ["gcompris", "minimouse", "klickety", "tuxpaint", "kolourpaint", "thecolor", "tuxtype", "ktouch", "klavaro", "polypad-tangram"],
+      "default": []
+    },
+    {
+      "id": "teaching",
+      "web_category": "education",
+      "title": {"vi": "Lập trình, Toán, Khoa học và soạn bài giảng", "en": "Programming, maths, science and lessons"},
+      "subtitle": {
+        "vi": "Scratch và Python, hình học, bầu trời sao, lắp mô hình LEGO cho tiết STEM, và soạn bài giảng điện tử cho thầy cô.",
+        "en": "Scratch and Python, geometry, the night sky, LEGO models for STEM lessons, and e-lessons for teachers to make."
+      },
+      "choice": "multi",
+      "allow_none": true,
+      "apps": ["turbowarp", "kturtle", "thonny", "geogebra", "stellarium", "leocad", "exelearning"],
       "default": []
     },
     {
@@ -125,6 +150,7 @@
       "size_mb": 1100,
       "website": "https://www.wps.com/",
       "install": {"recipe": "wps-office"},
+      "flathub": "com.wps.Office",
       "detect": {"deb": "wps-office"},
       "licence": {"class": "unknown", "note": {"vi": "Mã nguồn đóng; điều khoản dùng trong công ty chưa rõ ràng, hãy hỏi Kingsoft trước khi dùng cho công việc.", "en": "Closed source; the terms for company use are unclear, ask Kingsoft before using it for work."}}
     },
@@ -165,6 +191,7 @@
       "size_mb": 380,
       "website": "https://www.google.com/chrome/",
       "install": {"recipe": "google-chrome"},
+      "flathub": "com.google.Chrome",
       "detect": {"deb": "google-chrome-stable"},
       "licence": {"class": "freeware", "note": {"vi": "Miễn phí nhưng mã nguồn đóng, theo điều khoản của Google.", "en": "Free of charge but closed source, under Google's terms."}}
     },
@@ -205,6 +232,7 @@
       "size_mb": 520,
       "website": "https://www.microsoft.com/edge",
       "install": {"recipe": "microsoft-edge"},
+      "flathub": "com.microsoft.Edge",
       "detect": {"deb": "microsoft-edge-stable"},
       "licence": {"class": "freeware", "note": {"vi": "Miễn phí nhưng mã nguồn đóng, theo điều khoản của Microsoft.", "en": "Free of charge but closed source, under Microsoft's terms."}}
     },
@@ -244,6 +272,7 @@
       "size_mb": 250,
       "website": "https://www.mozilla.org/firefox/",
       "install": {"preinstalled": true},
+      "flathub": "org.mozilla.firefox",
       "detect": {"deb": "firefox"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -304,6 +333,7 @@
       "size_mb": 800,
       "website": "https://zoom.us/",
       "install": {"recipe": "zoom"},
+      "flathub": "us.zoom.Zoom",
       "detect": {"deb": "zoom"},
       "licence": {"class": "freeware", "note": {"vi": "Miễn phí nhưng mã nguồn đóng, theo điều khoản của Zoom. Gói miễn phí giới hạn thời lượng cuộc họp.", "en": "Free of charge but closed source, under Zoom's terms. The free plan limits meeting length."}}
     },
@@ -383,6 +413,7 @@
       "size_mb": 80,
       "website": "https://www.videolan.org/vlc/",
       "install": {"apt": ["vlc"]},
+      "flathub": "org.videolan.VLC",
       "detect": {"deb": "vlc"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -422,6 +453,47 @@
       "size_mb": 70,
       "website": "https://rustdesk.com/",
       "install": {"flatpak": "com.rustdesk.RustDesk"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "anydesk",
+      "name": "AnyDesk",
+      "category": "tools",
+      "icon": "anydesk.svg",
+      "summary": {"vi": "Điều khiển máy tính từ xa, dùng chung với AnyDesk trên Windows", "en": "Remote desktop that works with AnyDesk on Windows"},
+      "pros": {
+        "vi": ["Người giúp bạn dùng AnyDesk trên Windows, macOS hay điện thoại kết nối được ngay, không phải cài thêm gì", "Bản chính hãng từ kho phần mềm của AnyDesk, tự cập nhật cùng hệ thống"],
+        "en": ["Whoever helps you can connect from AnyDesk on Windows, macOS or a phone, with nothing else to install", "The official build from AnyDesk's software archive, updated with the system"]
+      },
+      "cons": {
+        "vi": ["Miễn phí cho cá nhân; dùng cho công việc ở công ty, trường học cần mua giấy phép, bản miễn phí có thể bị chặn", "Luôn chạy nền từ khi bật máy để chờ kết nối, kể cả khi đã đóng cửa sổ", "Kẻ lừa đảo hay nhờ cài AnyDesk: chỉ cho người bạn biết rõ điều khiển máy"],
+        "en": ["Free for personal use; work use in a company or school needs a licence, and the free version may get blocked", "Runs in the background from start-up to wait for connections, also when its window is closed", "Scammers often ask people to install AnyDesk: only let people you know control your computer"]
+      },
+      "size_mb": 60,
+      "website": "https://anydesk.com/",
+      "install": {"recipe": "anydesk"},
+      "flathub": "com.anydesk.Anydesk",
+      "detect": {"deb": "anydesk"},
+      "licence": {"class": "commercial", "note": {"vi": "Miễn phí cho cá nhân dùng ở nhà; công ty, trường học cần mua giấy phép của AnyDesk. Mã nguồn đóng.", "en": "Free for personal use at home; companies and schools need a licence from AnyDesk. Closed source."}}
+    },
+    {
+      "id": "openconnect",
+      "name": "OpenConnect",
+      "category": "tools",
+      "icon_name": "network-vpn",
+      "summary": {"vi": "Kết nối VPN Cisco AnyConnect của cơ quan, trường học", "en": "Connects to Cisco AnyConnect VPNs at work or school"},
+      "pros": {
+        "vi": ["Thêm VPN Cisco AnyConnect (nay là Cisco Secure Client) ngay trong phần cài đặt mạng, không cần phần mềm của Cisco", "Vào được các trang chỉ mở trong mạng của cơ quan, như cổng thông tin cho cán bộ, công chức", "Cũng kết nối được VPN GlobalProtect, Fortinet, Pulse Secure"],
+        "en": ["Adds a Cisco AnyConnect VPN (now Cisco Secure Client) right in the network settings, without Cisco's software", "Reaches pages that only open inside your workplace's network, such as portals for civil servants", "Also connects to GlobalProtect, Fortinet and Pulse Secure VPNs"]
+      },
+      "cons": {
+        "vi": ["Cần địa chỉ máy chủ VPN và tài khoản do cơ quan cấp", "VPN bắt máy cài phần mềm kiểm tra của Cisco (HostScan) có thể không vào được"],
+        "en": ["Needs the VPN server's address and an account from your workplace", "A VPN that requires Cisco's HostScan check on the computer may not let it in"]
+      },
+      "size_mb": 11,
+      "website": "https://www.infradead.org/openconnect/",
+      "install": {"apt": ["openconnect", "network-manager-openconnect-gnome"]},
+      "detect": {"deb": "network-manager-openconnect-gnome"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
     {
@@ -467,16 +539,16 @@
       "name": "Inkscape",
       "category": "graphics",
       "icon": "inkscape.png",
-      "summary": {"vi": "Vẽ vector, thiết kế logo", "en": "Vector drawing and logo design"},
+      "summary": {"vi": "Vẽ hình vector: logo, áp phích, sơ đồ", "en": "Vector drawing: logos, posters, diagrams"},
       "pros": {
-        "vi": ["Vẽ logo, poster, sơ đồ như Illustrator", "Miễn phí, mã nguồn mở"],
-        "en": ["Logos, posters and diagrams like Illustrator", "Free and open source"]
+        "vi": ["Vẽ logo, áp phích, sơ đồ cho bài giảng như Illustrator", "Xuất PDF, PNG, SVG để in hay chèn vào bài trình chiếu", "Miễn phí, mã nguồn mở"],
+        "en": ["Logos, posters and lesson diagrams, like Illustrator", "Exports PDF, PNG and SVG for printing or slides", "Free and open source"]
       },
       "cons": {
-        "vi": ["Mở file .ai phức tạp chưa chuẩn"],
-        "en": ["Complex .ai files may not open correctly"]
+        "vi": ["Tệp .ai phức tạp có thể mở chưa chuẩn", "Lần đầu tải thêm bộ chạy Flatpak"],
+        "en": ["Complex .ai files may not open correctly", "Downloads a Flatpak runtime the first time"]
       },
-      "size_mb": 350,
+      "size_mb": 840,
       "website": "https://inkscape.org/",
       "install": {"flatpak": "org.inkscape.Inkscape"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
@@ -486,35 +558,54 @@
       "name": "Kdenlive",
       "category": "media",
       "icon": "kdenlive.png",
-      "summary": {"vi": "Dựng và chỉnh sửa video", "en": "Video editing"},
+      "summary": {"vi": "Dựng video: cắt ghép, thêm chữ và nhạc", "en": "Video editing: cut, add titles and music"},
       "pros": {
-        "vi": ["Cắt ghép, thêm chữ, hiệu ứng nhiều lớp", "Miễn phí, mã nguồn mở"],
-        "en": ["Multi-track cutting, titles and effects", "Free and open source"]
+        "vi": ["Cắt ghép nhiều đoạn, thêm chữ, nhạc nền, hiệu ứng chuyển cảnh", "Làm video bài giảng từ những đoạn quay bằng OBS Studio", "Miễn phí, mã nguồn mở"],
+        "en": ["Cuts and joins clips, adds titles, music and transitions", "Turns clips recorded with OBS Studio into a lesson video", "Free and open source"]
       },
       "cons": {
-        "vi": ["Cần máy khá mạnh khi xuất video dài"],
-        "en": ["Needs a fairly strong machine for long exports"]
+        "vi": ["Cần máy khá mạnh khi xuất video dài", "Lần đầu tải thêm bộ chạy Flatpak"],
+        "en": ["Needs a fairly strong computer for long exports", "Downloads a Flatpak runtime the first time"]
       },
-      "size_mb": 600,
+      "size_mb": 1100,
       "website": "https://kdenlive.org/",
       "install": {"flatpak": "org.kde.kdenlive"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "category": "media",
+      "icon": "spotify.png",
+      "summary": {"vi": "Nghe nhạc và podcast trực tuyến", "en": "Stream music and podcasts"},
+      "pros": {
+        "vi": ["Hàng triệu bài hát và podcast, có cả nhạc Việt", "Danh sách nhạc dùng chung với Spotify trên điện thoại", "Bản cài từ Flathub chạy ổn trên CaramOS, không phải thêm kho phần mềm"],
+        "en": ["Millions of songs and podcasts, Vietnamese music included", "Shares your playlists with Spotify on your phone", "The Flathub build runs well on CaramOS, with no extra software archive to add"]
+      },
+      "cons": {
+        "vi": ["Cần tài khoản Spotify; gói miễn phí có quảng cáo, nghe không cần mạng phải trả phí", "Cần mạng Internet", "Gói trên Flathub do cộng đồng đóng gói, dùng bản chính thức của Spotify"],
+        "en": ["Needs a Spotify account; the free plan has ads, and offline listening is paid", "Needs the Internet", "The Flathub package is made by the community from Spotify's official build"]
+      },
+      "size_mb": 390,
+      "website": "https://www.spotify.com/",
+      "install": {"flatpak": "com.spotify.Client"},
+      "licence": {"class": "commercial", "note": {"vi": "Miễn phí có quảng cáo, cho cá nhân nghe; gói Premium trả phí. Mã nguồn đóng. Mở nhạc cho khách ở cửa hàng, quán cà phê cần dịch vụ nhạc cho doanh nghiệp.", "en": "Free with ads for personal listening; Premium is paid. Closed source. Playing music to customers in a shop or café needs a music service for businesses."}}
     },
     {
       "id": "obsidian",
       "name": "Obsidian",
       "category": "office",
       "icon": "obsidian.png",
-      "summary": {"vi": "Ghi chú cá nhân bằng Markdown", "en": "Personal notes in Markdown"},
+      "summary": {"vi": "Ghi chú cá nhân, lưu thành tệp trên máy", "en": "Personal notes, kept as files on your computer"},
       "pros": {
-        "vi": ["Ghi chú lưu thành file trên máy, không phụ thuộc mạng", "Liên kết các ghi chú với nhau"],
-        "en": ["Notes are plain files on your computer, work offline", "Links notes together"]
+        "vi": ["Ghi chú lưu thành tệp trên máy, dùng được cả khi không có mạng", "Liên kết các ghi chú với nhau, tìm lại nhanh"],
+        "en": ["Notes are plain files on your computer and work offline", "Links notes together and finds them quickly"]
       },
       "cons": {
-        "vi": ["Đồng bộ giữa các máy phải trả phí hoặc tự cài"],
-        "en": ["Sync between devices is paid or self-hosted"]
+        "vi": ["Mã nguồn đóng", "Đồng bộ giữa các máy phải trả phí hoặc tự cài"],
+        "en": ["Closed source", "Sync between devices is paid or self-hosted"]
       },
-      "size_mb": 400,
+      "size_mb": 670,
       "website": "https://obsidian.md/",
       "install": {"flatpak": "md.obsidian.Obsidian"},
       "licence": {"class": "freeware", "note": {"vi": "Miễn phí nhưng mã nguồn đóng, theo điều khoản của Obsidian. Từ năm 2025 công ty dùng cũng không cần mua giấy phép.", "en": "Free of charge but closed source, under Obsidian's terms. Since 2025 companies need no licence for it either."}}
@@ -537,6 +628,7 @@
       "size_mb": 98,
       "website": "https://gcompris.net/",
       "install": {"apt": ["gcompris-qt"]},
+      "flathub": "org.kde.gcompris",
       "detect": {"deb": "gcompris-qt"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -557,6 +649,7 @@
       "size_mb": 276,
       "website": "https://tuxpaint.org/",
       "install": {"apt": ["tuxpaint"]},
+      "flathub": "org.tuxpaint.Tuxpaint",
       "detect": {"deb": "tuxpaint"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -577,6 +670,7 @@
       "size_mb": 4,
       "website": "https://klavaro.sourceforge.io/",
       "install": {"apt": ["klavaro"]},
+      "flathub": "net.sourceforge.Klavaro",
       "detect": {"deb": "klavaro"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -597,6 +691,7 @@
       "size_mb": 82,
       "website": "https://apps.kde.org/kturtle/",
       "install": {"apt": ["kturtle"]},
+      "flathub": "org.kde.kturtle",
       "detect": {"deb": "kturtle"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -637,6 +732,7 @@
       "size_mb": 88,
       "website": "https://thonny.org/",
       "install": {"apt": ["thonny"]},
+      "flathub": "org.thonny.Thonny",
       "detect": {"deb": "thonny"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
@@ -676,7 +772,187 @@
       "size_mb": 575,
       "website": "https://stellarium.org/",
       "install": {"apt": ["stellarium"]},
+      "flathub": "org.stellarium.Stellarium",
       "detect": {"deb": "stellarium"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "klickety",
+      "name": "Klickety",
+      "category": "education",
+      "icon": "klickety.png",
+      "summary": {"vi": "Bấm chuột xoá các nhóm ô cùng màu, như trò Clickomania", "en": "Click away groups of blocks of one colour, like Clickomania"},
+      "pros": {
+        "vi": ["Thay cho Clickomania trong các bài tập dùng chuột ở tiết Tin học tiểu học", "Luật chơi đơn giản, mỗi ván chỉ vài phút", "Miễn phí, mã nguồn mở"],
+        "en": ["Replaces Clickomania in the mouse exercises of primary school computer lessons", "Simple rules, a game takes a few minutes", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh", "Cài thêm vài thư viện của KDE"],
+        "en": ["English interface", "Installs some KDE libraries"]
+      },
+      "size_mb": 170,
+      "website": "https://apps.kde.org/klickety/",
+      "install": {"apt": ["klickety"]},
+      "flathub": "org.kde.klickety",
+      "detect": {"deb": "klickety"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "ktouch",
+      "name": "KTouch",
+      "category": "education",
+      "icon": "ktouch.svg",
+      "summary": {"vi": "Luyện gõ 10 ngón theo từng bài, như Rapid Typing", "en": "Touch typing lessons step by step, like Rapid Typing"},
+      "pros": {
+        "vi": ["Bàn phím trên màn hình chỉ ngón nào gõ phím nào", "Bài học đi từ hàng phím cơ sở đến cả bàn phím", "Thống kê tốc độ và số lỗi sau mỗi bài"],
+        "en": ["An on-screen keyboard shows which finger types each key", "Lessons go from the home row to the whole keyboard", "Speed and mistakes after each lesson"]
+      },
+      "cons": {
+        "vi": ["Giao diện và bài học tiếng Anh", "Cài thêm vài thư viện của KDE"],
+        "en": ["English interface and lessons", "Installs some KDE libraries"]
+      },
+      "size_mb": 90,
+      "website": "https://apps.kde.org/ktouch/",
+      "install": {"apt": ["ktouch"]},
+      "flathub": "org.kde.ktouch",
+      "detect": {"deb": "ktouch"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "kolourpaint",
+      "name": "KolourPaint",
+      "category": "education",
+      "icon": "kolourpaint.svg",
+      "summary": {"vi": "Vẽ và sửa ảnh đơn giản, giống Paint của Windows", "en": "Simple drawing and image editing, like Paint on Windows"},
+      "pros": {
+        "vi": ["Công cụ quen thuộc như Paint: bút chì, cọ, đổ màu, hình, chữ", "Hợp các bài vẽ ở tiết Tin học", "Miễn phí, mã nguồn mở"],
+        "en": ["Familiar Paint tools: pencil, brush, fill, shapes, text", "Fits the drawing lessons of computer classes", "Free and open source"]
+      },
+      "cons": {
+        "vi": ["Không có lớp vẽ (layer) như các phần mềm chỉnh ảnh lớn", "Cài thêm vài thư viện của KDE"],
+        "en": ["No layers, unlike bigger image editors", "Installs some KDE libraries"]
+      },
+      "size_mb": 82,
+      "website": "https://apps.kde.org/kolourpaint/",
+      "install": {"apt": ["kolourpaint"]},
+      "flathub": "org.kde.kolourpaint",
+      "detect": {"deb": "kolourpaint"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "tuxtype",
+      "name": "Tux Typing",
+      "category": "education",
+      "icon": "tuxtype.svg",
+      "summary": {"vi": "Trò chơi luyện gõ phím với chim cánh cụt Tux, cho học sinh tiểu học", "en": "A typing game with Tux the penguin, for primary school pupils"},
+      "pros": {
+        "vi": ["Gõ đúng chữ để Tux bắt cá rơi: các em vừa chơi vừa nhớ vị trí phím", "Có bài học chỉ vị trí từng phím", "Rất nhẹ, chạy tốt trên máy cũ"],
+        "en": ["Type the right letters so Tux catches the falling fish: pupils learn the keys as they play", "Lessons that show where each key is", "Very light, runs well on old computers"]
+      },
+      "cons": {
+        "vi": ["Giao diện và từ luyện bằng tiếng Anh", "Đồ hoạ đơn giản, kiểu cũ"],
+        "en": ["English interface and words", "Plain, old-style graphics"]
+      },
+      "size_mb": 57,
+      "website": "https://github.com/tux4kids/tuxtype",
+      "install": {"apt": ["tuxtype"]},
+      "detect": {"deb": "tuxtype"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
+    },
+    {
+      "id": "minimouse",
+      "name": "MiniMouse",
+      "category": "education",
+      "icon_name": "input-mouse",
+      "summary": {"vi": "Trò chơi tập dùng chuột cho trẻ nhỏ, trên trang minimouse.us", "en": "Mouse practice games for young children, on minimouse.us"},
+      "pros": {
+        "vi": ["Các trò chơi ngắn tập di chuột, bấm và kéo thả", "Mở trong cửa sổ riêng, không có quảng cáo của trang", "Không cần tài khoản"],
+        "en": ["Short games to practise moving, clicking and dragging", "Opens in its own window, without the site's ads", "No account needed"]
+      },
+      "cons": {
+        "vi": ["Cần mạng Internet", "Trang tiếng Anh"],
+        "en": ["Needs the Internet", "The site is in English"]
+      },
+      "size_mb": 1,
+      "website": "https://www.minimouse.us/",
+      "install": {"web": {"url": "https://www.minimouse.us/", "hosts": ["minimouse.us"], "block_ads": true}},
+      "licence": {"class": "freeware", "note": {"vi": "Trang web miễn phí, theo điều khoản của MiniMouse.", "en": "A free website, under MiniMouse's terms."}}
+    },
+    {
+      "id": "thecolor",
+      "name": "TheColor.com",
+      "category": "education",
+      "icon_name": "applications-graphics",
+      "summary": {"vi": "Tô màu tranh trên mạng: con vật, lễ hội, nhân vật hoạt hình", "en": "Colour pictures online: animals, holidays, cartoon characters"},
+      "pros": {
+        "vi": ["Hàng nghìn tranh tô màu, chỉ cần bấm chuột để tô", "Mở trong cửa sổ riêng, không có quảng cáo của trang", "In được tranh để tô ở lớp"],
+        "en": ["Thousands of pictures, coloured with mouse clicks", "Opens in its own window, without the site's ads", "Pictures can be printed to colour in class"]
+      },
+      "cons": {
+        "vi": ["Cần mạng Internet", "Trang tiếng Anh", "Không lưu tranh về máy: điều khoản của trang không cho phép"],
+        "en": ["Needs the Internet", "The site is in English", "Pictures cannot be saved to the computer: the site's terms forbid it"]
+      },
+      "size_mb": 1,
+      "website": "https://www.thecolor.com/",
+      "install": {"web": {"url": "https://www.thecolor.com/", "hosts": ["thecolor.com"], "block_ads": true}},
+      "licence": {"class": "freeware", "note": {"vi": "Trang web miễn phí, theo điều khoản của TheColor.com.", "en": "A free website, under TheColor.com's terms."}}
+    },
+    {
+      "id": "polypad-tangram",
+      "name": "Tangram (Polypad)",
+      "category": "education",
+      "icon_name": "tangram",
+      "summary": {"vi": "Xếp hình tangram trên trang Polypad của Amplify, mở bằng trình duyệt", "en": "Tangram puzzles on Amplify's Polypad website, in your web browser"},
+      "pros": {
+        "vi": ["Ghép bảy mảnh thành con vật, đồ vật theo hình mẫu; xoay, lật mảnh bằng chuột", "Rèn tư duy hình học và không gian", "Biểu tượng trong menu Start mở thẳng trang xếp hình, không cần tài khoản"],
+        "en": ["Put seven pieces together into animals and objects; turn and flip them with the mouse", "Builds geometry and spatial thinking", "A Start menu icon opens the tangram page directly, no account needed"]
+      },
+      "cons": {
+        "vi": ["Cần mạng Internet", "Trang tiếng Anh", "Mở trong trình duyệt như mọi trang web, theo điều khoản của Amplify"],
+        "en": ["Needs the Internet", "The site is in English", "Opens in the web browser like any website, as Amplify's terms ask"]
+      },
+      "size_mb": 1,
+      "website": "https://polypad.amplify.com/tangram",
+      "install": {"web": {"url": "https://polypad.amplify.com/tangram", "hosts": ["polypad.amplify.com"], "open": "browser"}},
+      "licence": {"class": "commercial", "note": {"vi": "Miễn phí cho cá nhân, học tập và dùng phi thương mại, theo điều khoản của Amplify.", "en": "Free for personal, educational and non-commercial use, under Amplify's terms."}}
+    },
+    {
+      "id": "leocad",
+      "name": "LeoCAD",
+      "category": "education",
+      "icon": "leocad.svg",
+      "summary": {"vi": "Lắp mô hình LEGO ảo cho tiết STEM và Robotics", "en": "Build virtual LEGO models for STEM and robotics lessons"},
+      "pros": {
+        "vi": ["Thư viện hàng nghìn chi tiết LEGO, kể cả Technic", "Lắp và xoay mô hình 3D trước khi lắp thật, chia thành từng bước lắp", "Bản mới nhất do chính LeoCAD đưa lên Flathub, miễn phí, mã nguồn mở"],
+        "en": ["A library of thousands of LEGO parts, Technic included", "Build and turn the 3D model before the real one, split into building steps", "The newest version, published on Flathub by LeoCAD itself; free and open source"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh", "Lần đầu tải thêm bộ chạy Flatpak của KDE"],
+        "en": ["English interface", "Downloads KDE's Flatpak runtime the first time"]
+      },
+      "size_mb": 1000,
+      "website": "https://www.leocad.org/",
+      "install": {"flatpak": "org.leocad.LeoCAD"},
+      "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty. Thư viện chi tiết LDraw dùng giấy phép CC BY.", "en": "Open source, free to use, also in companies. The LDraw parts library is under CC BY."}}
+    },
+    {
+      "id": "exelearning",
+      "name": "eXeLearning",
+      "category": "education",
+      "icon": "exelearning.png",
+      "summary": {"vi": "Soạn bài giảng điện tử và xuất ra SCORM, như iSpring", "en": "Make e-lessons and export them as SCORM, like iSpring"},
+      "pros": {
+        "vi": ["Soạn trang nội dung, câu hỏi trắc nghiệm, bài tập kéo thả, chèn video mà không cần lập trình", "Xuất gói SCORM để đưa lên Moodle và các hệ thống học trực tuyến, hoặc thành trang web mở trên mọi máy", "Miễn phí, mã nguồn mở, tự cập nhật cùng hệ thống"],
+        "en": ["Content pages, quizzes, drag-and-drop exercises and videos, without programming", "Exports SCORM packages for Moodle and other learning platforms, or a website that opens anywhere", "Free and open source, updated with the system"]
+      },
+      "cons": {
+        "vi": ["Giao diện tiếng Anh, chưa có tiếng Việt", "Không chuyển được bài PowerPoint như iSpring", "Tải khoảng 125 MB"],
+        "en": ["English interface, no Vietnamese yet", "Cannot turn PowerPoint slides into lessons like iSpring", "About 125 MB to download"]
+      },
+      "size_mb": 340,
+      "website": "https://exelearning.net/",
+      "install": {"recipe": "exelearning"},
+      "detect": {"deb": "exelearning"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     },
     {
@@ -718,6 +994,7 @@
       "size_mb": 12,
       "website": "https://remmina.org/",
       "install": {"apt": ["remmina", "remmina-plugin-rdp", "remmina-plugin-vnc", "remmina-plugin-secret"]},
+      "flathub": "org.remmina.Remmina",
       "detect": {"deb": "remmina"},
       "licence": {"class": "free", "note": {"vi": "Mã nguồn mở, dùng miễn phí, kể cả trong công ty.", "en": "Open source, free to use, also in companies."}}
     }

@@ -1,0 +1,180 @@
+#!/usr/bin/python3 -I
+"""Install eXeLearning, the e-lesson authoring tool of Spain's Ministry of Education (INTEF), from its GitHub releases.
+
+install: the .deb of the newest stable release of exelearning/exelearning, checked against the size and sha256 GitHub
+         publishes for it. When GitHub's API does not answer (it allows 60 requests an hour from one address, which a
+         school lab installing on many computers behind one address can use up), the release pinned below, checked
+         against its pinned sha256. The package adds its menu launcher and eXeLearning's signed apt repository, so it
+         then updates with the rest of the system.
+remove:  remove the package; its own scripts take its apt repository and key away.
+
+The download goes to a new directory that only root can read. Nothing from it runs but the .deb that matched the
+checksum, and only after dpkg-deb says it is the exelearning package.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.request
+from pathlib import Path
+from typing import NamedTuple
+
+REPOSITORY = "exelearning/exelearning"
+API_URL = f"https://api.github.com/repos/{REPOSITORY}/releases?per_page=20"
+DOWNLOAD_PREFIX = f"https://github.com/{REPOSITORY}/releases/download/"
+PACKAGE = "exelearning"
+# Stable releases only: eXeLearning's -beta and -rc tags are not marked as pre-releases on GitHub.
+TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
+APT_GET = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Options::=--force-confdef",
+           "-o", "Dpkg::Options::=--force-confold"]
+TIMEOUT = 60
+
+
+class Asset(NamedTuple):
+    name: str
+    url: str
+    sha256: str
+    size: int
+    version: str
+
+
+# The newest release on 2026-11-25, for when GitHub's API does not answer.
+PINNED = Asset("exelearning_4.0.6_amd64.deb", DOWNLOAD_PREFIX + "v4.0.6/exelearning_4.0.6_amd64.deb",
+               "0e73033d084f681a2c271d02b74039f7d23d2d1133f22a9d1997d73cfc6d294d", 125582972, "4.0.6")
+
+
+def say(line: str) -> None:
+    print(line, flush=True)
+
+
+def newest_asset(releases: object) -> Asset:
+    """The amd64 .deb of the newest stable release that has one, with the sha256 GitHub gives for it."""
+
+    found: list[tuple[tuple[int, ...], Asset]] = []
+    for release in releases if isinstance(releases, list) else []:
+        if not isinstance(release, dict) or release.get("draft") or release.get("prerelease"):
+            continue
+        tag = TAG.fullmatch(str(release.get("tag_name") or ""))
+        if tag is None:
+            continue
+        version = ".".join(tag.groups())
+        name = f"{PACKAGE}_{version}_amd64.deb"
+        for item in release.get("assets") or []:
+            if not isinstance(item, dict) or item.get("name") != name:
+                continue
+            digest = str(item.get("digest") or "")
+            url = str(item.get("browser_download_url") or "")
+            size = item.get("size")
+            if re.fullmatch(r"sha256:[0-9a-f]{64}", digest) and url == f"{DOWNLOAD_PREFIX}v{version}/{name}" and \
+                    isinstance(size, int) and size > 0:
+                found.append((tuple(int(part) for part in tag.groups()),
+                              Asset(name, url, digest.removeprefix("sha256:"), size, version)))
+    if not found:
+        raise RuntimeError(f"no recent {REPOSITORY} release has an amd64 .deb with a sha256")
+    return max(found)[1]
+
+
+def fetch_releases() -> object:
+    request = urllib.request.Request(API_URL, headers={"Accept": "application/vnd.github+json",
+                                                       "User-Agent": "caramos-app-center"})
+    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+        return json.load(response)
+
+
+def choose_asset() -> Asset:
+    try:
+        return newest_asset(fetch_releases())
+    except (OSError, ValueError, RuntimeError) as error:
+        say(f"GitHub's list of releases did not answer ({error}); installing eXeLearning {PINNED.version}")
+        return PINNED
+
+
+def download(asset: Asset, directory: Path) -> Path:
+    """Fetch the asset into directory and check it (5-80 %)."""
+
+    target = directory / asset.name
+    digest = hashlib.sha256()
+    done = 0
+    request = urllib.request.Request(asset.url, headers={"User-Agent": "caramos-app-center"})
+    with target.open("wb") as out, urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+        last = -1
+        while chunk := response.read(1024 * 1024):
+            out.write(chunk)
+            digest.update(chunk)
+            done += len(chunk)
+            if done > asset.size:
+                break
+            percent = 5 + done * 75 // asset.size
+            if percent != last:
+                say(f"PROGRESS {percent}")
+                last = percent
+    if done != asset.size or digest.hexdigest() != asset.sha256:
+        target.unlink(missing_ok=True)
+        raise RuntimeError(f"{asset.name} does not match the sha256 published for it")
+    return target
+
+
+def package_name(deb: Path) -> str:
+    result = subprocess.run(["dpkg-deb", "--field", str(deb), "Package"], check=False, capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def apt_install(deb: Path) -> None:
+    command = [*APT_GET, "install", "-y", str(deb)]
+    if subprocess.run(command, check=False).returncode == 0:
+        return
+    # The package lists may be too old for its dependencies (a live USB, a computer offline for a long time).
+    say("Refreshing the package lists and trying once more")
+    subprocess.run([*APT_GET, "update"], check=False)
+    if subprocess.run(command, check=False).returncode != 0:
+        raise RuntimeError("apt-get could not install the package")
+
+
+def install() -> None:
+    asset = choose_asset()
+    say("PROGRESS 5")
+    say(f"Downloading {asset.name}")
+    work = Path(tempfile.mkdtemp(prefix="caramos-app-center-exelearning."))
+    try:
+        deb = download(asset, work)
+        if package_name(deb) != PACKAGE:
+            raise RuntimeError(f"{asset.name} is not the {PACKAGE} package")
+        say("PROGRESS 82")
+        apt_install(deb)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    say("PROGRESS 100")
+    say(f"eXeLearning {asset.version} is installed.")
+
+
+def remove() -> None:
+    if subprocess.run([*APT_GET, "remove", "-y", PACKAGE], check=False).returncode != 0:
+        raise RuntimeError("apt-get could not remove the package")
+    say("PROGRESS 100")
+    say("eXeLearning is removed.")
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2 or argv[1] not in ("install", "remove"):
+        print(f"usage: {argv[0]} install|remove", file=sys.stderr)
+        return 2
+    try:
+        if argv[1] == "install":
+            install()
+        else:
+            remove()
+    except (OSError, ValueError, RuntimeError) as error:
+        # The App Center shows the last line of a failed recipe as the reason.
+        say(f"eXeLearning could not be {'installed' if argv[1] == 'install' else 'removed'}: {error}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

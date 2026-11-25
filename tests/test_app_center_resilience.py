@@ -53,6 +53,7 @@ echo PROGRESS 100
 """)
         data = json.loads((DATA / "catalog.json").read_text(encoding="utf-8"))
         base = next(app for app in data["apps"] if app["id"] == "zoom")
+        base = {key: value for key, value in base.items() if key != "flathub"}   # each Flathub id once
         apps = [dict(base, id="chrome-test", install={"recipe": "broken-dpkg"}, detect={"deb": "chrome-test"}),
                 dict(base, id="good-app", install={"recipe": "good"}, detect={"deb": "good-app"}),
                 dict(base, id="fonts-test", install={"recipe": "fonts"}, detect={"deb": "fonts-test"}),

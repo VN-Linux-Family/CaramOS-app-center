@@ -1,4 +1,5 @@
-"""Main window: loading, offline, app picker, install (or remove) progress and done page.
+"""Main window: loading, offline, app picker, install (or remove) progress and done page, and the pages an install
+link of the VNLF app site opens (caramos-app://install/<Flathub app id>, links.py and linkpage.py).
 
 The store list (StoreView) is hidden for now and only opens with --store: it should list apps from the
 VNLF app site API, which is not ready. Everything else, including the Desktop and menu launchers, opens
@@ -9,22 +10,28 @@ from __future__ import annotations
 
 import threading
 from datetime import datetime
+from pathlib import Path
 
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from ..i18n import _, ngettext
 
-from .. import firstrun, problem
-from ..catalog import App, Catalog
-from ..detect import installed_apps
-from .common import app_icon, boxed_list, clamp, label, secondary
+from .. import firstrun, flatpak_ops, links, problem
+from ..catalog import App, Catalog, flathub_app
+from ..detect import flatpak_app_installed, flatpak_runtime_installed, installed_apps
+from ..flathub import FlathubApp, FlathubError, fetch_app, fetch_icon
+from .common import MORE_APPS_SITE, app_icon, boxed_list, clamp, label, secondary
 from .install import InstallView, Results
+from .linkpage import catalog_page, flathub_page, loading_page
 from .store import StoreView
 from .wizard import WizardView
 
+MB = 1000 * 1000
+
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, application: Adw.Application, catalog: Catalog, *, store: bool, first_run: bool) -> None:
+    def __init__(self, application: Adw.Application, catalog: Catalog, *, store: bool, first_run: bool,
+                 link: str | None = None) -> None:
         super().__init__(application=application, title=_("CaramOS App Center"), default_width=1080,
                          default_height=760)
         self.set_size_request(360, 480)
@@ -43,6 +50,13 @@ class MainWindow(Adw.ApplicationWindow):
         self.last_reasons: dict[str, str] = {}
         self.last_finished: datetime | None = None
         self.reopen_hint_shown = False
+        # An install link waiting for the installed apps to be known or for an installation to finish.
+        self.pending_link = link
+        self.detected = False
+        # The page a link page goes back to (the picker or the store), if a link came while one was open.
+        self.link_back = ""
+        # Each link fetched from Flathub gets a number: only the newest one's answer is shown.
+        self.link_token = 0
 
         self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=220)
         self.toasts = Adw.ToastOverlay(child=self.stack)
@@ -92,7 +106,11 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _on_detected(self, installed: set[str]) -> bool:
         self.installed = installed
-        if self.want_store:
+        self.detected = True
+        if self.pending_link is not None:
+            link, self.pending_link = self.pending_link, None
+            self.open_link(link)
+        elif self.want_store:
             self.show_store()
         else:
             self.show_wizard()
@@ -144,7 +162,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     # Install flow ----------------------------------------------------------------------------
 
-    def _start_install(self, apps: list[App], action: str, after) -> None:
+    def _start_install(self, apps: list[App], action: str, after, helper_action: str = "") -> None:
         def cancelled() -> None:
             self.install_view = None
             self.toasts.add_toast(Adw.Toast(title=_("Authentication was cancelled. Nothing was changed.")))
@@ -160,7 +178,8 @@ class MainWindow(Adw.ApplicationWindow):
             self._detect_after(results, after)
 
         self.running_action = action
-        self.install_view = InstallView(apps, action=action, on_done=done, on_cancelled=cancelled)
+        self.install_view = InstallView(apps, action=action, on_done=done, on_cancelled=cancelled,
+                                        helper_action=helper_action)
         self._set_page("install", self.install_view)
         self.install_view.start()
 
@@ -175,6 +194,9 @@ class MainWindow(Adw.ApplicationWindow):
                 self._notify_and_quit(results)
             else:
                 after(results)
+                if self.pending_link is not None:
+                    link, self.pending_link = self.pending_link, None
+                    self.open_link(link)
             return False
 
         threading.Thread(target=work, daemon=True).start()
@@ -322,6 +344,150 @@ class MainWindow(Adw.ApplicationWindow):
         if not problem.ask_for_help(action, self.last_apps, results, self.last_logs, message, self.last_finished):
             self.toasts.add_toast(Adw.Toast(title=_("Feedback & Help could not be opened."), timeout=6))
 
+    # Install links ---------------------------------------------------------------------------
+
+    def open_link(self, raw: str) -> None:
+        """Show the page for an install link: the app's card when the App Center suggests it, else what Flathub says
+        about it. A link that comes while the apps are being checked or installed waits for that."""
+
+        if not self.detected or (self.install_view is not None and self.install_view.running):
+            if self.install_view is not None and self.install_view.running:
+                self.toasts.add_toast(Adw.Toast(title=_("The link opens once the installation is done."), timeout=6))
+            self.pending_link = raw
+            return
+        current = self.stack.get_visible_child_name()
+        if current in ("wizard", "store"):
+            self.link_back = current
+        self.link_token += 1
+        try:
+            link = links.parse_link(raw)
+        except links.LinkError:
+            self._show_link_status("invalid")
+            return
+        app = self.catalog.app_for_flathub_id(link.app_id)
+        if app is not None:
+            self._show_catalog_link(app)
+        else:
+            self._fetch_flathub(link.app_id)
+
+    def _link_back_action(self):
+        if self.link_back == "wizard" and self.wizard is not None:
+            return lambda: self.show_wizard(keep_choices=True)
+        if self.link_back == "store" and self.store is not None:
+            return self.show_store
+        return None
+
+    def _link_later(self) -> None:
+        back = self._link_back_action()
+        if back is not None:
+            back()
+        else:
+            self.close()
+
+    def _show_catalog_link(self, app: App) -> None:
+        setup = flatpak_ops.flathub_state() if app.method == "flatpak" else flatpak_ops.READY
+        page = catalog_page(app, installed=app.id in self.installed, setup=setup,
+                            on_install=lambda app_: self._link_install(app_, None),
+                            on_remove=lambda app_: self._link_remove(app_, None), on_back=self._link_back_action())
+        self._set_page("link", page)
+
+    def _fetch_flathub(self, app_id: str) -> None:
+        token = self.link_token
+        self._set_page("link", loading_page())
+
+        def work() -> None:
+            try:
+                info = fetch_app(app_id)
+            except FlathubError as exc:
+                GLib.idle_add(self._show_flathub_error, token, app_id, exc.kind)
+                return
+            icon = fetch_icon(info, Path(GLib.get_user_cache_dir()) / "caramos-app-center" / "flathub-icons")
+            self._check_flathub(token, info, str(icon) if icon else "")
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _check_flathub(self, token: int, info: FlathubApp, icon: str) -> None:
+        """In a worker thread: what this computer has of the app, its runtime and Flathub; then the page."""
+
+        installed = flatpak_app_installed(info.id)
+        runtime_missing = bool(info.runtime) and not flatpak_runtime_installed(info.runtime)
+        setup = flatpak_ops.flathub_state()
+        GLib.idle_add(self._show_flathub_link, token, info, icon, installed, runtime_missing, setup)
+
+    def _show_flathub_link(self, token: int, info: FlathubApp, icon: str, installed: bool, runtime_missing: bool,
+                           setup: str) -> bool:
+        if token != self.link_token:
+            return False
+        app = flathub_app(info.id, name=info.name, summary=info.summary, size_mb=round(info.installed_size / MB),
+                          website=info.homepage, icon=icon)
+        page = flathub_page(info, app, installed=installed, setup=setup, runtime_missing=runtime_missing,
+                            on_install=lambda app_: self._link_install(app_, info, icon),
+                            on_remove=lambda app_: self._link_remove(app_, info, icon), on_later=self._link_later,
+                            on_back=self._link_back_action())
+        self._set_page("link", page)
+        return False
+
+    def _show_flathub_error(self, token: int, app_id: str, kind: str) -> bool:
+        if token == self.link_token:
+            if kind == "network" and not self._online():
+                kind = "offline"
+            self._show_link_status(kind, app_id, retry=lambda: self.open_link(links.PREFIX + app_id))
+        return False
+
+    def _show_link_status(self, kind: str, app_id: str = "", retry=None) -> None:
+        if kind == "invalid":
+            icon, title = "dialog-warning-symbolic", _("This link cannot be opened")
+            text = _("The App Center opens only the app install links of %s.") % MORE_APPS_SITE
+            retry = None
+        elif kind == "not-found":
+            icon, title = "system-search-symbolic", _("App not found")
+            text = _("Flathub has no app %s.") % app_id
+            retry = None
+        elif kind == "offline":
+            icon, title = "network-offline-symbolic", _("No Internet connection")
+            text = _("Connect to Wi-Fi or a network cable, then try again.")
+        else:
+            icon, title = "dialog-warning-symbolic", _("Could not get the app's details")
+            text = _("Flathub did not answer. Try again in a moment.")
+        page = Adw.StatusPage(icon_name=icon, title=title, description=GLib.markup_escape_text(text))
+        buttons = Gtk.Box(spacing=12, halign=Gtk.Align.CENTER)
+        back = self._link_back_action()
+        buttons.append(_pill(_("Back") if back is not None else _("Close"), back or self.close, suggested=retry is None))
+        if retry is not None:
+            buttons.append(_pill(_("Try again"), retry, suggested=True))
+        page.set_child(buttons)
+        self._set_page("link", self._with_header(page))
+
+    def _link_install(self, app: App, info: FlathubApp | None, icon: str = "") -> None:
+        def after(results: Results | None) -> None:
+            self._reopen_link(app, info, icon)
+            if results is not None:
+                self.toasts.add_toast(self._result_toast(app, "install", results))
+
+        self._start_install([app], "install", after, helper_action="" if info is None else "flathub-install")
+
+    def _link_remove(self, app: App, info: FlathubApp | None, icon: str = "") -> None:
+        def remove() -> None:
+            def after(results: Results | None) -> None:
+                self._reopen_link(app, info, icon)
+                if results is not None:
+                    self.toasts.add_toast(self._result_toast(app, "remove", results))
+
+            self._start_install([app], "remove", after, helper_action="" if info is None else "flathub-remove")
+
+        self._confirm_remove(app, remove)
+
+    def _reopen_link(self, app: App, info: FlathubApp | None, icon: str) -> None:
+        """The link's page again after an install or removal, as it is now."""
+
+        if info is None:
+            self._show_catalog_link(app)
+            return
+        self.link_token += 1
+        token = self.link_token
+        self._set_page("link", loading_page())
+        threading.Thread(target=self._check_flathub, args=(token, info, icon), daemon=True).start()
+
     # Closing while installing ----------------------------------------------------------------
 
     def _on_close_request(self, _window) -> bool:
@@ -359,7 +525,8 @@ class MainWindow(Adw.ApplicationWindow):
         failed = sum(1 for ok, _err in results.values() if not ok)
         notification = Gio.Notification.new(_("CaramOS App Center"))
         if self.running_action == "remove":
-            app = self.catalog.app(next(iter(results)))
+            app_id = next(iter(results))
+            app = next((app for app in self.last_apps if app.id == app_id), None) or self.catalog.app(app_id)
             notification.set_body(_change_text(app, "remove", results))
         elif failed:
             notification.set_body(ngettext("%d app could not be installed.", "%d apps could not be installed.",

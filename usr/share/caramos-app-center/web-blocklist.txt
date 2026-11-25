@@ -1,0 +1,80 @@
+# Ad and tracker servers that the App Center's website windows never contact (caramos_app_center/webapp.py), for the
+# websites whose catalog entry has "block_ads": true. One host name per line; it blocks its subdomains too.
+# Checked against the pages of the catalog's websites: TheColor.com (Freestar, Amazon, Quantcast, Blockthrough,
+# Confiant, Google) and minimouse.us (Google Ad Manager, Adnimation, Google Tag Manager), November 2026.
+
+# Google ads and measurement
+doubleclick.net
+googlesyndication.com
+googleadservices.com
+googletagservices.com
+googletagmanager.com
+google-analytics.com
+adservice.google.com
+adtrafficquality.google
+imasdk.googleapis.com
+
+# Ad exchanges, header bidding and their ID syncing
+amazon-adsystem.com
+pub.network
+freestar.com
+freestar.io
+btloader.com
+blockthrough.com
+adncdn.net
+adnimation.com
+adnxs.com
+adsrvr.org
+rubiconproject.com
+pubmatic.com
+openx.net
+criteo.com
+criteo.net
+casalemedia.com
+indexww.com
+smartadserver.com
+sharethrough.com
+triplelift.com
+3lift.com
+33across.com
+yieldmo.com
+teads.tv
+sovrn.com
+lijit.com
+gumgum.com
+adform.net
+bidswitch.net
+contextweb.com
+sonobi.com
+onetag-sys.com
+media.net
+taboola.com
+outbrain.com
+mgid.com
+ezoic.net
+ezojs.com
+adthrive.com
+mediavine.com
+id5-sync.com
+liadm.com
+crwdcntrl.net
+rlcdn.com
+adsafeprotected.com
+doubleverify.com
+moatads.com
+confiant-integrations.global.ssl.fastly.net
+confiant-integrations.net
+adlightning.com
+popads.net
+popcash.net
+propellerads.com
+exoclick.com
+
+# Trackers and consent pop-ups of the ad networks
+quantserve.com
+quantcount.com
+quantcast.com
+scorecardresearch.com
+connect.facebook.net
+hotjar.com
+clarity.ms

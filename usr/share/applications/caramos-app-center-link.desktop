@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=CaramOS App Center
+Name[vi]=App Center CaramOS
+Comment=Opens the app install links of apps.vietnamlinuxfamily.net
+Comment[vi]=Mở liên kết cài ứng dụng của trang apps.vietnamlinuxfamily.net
+Exec=/usr/bin/caramos-app-center %u
+Icon=caramos-logo
+Terminal=false
+NoDisplay=true
+MimeType=x-scheme-handler/caramos-app;
+StartupNotify=true
+StartupWMClass=caramos-app-center

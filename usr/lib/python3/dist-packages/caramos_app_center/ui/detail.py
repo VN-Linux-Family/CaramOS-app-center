@@ -34,7 +34,7 @@ def detail_content(app: App, action: Gtk.Widget | None = None) -> Gtk.Box:
     box.append(section(_("Strengths"), _sentences(app.pros_list())))
     box.append(section(_("Good to know"), _sentences(app.cons_list())))
     if app.website:
-        box.append(_website(app.website))
+        box.append(website_list(app.website))
     return box
 
 
@@ -52,7 +52,9 @@ def display_url(url: str) -> str:
     return url.split("://", 1)[-1].rstrip("/")
 
 
-def _website(url: str) -> Gtk.ListBox:
+def website_list(url: str) -> Gtk.ListBox:
+    """A one-row list that opens url in the web browser."""
+
     listbox = boxed_list()
     row = Gtk.ListBoxRow(activatable=True)
     row.add_css_class("text-row")

@@ -123,8 +123,12 @@ def themed_image(*names: str, size: int = 16) -> Gtk.Image:
 
 def app_icon(app: App, size: int) -> Gtk.Image:
     path = app.icon_path(data_dir() / "icons")
-    image = Gtk.Image.new_from_file(str(path)) if path and path.is_file() else Gtk.Image.new_from_icon_name(
-        app.icon_name or "application-x-executable")
+    if path and path.is_file():
+        image = Gtk.Image.new_from_file(str(path))
+    else:
+        # An icon of the theme; one that another theme lacks ("tangram" is Tela-circle's) falls back to a plain one.
+        names = [app.icon_name, "application-x-executable"] if app.icon_name else ["application-x-executable"]
+        image = Gtk.Image.new_from_gicon(Gio.ThemedIcon.new_from_names(names))
     image.set_pixel_size(size)
     image.set_valign(Gtk.Align.CENTER)
     image.add_css_class("app-icon")
@@ -144,6 +148,13 @@ def logo(size: int) -> Gtk.Widget:
 def source_sentence(app: App) -> str:
     """Where the app comes from and how much it takes, as one sentence: "From Flathub, about 1.3 GB." """
 
+    if app.source == "website":
+        # Nothing to download: a launcher for the site.
+        if not app.web_window:
+            return _("A website that opens in your web browser.")
+        if app.block_ads:
+            return _("A website that opens in its own window, without ads.")
+        return _("A website that opens in its own window.")
     size = format_size(app.size_mb)
     return {
         "flathub": _("From Flathub, about %s.") % size,
@@ -153,6 +164,12 @@ def source_sentence(app: App) -> str:
         "community": _("A Linux version made by the community, about %s.") % size,
         "developer": _("From the developer's website, about %s.") % size,
     }[app.source]
+
+
+def size_text(app: App) -> str:
+    """What a row shows at its right: the app's size, or that it is a website (there is nothing to download)."""
+
+    return _("Website") if app.source == "website" else format_size(app.size_mb)
 
 
 def page_title(text: str) -> Gtk.Label:

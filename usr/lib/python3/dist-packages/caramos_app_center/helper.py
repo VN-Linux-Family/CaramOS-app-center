@@ -2,6 +2,11 @@
 
     caramos-app-center-helper install <app-id>...
     caramos-app-center-helper remove <app-id>
+    caramos-app-center-helper flathub-install <flathub-app-id>
+    caramos-app-center-helper flathub-remove <flathub-app-id>
+
+The flathub- actions are for an app the catalog does not have, opened from an install link of the VNLF app site
+(links.py): one app id that passes Flatpak's id rules, installed for the system from the Flathub remote only.
 
 It reads the root-owned catalog from its fixed path (never from the environment or arguments),
 installs each app with the method the catalog names and writes progress as JSON lines on stdout.
@@ -19,9 +24,10 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from . import detect, flatpak_ops
-from .catalog import CATALOG_FILE, ID_RE, RECIPE_DIR, App, Catalog, CatalogError, load_catalog
+from . import detect, flatpak_ops, webapp
+from .catalog import CATALOG_FILE, ID_RE, RECIPE_DIR, App, Catalog, CatalogError, flathub_app, load_catalog
 from .events import emit
+from .links import is_flathub_id
 
 LOCK_FILE = Path("/run/caramos-app-center.lock")
 MAX_APPS = 40
@@ -42,6 +48,10 @@ DEBCONF_WAIT = 900
 DEBCONF_POLL = 3
 # The line dpkg prints before the packages it could not configure.
 DPKG_ERRORS = "Errors were encountered while processing:"
+FLATHUB_ACTIONS = {"flathub-install": "install", "flathub-remove": "remove"}
+# What a computer without Flatpak gets before a Flatpak app (both come with CaramOS; only someone forcing them out
+# removes them).
+FLATPAK_PACKAGES = ("flatpak", "gir1.2-flatpak-1.0")
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -97,8 +107,13 @@ class DpkgErrors:
 
 
 def parse_args(argv: list[str]) -> tuple[str, list[str]]:
+    if len(argv) == 2 and argv[0] in FLATHUB_ACTIONS:
+        if not is_flathub_id(argv[1]):
+            raise UsageError(f"invalid Flathub app id: {argv[1]!r}")
+        return argv[0], [argv[1]]
     if len(argv) < 2 or argv[0] not in ("install", "remove"):
-        raise UsageError("usage: caramos-app-center-helper install|remove <app-id>...")
+        raise UsageError("usage: caramos-app-center-helper install|remove <app-id>... | "
+                         "flathub-install|flathub-remove <flathub-app-id>")
     action, ids = argv[0], argv[1:]
     if len(ids) > MAX_APPS or (action == "remove" and len(ids) != 1):
         raise UsageError("too many app ids")
@@ -148,6 +163,9 @@ class Helper:
         self.debconf_locked = debconf_locked
         self.debconf_wait = DEBCONF_WAIT
         self.installed_apps = detect.installed_apps
+        self.installed_debs = detect.installed_debs
+        self.launcher_dir = webapp.LAUNCHER_DIR
+        self.flathub_state = flatpak_ops.flathub_state
 
     def emit(self, event: str, **fields) -> None:
         emit(event, self.stream, **fields)
@@ -182,6 +200,10 @@ class Helper:
             raise RuntimeError(last_line[:REASON_MAX] or f"{app.recipe} {action} exited with {code}")
 
     def _apt(self, app: App, action: str) -> None:
+        self._apt_packages(app, action, app.apt_packages)
+        self._progress(app, 100)
+
+    def _apt_packages(self, app: App, action: str, packages: tuple[str, ...]) -> None:
         env = dict(RECIPE_ENV)
 
         def on_line(line: str) -> None:
@@ -200,11 +222,43 @@ class Helper:
                 self._log(app, "apt-get update reported errors; installing from the lists it has")
             self.apt_updated = True
         verb = "install" if action == "install" else "remove"
-        if _stream([*APT_BASE, verb, "--", *app.apt_packages], on_line, env=env) != 0:
+        if _stream([*APT_BASE, verb, "--", *packages], on_line, env=env) != 0:
             raise RuntimeError(f"apt-get {verb} failed")
+
+    def _web(self, app: App, action: str) -> None:
+        """A website in its own window: its launcher, written from the catalog; the window's WebKit bindings come with
+        CaramOS and are installed here only when someone removed them."""
+
+        if action == "install":
+            installed = self.installed_debs(webapp.RUNTIME_PACKAGES)
+            missing = tuple(package for package in webapp.RUNTIME_PACKAGES if package not in installed)
+            if missing:
+                self._apt_packages(app, "install", missing)
+            path = webapp.write_launcher(app, self.launcher_dir)
+            self._log(app, f"Wrote {path}")
+        elif not webapp.remove_launcher(app, self.launcher_dir):
+            raise RuntimeError(f"{webapp.launcher_path(app.id, self.launcher_dir)} was not written by the App Center")
         self._progress(app, 100)
 
+    def _ensure_flathub(self, app: App) -> None:
+        """Flatpak and the system's Flathub remote, before installing a Flatpak app: installed, added or turned back on
+        when someone removed them (the App Center told the user it would)."""
+
+        state = self.flathub_state()
+        if state == flatpak_ops.NO_FLATPAK:
+            self._log(app, "Flatpak is not installed: installing it first")
+            self._apt_packages(app, "install", FLATPAK_PACKAGES)
+            state = self.flathub_state()
+            if state == flatpak_ops.NO_FLATPAK:
+                raise RuntimeError("Flatpak could not be installed")
+        for command in flatpak_ops.flathub_setup_commands(state):
+            self._log(app, "Turning on Flathub: " + " ".join(command[1:]))
+            if _stream(command, lambda line: self._log(app, line), env=dict(RECIPE_ENV)) != 0:
+                raise RuntimeError("Flathub could not be turned on")
+
     def _flatpak(self, app: App, action: str) -> None:
+        if action == "install":
+            self._ensure_flathub(app)
         operation = flatpak_ops.install if action == "install" else flatpak_ops.uninstall
         operation(app.flatpak_id, lambda percent, message: self._progress(app, percent, message), lambda line: self._log(app, line))
 
@@ -229,7 +283,7 @@ class Helper:
         try:
             if app.preinstalled:
                 raise RuntimeError(f"{app.name} comes with CaramOS")
-            method = {"recipe": self._recipe, "apt": self._apt, "flatpak": self._flatpak}[app.method]
+            method = {"recipe": self._recipe, "apt": self._apt, "flatpak": self._flatpak, "web": self._web}[app.method]
             try:
                 method(app, action)
             except Exception:
@@ -259,6 +313,18 @@ class Helper:
             return False
         self.emit("done", id=app.id, ok=True)
         return True
+
+    def run_flathub(self, action: str, app_id: str) -> int:
+        """flathub-install / flathub-remove: one Flathub app the catalog does not have (an install link)."""
+
+        if action not in FLATHUB_ACTIONS or not is_flathub_id(app_id):
+            raise UsageError(f"invalid Flathub action or app id: {action} {app_id!r}")
+        app = flathub_app(app_id, name=app_id, summary="", size_mb=1)
+        verb = FLATHUB_ACTIONS[action]
+        self.emit("start", id=app_id, index=1, total=1, action=verb)
+        ok = self.run_one(app, verb)
+        self.emit("finished", ok=ok, failed=[] if ok else [app_id])
+        return EXIT_OK if ok else EXIT_FAILED
 
     def run(self, action: str, ids: list[str]) -> int:
         failed = []
@@ -296,4 +362,6 @@ def main(argv: list[str] | None = None) -> int:
         except OSError:
             print("another App Center installation is running", file=sys.stderr)
             return EXIT_FAILED
+        if action in FLATHUB_ACTIONS:
+            return Helper(catalog).run_flathub(action, ids[0])
         return Helper(catalog).run(action, ids)

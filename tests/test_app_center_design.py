@@ -126,8 +126,26 @@ class WidgetTests(unittest.TestCase):
         for app in CATALOG.apps.values():
             sentence = source_sentence(app)
             self.assertTrue(sentence.endswith("."), sentence)
-            if not app.preinstalled:
+            if app.source == "website":
+                self.assertNotIn("MB", sentence)   # a website: nothing to download
+                self.assertIn("browser" if not app.web_window else "own window", sentence)
+            elif not app.preinstalled:
                 self.assertIn(format_size(app.size_mb), sentence)
+
+    def labels(self, widget) -> list[str]:
+        from gi.repository import Gtk
+
+        return [label.get_label() for label in self.rows(widget, Gtk.Label)]
+
+    def test_a_website_row_says_website_instead_of_a_size(self) -> None:
+        from caramos_app_center.plan import format_size
+        from caramos_app_center.ui.rows import ChoiceRow
+
+        with mock.patch.dict(os.environ, {"LANGUAGE": "en_US:en"}):
+            choices = {row.app.id: row for row in self.rows(self.picker(set()), ChoiceRow)}
+            size = format_size(CATALOG.app("klickety").size_mb)
+        self.assertIn("Website", self.labels(choices["thecolor"]))
+        self.assertIn(size, self.labels(choices["klickety"]))
 
     def test_search_ignores_vietnamese_accents(self) -> None:
         from caramos_app_center.ui.store import StoreView

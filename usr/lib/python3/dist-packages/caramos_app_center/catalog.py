@@ -16,10 +16,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .i18n import prefers_vietnamese
+from .webapp import HOST_RE, is_allowed
 
 DATA_DIR = Path("/usr/share/caramos-app-center")
-# The App Center only suggests basic apps; everything else is on the VNLF app site.
+# The App Center only suggests basic apps; everything else is on the VNLF app site. from=caramos tells the site that the
+# visitor runs CaramOS (its "Cài trên CaramOS" buttons open caramos-app:// install links, links.py).
 MORE_APPS_URL = "https://apps.vietnamlinuxfamily.net/browse"
+MORE_APPS_FROM = "caramos"
 CATALOG_FILE = DATA_DIR / "catalog.json"
 RECIPE_DIR = DATA_DIR / "recipes"
 ICON_DIR = DATA_DIR / "icons"
@@ -27,10 +30,14 @@ ICON_DIR = DATA_DIR / "icons"
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,40}$")
 FLATPAK_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+){2,}$")
 DEB_RE = re.compile(r"^[a-z0-9][a-z0-9+.-]+$")
-METHODS = ("flatpak", "recipe", "apt", "preinstalled")
+METHODS = ("flatpak", "recipe", "apt", "preinstalled", "web")
 CHOICES = ("single", "multi")
 BADGES = ("recommended", "popular")
 DETECT_KEYS = ("deb", "zalo_flavour")
+WEB_KEYS = ("url", "hosts", "block_ads", "open")
+# Where a website opens: in a window of its own (webview.py), or in the user's web browser for sites whose terms do not
+# allow a window of ours (Polypad's).
+WEB_OPEN = ("window", "browser")
 
 
 class CatalogError(ValueError):
@@ -76,17 +83,25 @@ class App:
     community: bool = False
     # An apt package that CaramOS makes, from its package archive (the PPA every CaramOS has), not Ubuntu's.
     caramos: bool = False
+    # A website in its own window (webapp.py): the hosts whose pages stay in the window, and whether the ad and
+    # tracker servers are blocked there.
+    web_hosts: tuple[str, ...] = ()
+    block_ads: bool = False
+    web_window: bool = True
+    # The same app's Flathub id, for an app the App Center installs another way (Ubuntu's VLC, Google's Chrome): an
+    # install link for that id opens this app's card (links.py).
+    flathub_alias: str = ""
 
     @property
     def source(self) -> str:
-        """Where the app comes from, as its card says: flathub, ubuntu, caramos, caramos-package, developer or
-        community."""
+        """Where the app comes from, as its card says: flathub, ubuntu, caramos, caramos-package, developer,
+        community or website."""
 
         if self.method == "recipe":
             return "community" if self.community else "developer"
         if self.method == "apt" and self.caramos:
             return "caramos-package"
-        return {"flatpak": "flathub", "apt": "ubuntu", "preinstalled": "caramos"}[self.method]
+        return {"flatpak": "flathub", "apt": "ubuntu", "preinstalled": "caramos", "web": "website"}[self.method]
 
     @property
     def flatpak_id(self) -> str:
@@ -103,6 +118,10 @@ class App:
     @property
     def preinstalled(self) -> bool:
         return self.method == "preinstalled"
+
+    @property
+    def web_url(self) -> str:
+        return self.targets[0] if self.method == "web" else ""
 
     def summary_text(self, environ: Mapping[str, str] | None = None) -> str:
         return localized(self.summary, environ)
@@ -145,6 +164,17 @@ class Catalog:
 
     def app(self, app_id: str) -> App:
         return self.apps[app_id]
+
+    def app_for_flathub_id(self, flathub_id: str) -> App | None:
+        """The catalog's app for a Flathub id: the one installed from Flathub under it, or the one that names it as
+        the same app it installs another way."""
+
+        if not flathub_id:
+            return None
+        for app in self.apps.values():
+            if flathub_id in (app.flatpak_id, app.flathub_alias):
+                return app
+        return None
 
     def apps_in(self, category: str) -> list[App]:
         return [app for app in self.apps.values() if app.category == category]
@@ -189,6 +219,18 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
         _require(isinstance(value, list) and value and all(isinstance(p, str) and DEB_RE.fullmatch(p) for p in value),
                  f"{where}: apt needs package names")
         targets = tuple(value)
+    elif method == "web":
+        _require(isinstance(value, Mapping) and set(value) <= set(WEB_KEYS), f"{where}: web takes {', '.join(WEB_KEYS)}")
+        hosts = value.get("hosts")
+        _require(isinstance(hosts, list) and bool(hosts) and all(isinstance(h, str) and HOST_RE.fullmatch(h) for h in hosts),
+                 f"{where}: web needs the site's host names")
+        url = value.get("url")
+        _require(isinstance(url, str) and is_allowed(url, hosts), f"{where}: web url must be https on one of its hosts")
+        _require(isinstance(value.get("block_ads", False), bool), f"{where}: block_ads must be true or false")
+        _require(value.get("open", "window") in WEB_OPEN, f"{where}: open must be {' or '.join(WEB_OPEN)}")
+        _require(value.get("open", "window") == "window" or not value.get("block_ads"),
+                 f"{where}: only a window of our own can block ads")
+        targets = (url,)
     else:
         _require(value is True, f"{where}: preinstalled must be true")
         targets = ()
@@ -196,7 +238,8 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
     if detect is not None:
         _require(isinstance(detect, Mapping) and len(detect) == 1 and next(iter(detect)) in DETECT_KEYS,
                  f"{where}: detect needs one of {', '.join(DETECT_KEYS)}")
-    _require(method == "flatpak" or detect is not None or method == "apt", f"{where}: needs detect to know when it is installed")
+    _require(method in ("flatpak", "apt", "web") or detect is not None, f"{where}: needs detect to know when it is installed")
+    _require(method != "web" or detect is None, f"{where}: a website is installed when its launcher is there")
     badge = str(raw.get("badge") or "")
     _require(badge in ("", *BADGES), f"{where}: unknown badge {badge}")
     _require(bool(raw.get("icon") or raw.get("icon_name")), f"{where}: needs icon or icon_name")
@@ -208,6 +251,10 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
     caramos = raw.get("caramos", False)
     _require(isinstance(caramos, bool), f"{where}: caramos must be true or false")
     _require(not caramos or method == "apt", f"{where}: caramos only applies to an apt package")
+    web = value if method == "web" else {}
+    alias = raw.get("flathub", "")
+    _require(isinstance(alias, str) and (not alias or bool(FLATPAK_RE.fullmatch(alias))), f"{where}: invalid flathub id")
+    _require(not alias or method != "flatpak", f"{where}: a Flathub app is found by its own id")
     return App(
         id=app_id,
         # "name_en": the name in English sessions, for the few apps whose name is Vietnamese (CaramOS Doanh nghiệp).
@@ -226,6 +273,10 @@ def _parse_app(raw: Mapping[str, object], recipe_dir: Path | None) -> App:
         detect=dict(detect) if detect else None,
         community=community,
         caramos=caramos,
+        web_hosts=tuple(web.get("hosts") or ()),
+        block_ads=bool(web.get("block_ads", False)),
+        web_window=web.get("open", "window") == "window",
+        flathub_alias=alias,
     )
 
 
@@ -246,6 +297,8 @@ def parse_catalog(data: Mapping[str, object], recipe_dir: Path | None = None) ->
     known = {category.id for category in categories}
     for app in apps.values():
         _require(app.category in known, f"app {app.id}: unknown category {app.category}")
+    flathub_ids = [app.flatpak_id or app.flathub_alias for app in apps.values() if app.flatpak_id or app.flathub_alias]
+    _require(len(flathub_ids) == len(set(flathub_ids)), "two apps for the same Flathub id")
 
     steps = []
     for raw in data.get("steps") or []:
@@ -281,7 +334,17 @@ def more_apps_url(query: str = "", category: str = "") -> str:
     """The VNLF app site, searching for query and/or showing one of its categories when given."""
 
     params = {key: value for key, value in (("q", query.strip()), ("category", category)) if value}
-    return f"{MORE_APPS_URL}?{urllib.parse.urlencode(params)}" if params else MORE_APPS_URL
+    params["from"] = MORE_APPS_FROM
+    return f"{MORE_APPS_URL}?{urllib.parse.urlencode(params)}"
+
+
+def flathub_app(app_id: str, *, name: str, summary: str, size_mb: int, website: str = "", icon: str = "") -> App:
+    """An app from Flathub that the catalog does not have, opened from an install link: installed and removed with the
+    helper's flathub-install and flathub-remove (helper.py). icon: an absolute path to its icon, or empty."""
+
+    return App(id=app_id, name=name or app_id, category="", method="flatpak", targets=(app_id,),
+               summary={"vi": summary, "en": summary}, pros={"vi": [], "en": []}, cons={"vi": [], "en": []},
+               size_mb=max(1, size_mb), website=website, icon=icon, icon_name="" if icon else "application-x-executable")
 
 
 def data_dir() -> Path:

@@ -2,7 +2,17 @@
 
 App Center (`caramos-app-center`) là **trình chọn ứng dụng**: một trang chia nhóm văn phòng, trình duyệt, liên lạc, tiện ích và học tập; mỗi nhóm là một danh sách (chọn một hoặc chọn nhiều), bộ đề xuất được chọn sẵn, nút thông tin trên mỗi dòng mở điểm mạnh và điều cần biết của ứng dụng. Ứng dụng đã cài có nút **Gỡ** ngay trên dòng của nó (hỏi lại trước khi gỡ; ứng dụng có sẵn trong CaramOS như Firefox thì không có). Nó tự mở ở lần đầu (live session từ USB và lần đăng nhập đầu sau khi cài), và mở bằng biểu tượng trên Desktop hoặc menu (System > App Center CaramOS) bất cứ lúc nào.
 
-App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): liên kết "Xem thêm" trong lời mô tả của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính.
+App Center chỉ gợi ý các ứng dụng cơ bản. Ứng dụng khác nằm trên [apps.vietnamlinuxfamily.net](https://apps.vietnamlinuxfamily.net/): liên kết "Xem thêm" trong lời mô tả của từng nhóm mở đúng danh mục trên trang đó, dòng cuối trang mở trang chính. Mọi liên kết tới trang đó có thêm `from=caramos` để trang biết người xem dùng CaramOS.
+
+## Liên kết cài ứng dụng từ trang apps.vietnamlinuxfamily.net
+
+Nút "Cài trên CaramOS" của trang mở `caramos-app://install/<Flathub app id>` (ví dụ `caramos-app://install/org.gimp.GIMP`).
+
+- `usr/share/applications/caramos-app-center-link.desktop` (`MimeType=x-scheme-handler/caramos-app;`, `NoDisplay=true`) đưa liên kết cho `caramos-app-center <liên kết>`. App Center đang mở thì nhận liên kết qua action `open-link` của GApplication (D-Bus), không mở cửa sổ thứ hai.
+- `links.py` chỉ nhận đúng dạng `caramos-app://install/<id>`, id theo luật id ứng dụng của Flatpak (ít nhất ba phần, chữ, số, `_`, dấu `-` chỉ ở phần cuối). Không có query, fragment hay ký tự mã hoá; sai thì App Center hiện trang báo lỗi. Từ liên kết chỉ lấy id đó.
+- Id có trong catalog (`install.flatpak`, hoặc trường `flathub` của ứng dụng cài bằng cách khác như VLC của Ubuntu, Chrome của Google, Firefox có sẵn) thì mở đúng thẻ của ứng dụng đó, với nút Cài đặt hoặc Gỡ.
+- Id khác: App Center hỏi API của Flathub (`/appstream/<id>`, `/summary/<id>`, `/verification/<id>/status`, `flathub.py`) rồi hiện tên, biểu tượng, nhà phát triển, giấy phép, dung lượng, câu "Ứng dụng từ Flathub" và hai nút Cài đặt, Để sau. Không có mạng, Flathub không trả lời, hay Flathub không có ứng dụng đó thì báo bằng lời thường. Cài và gỡ đi qua helper: `flathub-install <id>` / `flathub-remove <id>`, chỉ từ remote `flathub`, cho cả máy. Mở lại liên kết thì trang báo đã cài và có nút Gỡ.
+- Trước khi cài một ứng dụng Flatpak (từ liên kết hay từ catalog), helper cài Flatpak nếu máy không có (`flatpak`, `gir1.2-flatpak-1.0`) và thêm hoặc bật lại remote `flathub` của hệ thống từ `usr/share/caramos-app-center/flathub.flatpakrepo` (file của Flathub, chìa ký `6E5C05D979C76DAF93C081354184DD4D907A7CAE`). Trang liên kết báo trước cho người dùng việc đó.
 
 Trang danh sách ứng dụng có ô tìm kiếm (`ui/store.py`) đang tạm ẩn: sau này nó lấy danh sách từ API của apps.vietnamlinuxfamily.net. Lập trình viên vẫn mở được bằng `caramos-app-center --store`.
 
@@ -52,10 +62,23 @@ Máy CaramOS tự nhận bản mới trong vòng một ngày: lần kiểm tra O
 
 | Cách cài (`install` trong catalog) | Dùng khi | Ví dụ |
 |---|---|---|
-| `flatpak` | Flathub có bản chính chủ (verified) | ONLYOFFICE, LibreOffice, Brave, Telegram |
-| `recipe` | Phải dùng gói chính hãng của nhà phát hành, hoặc Flathub chỉ có bản cộng đồng/cũ | WPS, Chrome, Edge, Cốc Cốc, Zoom, Zalo |
-| `apt` | Gói trong kho Ubuntu/Mint là đủ | VLC |
+| `flatpak` | Flathub có bản chính chủ (verified), hoặc bản Flathub dễ cài hơn bản của hãng (Spotify không phải thêm kho phần mềm) | ONLYOFFICE, LibreOffice, Brave, Telegram, LeoCAD, Spotify |
+| `recipe` | Phải dùng gói chính hãng của nhà phát hành, hoặc Flathub chỉ có bản cộng đồng/cũ | WPS, Chrome, Edge, Cốc Cốc, Zoom, Zalo, eXeLearning, AnyDesk |
+| `apt` | Gói trong kho Ubuntu/Mint là đủ | VLC, KTouch, LeoCAD, OpenConnect |
+| `web` | Một trang web dùng như ứng dụng: mở trong cửa sổ riêng, hoặc bằng trình duyệt | TheColor.com, MiniMouse, Tangram (Polypad) |
 | `preinstalled` | Có sẵn trong CaramOS, chỉ để hiển thị | Firefox |
+
+### Trang web như ứng dụng (`web`)
+
+```json
+"install": {"web": {"url": "https://www.thecolor.com/", "hosts": ["thecolor.com"], "block_ads": true}}
+```
+
+- Cài là helper viết một launcher `/usr/share/applications/caramos-web-<id>.desktop` chạy `/usr/lib/caramos-app-center/caramos-web-app <id>`; gỡ là xoá launcher đó. Không tải gì: cửa sổ dùng GTK 3 và WebKitGTK 4.1 có sẵn trong cả hai bản CaramOS (helper chỉ cài `gir1.2-webkit2-4.1` nếu ai đó đã gỡ).
+- Cửa sổ (`caramos_app_center/webview.py`) đọc địa chỉ và `hosts` từ catalog thuộc root, theo id. Chỉ trang của `hosts` (https) ở lại trong cửa sổ; người dùng bấm link sang trang khác thì mở bằng trình duyệt mặc định; cửa sổ trang tự mở (pop-up) bị bỏ; không tải tệp, không cho camera, micro, vị trí, thông báo, không có công cụ lập trình; menu chuột phải không có "Lưu ảnh". Mỗi trang có cookie và dữ liệu riêng trong `~/.local/share/caramos-web-app/<id>`; mở launcher lần nữa chỉ đưa cửa sổ đang mở lên trước.
+- `block_ads: true` chặn các máy chủ quảng cáo và theo dõi trong `web-blocklist.txt` (luật chặn nội dung của WebKit). Chỉ bật khi điều khoản của trang không cấm.
+- `"open": "browser"`: trang mở bằng trình duyệt mặc định của người dùng, không có cửa sổ của mình (launcher vẫn chạy `caramos-web-app <id>`, chương trình chỉ chuyển địa chỉ cho trình duyệt rồi thoát). Dùng khi điều khoản của trang không cho đóng khung hay chặn gì: Amplify (Polypad) cấm "frame or mirror" và cấm chặn hay che bất kỳ phần nào, nên Tangram mở bằng trình duyệt. Không đi cùng `block_ads`.
+- Không dùng logo của trang làm biểu tượng khi điều khoản không cho (TheColor.com cấm sao chép bất kỳ phần nào của trang, Amplify chỉ cho đối tác dùng logo): dùng `icon_name` của theme.
 
 Flatpak được cài cho toàn hệ thống (mọi user), qua libflatpak để có % tiến độ thật. App Flatpak gõ tiếng Việt bằng Lotus bình thường và thấy font của hệ thống (đã thử ONLYOFFICE, LibreOffice trên CaramOS 1.0.19).
 
@@ -67,9 +90,9 @@ caramos-app-center (user)  ──pkexec──>  /usr/lib/caramos-app-center/cara
         đọc tiến độ dạng JSON lines           chạy flatpak / apt / recipe, in sự kiện ra stdout
 ```
 
-- Helper chỉ nhận ID khớp `^[a-z0-9][a-z0-9-]{0,40}$` và tra mọi thứ trong catalog của gói (thuộc root). Không có lệnh hay URL nào đi từ phía user sang root.
+- Helper chỉ nhận ID khớp `^[a-z0-9][a-z0-9-]{0,40}$` và tra mọi thứ trong catalog của gói (thuộc root). Không có lệnh hay URL nào đi từ phía user sang root. Riêng `flathub-install`/`flathub-remove` nhận đúng một id ứng dụng Flatpak (luật của `links.py`) và chỉ cài `app/<id>/x86_64/stable` từ remote `flathub`.
 - Polkit action `net.vietnamlinuxfamily.caramos-app-center.manage` (`auth_admin_keep`): hỏi mật khẩu một lần cho cả lượt cài.
-- Công thức chỉ tải qua HTTPS; Zalo được đối chiếu sha256 GitHub công bố. Test `test_app_center_packaging` chặn URL `http://`.
+- Công thức chỉ tải qua HTTPS; Zalo và eXeLearning được đối chiếu sha256 GitHub công bố (eXeLearning có thêm bản ghim sẵn sha256 cho khi API của GitHub hết lượt), AnyDesk chỉ thêm kho của hãng khi chìa ký đúng fingerprint ghi trong công thức, và kho đó chỉ tin đúng chìa đó (`signed-by`). Tệp tải về nằm trong thư mục riêng chỉ root đọc được; công thức Python chạy bằng `python3 -I`. Test `test_app_center_packaging` chặn URL `http://`.
 - Biến `CARAMOS_APP_CENTER_DATA` và `CARAMOS_APP_CENTER_FAKE_HELPER` chỉ để chạy thử giao diện; helper root không đọc biến môi trường nào.
 
 ## Thêm một ứng dụng
@@ -90,10 +113,10 @@ caramos-app-center (user)  ──pkexec──>  /usr/lib/caramos-app-center/cara
    }
    ```
    - `badge` (không bắt buộc): `recommended` hoặc `popular`.
-   - `detect` bắt buộc với `recipe` và `preinstalled`: `{"deb": "ten-goi"}` hoặc `{"zalo_flavour": "full"}`.
+   - `detect` bắt buộc với `recipe` và `preinstalled`: `{"deb": "ten-goi"}` hoặc `{"zalo_flavour": "full"}`. App `web` không có `detect`: đã cài là khi có launcher của nó.
    - `size_mb`: dung lượng sau khi cài (ước lượng). Runtime Flathub dùng chung tính riêng (`FLATPAK_RUNTIME_MB` trong `plan.py`).
 2. Thêm icon PNG 128×128 vào `usr/share/caramos-app-center/icons/` (với app Flathub, lấy từ `https://flathub.org/api/v2/appstream/<id>` trường `icon`), hoặc đặt `icon_name` theo theme icon.
-3. Muốn hiện ở trình chọn lần đầu: thêm ID vào `apps` của một bước trong `steps` (`default` là các mục được chọn sẵn).
+3. Thêm ID vào `apps` của một bước trong `steps` (`default` là các mục được chọn sẵn). Danh sách cửa hàng đang ẩn, nên app không nằm trong bước nào thì không cài được từ giao diện (test `test_every_app_can_be_reached_in_the_picker`).
 4. Chạy `make test`, rồi `make run` để xem dòng mới trong trình chọn.
 
 ## Viết công thức cài (`recipe`)

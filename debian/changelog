@@ -1,3 +1,26 @@
+caramos-app-center (0.4.0) noble; urgency=medium
+
+  * Install links from apps.vietnamlinuxfamily.net: its "Cài trên CaramOS"
+    button opens caramos-app://install/<Flathub id> here. An app the App
+    Center suggests opens on its own card; any other Flathub app on a page
+    with what Flathub says about it (developer, licence, size) and that the
+    CaramOS team has not tried it, with Install and Later. Flatpak and
+    Flathub are set up first when they are missing. "Find more apps" opens
+    the site with ?from=caramos, so its CaramOS button comes first.
+  * New steps in the app picker: "Computer skills for children" (Tux
+    Typing, KTouch, KolourPaint, Klickety, and the websites thecolor.com and
+    minimouse.us in a window of their own, without ads), "Programming,
+    maths, science and lessons" (eXeLearning, LeoCAD from Flathub, and
+    Polypad in the web browser, as its terms ask) and "Video, music, photos
+    and design" (VLC, Spotify, OBS, Kdenlive, GIMP, Inkscape).
+  * Everyday tools gain Obsidian, RustDesk, AnyDesk (from AnyDesk's own
+    repository, its key checked; removing it also removes /etc/anydesk) and
+    OpenConnect, for company VPNs of the Cisco AnyConnect kind.
+  * Depends on GTK 3 and WebKitGTK 4.1 for the website windows; both
+    CaramOS editions have them already.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Wed, 25 Nov 2026 22:22:02 +0700
+
 caramos-app-center (0.3.1) noble; urgency=medium
 
   * A "Dùng cho công ty" (For your company) step in the app picker, with

@@ -8,10 +8,17 @@ from __future__ import annotations
 
 import subprocess
 from collections.abc import Callable
+from pathlib import Path
 
 REMOTE = "flathub"
 ARCH = "x86_64"
 BRANCH = "stable"
+FLATPAK = Path("/usr/bin/flatpak")
+# Flathub's own .flatpakrepo (dl.flathub.org/repo/flathub.flatpakrepo, signing key 6E5C05D979C76DAF93C081354184DD4D907A7CAE),
+# shipped so that adding Flathub back trusts no download for its key.
+FLATHUB_REPO_FILE = Path("/usr/share/caramos-app-center/flathub.flatpakrepo")
+# What a computer has of Flatpak and Flathub: everything, no flatpak command, no system Flathub remote, or a disabled one.
+READY, NO_FLATPAK, NO_REMOTE, REMOTE_DISABLED = "ready", "no-flatpak", "no-remote", "remote-disabled"
 
 ProgressCallback = Callable[[int, str], None]
 LogCallback = Callable[[str], None]
@@ -93,6 +100,45 @@ def _run_cli(app_id: str, uninstall: bool, on_progress: ProgressCallback, on_log
     if process.wait() != 0:
         raise FlatpakError(f"flatpak exited with {process.returncode}")
     on_progress(100, "")
+
+
+def parse_remotes(output: str) -> dict[str, bool]:
+    """`flatpak remotes --system --columns=name,options`: remote name -> enabled."""
+
+    remotes = {}
+    for line in output.splitlines():
+        if not line.strip():
+            continue
+        name, _, options = line.partition("\t")
+        remotes[name.strip()] = "disabled" not in options.split(",")
+    return remotes
+
+
+def flathub_state(run: Callable[[list[str]], subprocess.CompletedProcess] | None = None,
+                  flatpak: Path = FLATPAK) -> str:
+    """READY, NO_FLATPAK, NO_REMOTE or REMOTE_DISABLED for the system installation (where the App Center installs)."""
+
+    if not flatpak.exists():
+        return NO_FLATPAK
+    run = run or (lambda args: subprocess.run(args, check=False, capture_output=True, text=True, timeout=30))
+    try:
+        result = run([str(flatpak), "remotes", "--system", "--columns=name,options"])
+    except (OSError, subprocess.SubprocessError):
+        return NO_REMOTE
+    remotes = parse_remotes(result.stdout if result.returncode == 0 else "")
+    if REMOTE not in remotes:
+        return NO_REMOTE
+    return READY if remotes[REMOTE] else REMOTE_DISABLED
+
+
+def flathub_setup_commands(state: str) -> list[list[str]]:
+    """What turns Flathub on for the system installation once Flatpak is there (the helper runs them as root)."""
+
+    if state == NO_REMOTE:
+        return [[str(FLATPAK), "remote-add", "--system", "--if-not-exists", REMOTE, str(FLATHUB_REPO_FILE)]]
+    if state == REMOTE_DISABLED:
+        return [[str(FLATPAK), "remote-modify", "--system", "--enable", REMOTE]]
+    return []
 
 
 def install(app_id: str, on_progress: ProgressCallback, on_log: LogCallback) -> None:

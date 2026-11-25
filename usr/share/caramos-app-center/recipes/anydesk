@@ -1,0 +1,176 @@
+#!/usr/bin/python3 -I
+"""Install AnyDesk from AnyDesk's own apt repository, as https://deb.anydesk.com/howto.html describes, so it updates with
+the rest of the system.
+
+install: download AnyDesk's signing key, check that it is the key below and no other, put it in /etc/apt/keyrings and
+         add the repository for that key only (signed-by). apt-get then reads only that repository's lists, so a broken
+         source elsewhere does not stop it, and installs anydesk. When the install fails, the key and the repository
+         are taken away again.
+remove:  purge anydesk (its own scripts stop and disable its background service), its settings in /etc/anydesk with
+         the computer's AnyDesk address and any unattended-access password, then the repository and the key.
+
+The key is downloaded into a new directory that only root can read, and checked with a throwaway gpg home.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.request
+from pathlib import Path
+
+KEY_URL = "https://keys.anydesk.com/repos/DEB-GPG-KEY"
+# "AnyDesk Software GmbH <ops@anydesk.com>", RSA 3072, made 2025-02-06 (after AnyDesk replaced its keys), valid to 2035.
+FINGERPRINT = "06B5EA2FAE208E7CDA9761DCA2FB21D5A8772835"
+KEYRING = Path("/etc/apt/keyrings/keys.anydesk.com.asc")
+SOURCE = Path("/etc/apt/sources.list.d/anydesk-stable.list")
+# The service's settings: this computer's AnyDesk address (ID) and, if someone set one, the unattended-access password.
+SETTINGS = Path("/etc/anydesk")
+REPOSITORY = "https://deb.anydesk.com"
+PACKAGE = "anydesk"
+APT_GET = ["apt-get", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Options::=--force-confdef",
+           "-o", "Dpkg::Options::=--force-confold"]
+KEY_MAX_BYTES = 64 * 1024
+TIMEOUT = 60
+
+
+def say(line: str) -> None:
+    print(line, flush=True)
+
+
+def source_line() -> str:
+    return f"deb [arch=amd64 signed-by={KEYRING}] {REPOSITORY} all main\n"
+
+
+def fetch_key() -> bytes:
+    request = urllib.request.Request(KEY_URL, headers={"User-Agent": "caramos-app-center"})
+    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+        data = response.read(KEY_MAX_BYTES + 1)
+    if len(data) > KEY_MAX_BYTES:
+        raise RuntimeError("the signing key AnyDesk sent is too large")
+    return data
+
+
+def primary_fingerprints(key: bytes) -> list[str]:
+    """The fingerprints of the primary keys in an armored key file, read by a gpg home made for this and thrown away."""
+
+    if not key.lstrip().startswith(b"-----BEGIN PGP PUBLIC KEY BLOCK-----"):
+        raise RuntimeError("the signing key AnyDesk sent is not an armored public key")
+    home = Path(tempfile.mkdtemp(prefix="caramos-app-center-gpg."))
+    try:
+        key_file = home / "key.asc"
+        key_file.write_bytes(key)
+        result = subprocess.run(["gpg", "--homedir", str(home), "--batch", "--no-tty", "--with-colons",
+                                 "--show-keys", str(key_file)], check=False, capture_output=True, text=True)
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+    if result.returncode != 0:
+        raise RuntimeError("gpg could not read the signing key AnyDesk sent")
+    fingerprints = []
+    expect_primary = False
+    for line in result.stdout.splitlines():
+        fields = line.split(":")
+        if fields[0] == "pub":
+            expect_primary = True
+        elif fields[0] == "fpr" and expect_primary:
+            fingerprints.append(fields[9].upper())
+            expect_primary = False
+        elif fields[0] == "sub":
+            expect_primary = False
+    return fingerprints
+
+
+def check_key(key: bytes) -> None:
+    fingerprints = primary_fingerprints(key)
+    if fingerprints != [FINGERPRINT]:
+        raise RuntimeError(f"the signing key AnyDesk sent is not the expected one ({', '.join(fingerprints) or 'none'})")
+
+
+def write_file(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        os.chmod(name, 0o644)
+        os.replace(name, path)
+    except BaseException:
+        Path(name).unlink(missing_ok=True)
+        raise
+
+
+def forget_repository() -> None:
+    SOURCE.unlink(missing_ok=True)
+    KEYRING.unlink(missing_ok=True)
+
+
+def is_installed() -> bool:
+    result = subprocess.run(["dpkg-query", "-W", "-f=${db:Status-Status}", PACKAGE], check=False,
+                            capture_output=True, text=True)
+    return result.returncode == 0 and result.stdout.strip() == "installed"
+
+
+def install() -> None:
+    say("PROGRESS 2")
+    key = fetch_key()
+    check_key(key)
+    say("The signing key is AnyDesk's")
+    write_file(KEYRING, key)
+    write_file(SOURCE, source_line().encode())
+    try:
+        say("PROGRESS 10")
+        update = [*APT_GET, "-o", f"Dir::Etc::sourcelist={SOURCE}", "-o", "Dir::Etc::sourceparts=-",
+                  "-o", "APT::Get::List-Cleanup=0", "update"]
+        if subprocess.run(update, check=False).returncode != 0:
+            raise RuntimeError("apt-get could not read AnyDesk's repository")
+        say("PROGRESS 40")
+        if subprocess.run([*APT_GET, "install", "-y", PACKAGE], check=False).returncode != 0:
+            raise RuntimeError("apt-get could not install anydesk")
+    except BaseException:
+        if not is_installed():
+            forget_repository()
+        raise
+    say("PROGRESS 100")
+    say("AnyDesk is installed.")
+
+
+def forget_settings() -> None:
+    """The package's purge deletes /etc/anydesk; what is left (an anydesk removed earlier without purge) goes here.
+    Never through a symbolic link."""
+
+    if SETTINGS.is_symlink():
+        SETTINGS.unlink()
+    elif SETTINGS.is_dir():
+        shutil.rmtree(SETTINGS)
+
+
+def remove() -> None:
+    if subprocess.run([*APT_GET, "purge", "-y", PACKAGE], check=False).returncode != 0:
+        raise RuntimeError("apt-get could not remove anydesk")
+    forget_settings()
+    forget_repository()
+    say("PROGRESS 100")
+    say("AnyDesk is removed, with its settings and its repository.")
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2 or argv[1] not in ("install", "remove"):
+        print(f"usage: {argv[0]} install|remove", file=sys.stderr)
+        return 2
+    try:
+        if argv[1] == "install":
+            install()
+        else:
+            remove()
+    except (OSError, ValueError, RuntimeError) as error:
+        # The App Center shows the last line of a failed recipe as the reason.
+        say(f"AnyDesk could not be {'installed' if argv[1] == 'install' else 'removed'}: {error}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

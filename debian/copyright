@@ -12,6 +12,14 @@ License: other
  Each icon is the logo of the application it stands for, shown only to name
  that application in the catalogue. The logos and their trademarks belong to
  their owners. remmina.png comes from Ubuntu's remmina package (GPL-2+).
+ These come from the packages the App Center installs, under the licences
+ their copyright files give: klickety.png (Ubuntu's klickety, GPL-2+),
+ ktouch.svg (ktouch-data, GPL-2+), kolourpaint.svg (kolourpaint,
+ BSD-2-clause), leocad.svg (leocad, GPL-2), tuxtype.svg (tuxtype, GPL-2),
+ exelearning.png (eXeLearning's own .deb, AGPL-3+) and anydesk.svg
+ (AnyDesk's own .deb; AnyDesk's trademark). spotify.png is the logo Flathub
+ shows for com.spotify.Client, Spotify's trademark. The website apps show
+ icons of the desktop's icon theme, not the websites' logos.
 
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify it under
