@@ -205,8 +205,12 @@ class HelperRunTests(unittest.TestCase):
             on_progress(50, "Downloading")
             on_progress(100, "")
 
+        runner = helper.Helper(catalog, DATA / "recipes", stream)
+        # Flatpak and Flathub as CaramOS has them: the test must not depend on the machine running it (the CI runner
+        # has no Flatpak, and the helper would try to install it).
+        runner.flathub_state = lambda: helper.flatpak_ops.READY
         with patch.object(helper.flatpak_ops, "install", side_effect=fake_install):
-            code = helper.Helper(catalog, DATA / "recipes", stream).run("install", ["onlyoffice"])
+            code = runner.run("install", ["onlyoffice"])
         self.assertEqual(helper.EXIT_OK, code)
         self.assertEqual(["org.onlyoffice.desktopeditors"], calls)
         self.assertIn('"percent": 50', stream.getvalue())
