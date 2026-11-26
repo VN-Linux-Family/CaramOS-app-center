@@ -67,10 +67,11 @@ echo PROGRESS 100
         path.chmod(0o755)
 
     def run_helper(self, ids: list[str], *, installed: set[str] = frozenset(), locked=lambda: False,
-                   wait: float = 0) -> tuple[int, list[dict]]:
+                   wait: float = 0, interrupted=lambda: False) -> tuple[int, list[dict]]:
         stream = io.StringIO()
         runner = helper.Helper(self.catalog, self.recipes, stream)
         runner.installed_apps = lambda catalog: set(installed)
+        runner.dpkg_interrupted = interrupted
         runner.debconf_locked = locked
         runner.debconf_wait = wait
         with patch.object(helper, "DEBCONF_POLL", 0.01):
@@ -157,6 +158,47 @@ echo PROGRESS 100
         self.assertEqual("noninteractive", env["DEBIAN_FRONTEND"])
         common = (DATA / "recipes/lib/common.sh").read_text(encoding="utf-8")
         self.assertIn("-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold", common)
+
+    def test_an_interrupted_dpkg_is_finished_first_once(self) -> None:
+        """dpkg stopped half-way (the computer was turned off while it installed): every apt-get install failed with
+        "dpkg was interrupted" until someone ran dpkg --configure -a (CaramOS tickets H-1218, H-1221)."""
+
+        calls = []
+
+        def fake_stream(args, on_line, *, env=None, timeout=helper.RECIPE_TIMEOUT):
+            calls.append(args)
+            return 0
+
+        with patch.object(helper, "_stream", side_effect=fake_stream):
+            code, events = self.run_helper(["vlc-test", "good-app"], interrupted=lambda: True)
+        self.assertEqual(helper.EXIT_OK, code)
+        self.assertEqual(helper.DPKG_CONFIGURE, calls[0])
+        self.assertEqual(1, calls.count(helper.DPKG_CONFIGURE))
+        self.assertIn("--force-confold", helper.DPKG_CONFIGURE)
+        lines = [event["line"] for event in events if event.get("event") == "log"]
+        self.assertTrue(any("interrupted" in line for line in lines))
+
+    def test_a_sound_dpkg_is_left_alone(self) -> None:
+        calls = []
+
+        def fake_stream(args, on_line, *, env=None, timeout=helper.RECIPE_TIMEOUT):
+            calls.append(args)
+            return 0
+
+        with patch.object(helper, "_stream", side_effect=fake_stream):
+            self.run_helper(["vlc-test"])
+        self.assertNotIn(helper.DPKG_CONFIGURE, calls)
+
+    def test_journal_files_named_by_number_mean_interrupted(self) -> None:
+        updates = self.recipes / "updates"
+        updates.mkdir()
+        self.assertFalse(helper.dpkg_interrupted(updates))
+        (updates / "tmp.i").write_text("", encoding="utf-8")
+        self.assertFalse(helper.dpkg_interrupted(updates))
+        (updates / "0001").write_text("", encoding="utf-8")
+        self.assertTrue(helper.dpkg_interrupted(updates))
+        self.assertFalse(helper.dpkg_interrupted(updates / "missing"))
+
 
 class DpkgErrorsTests(unittest.TestCase):
     def test_reads_the_packages_dpkg_could_not_configure(self) -> None:

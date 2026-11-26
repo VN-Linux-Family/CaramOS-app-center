@@ -48,6 +48,11 @@ DEBCONF_WAIT = 900
 DEBCONF_POLL = 3
 # The line dpkg prints before the packages it could not configure.
 DPKG_ERRORS = "Errors were encountered while processing:"
+# dpkg's journal: files named by number are left there when dpkg stopped half-way (the computer was turned off while
+# it installed). APT then refuses every install, "dpkg was interrupted, you must manually run 'dpkg --configure -a'"
+# (CaramOS tickets H-1218, H-1221); the helper runs it first. APT looks at the same files.
+DPKG_UPDATES = Path("/var/lib/dpkg/updates")
+DPKG_CONFIGURE = ["dpkg", "--configure", "-a", "--force-confdef", "--force-confold"]
 FLATHUB_ACTIONS = {"flathub-install": "install", "flathub-remove": "remove"}
 # What a computer without Flatpak gets before a Flatpak app (both come with CaramOS; only someone forcing them out
 # removes them).
@@ -153,6 +158,13 @@ def _stream(args: list[str], on_line: Callable[[str], None], *, env: dict[str, s
         timer.cancel()
 
 
+def dpkg_interrupted(updates: Path = DPKG_UPDATES) -> bool:
+    try:
+        return any(entry.name.isdigit() for entry in updates.iterdir())
+    except OSError:
+        return False
+
+
 class Helper:
     def __init__(self, catalog: Catalog, recipe_dir: Path = RECIPE_DIR, stream=None) -> None:
         self.catalog = catalog
@@ -166,6 +178,8 @@ class Helper:
         self.installed_debs = detect.installed_debs
         self.launcher_dir = webapp.LAUNCHER_DIR
         self.flathub_state = flatpak_ops.flathub_state
+        self.dpkg_interrupted = dpkg_interrupted
+        self.dpkg_finished = False
 
     def emit(self, event: str, **fields) -> None:
         emit(event, self.stream, **fields)
@@ -272,6 +286,17 @@ class Helper:
                 raise InstallError("another program is installing software and keeps debconf locked", code="busy")
             time.sleep(DEBCONF_POLL)
 
+    def _finish_interrupted_dpkg(self, app: App) -> None:
+        """dpkg --configure -a, once, when an earlier install stopped half-way: without it every install fails."""
+
+        if self.dpkg_finished or not self.dpkg_interrupted():
+            return
+        self.dpkg_finished = True
+        self._log(app, "An earlier install was interrupted (the computer was turned off while it installed): "
+                       "finishing it first with dpkg --configure -a")
+        if _stream(DPKG_CONFIGURE, lambda line: self._log(app, line), env=dict(RECIPE_ENV)) != 0:
+            self._log(app, "dpkg could not finish the interrupted install; the install may fail")
+
     def _installed_now(self, app: App) -> bool:
         try:
             return app.id in self.installed_apps(self.catalog)
@@ -284,6 +309,8 @@ class Helper:
             if app.preinstalled:
                 raise RuntimeError(f"{app.name} comes with CaramOS")
             method = {"recipe": self._recipe, "apt": self._apt, "flatpak": self._flatpak, "web": self._web}[app.method]
+            if app.method != "flatpak" or action == "install":
+                self._finish_interrupted_dpkg(app)
             try:
                 method(app, action)
             except Exception:

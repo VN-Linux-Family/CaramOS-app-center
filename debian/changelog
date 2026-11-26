@@ -1,3 +1,16 @@
+caramos-app-center (0.4.1) noble; urgency=medium
+
+  * Installs work again on a computer that was turned off while it
+    installed software (ticket H-1221): APT then refused every install with
+    "dpkg was interrupted, you must manually run 'dpkg --configure -a'".
+    Before it installs or removes an app (a Flatpak app: before an install,
+    which may set up Flatpak with APT first), the helper now finishes the
+    interrupted install (dpkg --configure -a, keeping the computer's own
+    configuration files), once per run, and says so in the install log.
+    caramos-ota 1.5.2-0caramos3 does the same before its own updates.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Thu, 26 Nov 2026 20:45:55 +0700
+
 caramos-app-center (0.4.0) noble; urgency=medium
 
   * Install links from apps.vietnamlinuxfamily.net: its "Cài trên CaramOS"
