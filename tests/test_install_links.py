@@ -398,6 +398,24 @@ class LinkPageTests(unittest.TestCase):
             self.assertIn("Remove", self.buttons(window))
             window.destroy()
 
+    def test_closing_the_first_run_picker(self) -> None:
+        # Closed on the picker: done, it does not come back at the next login. Closed offline: asked again.
+        from caramos_app_center import firstrun
+        from caramos_app_center.ui import window as window_module
+
+        for online, done in ((True, True), (False, False)):
+            with tempfile.TemporaryDirectory() as home, \
+                    patch.dict(os.environ, {"LANGUAGE": "en_US:en", "HOME": home}), \
+                    patch.object(window_module.MainWindow, "_detect_installed", lambda self: None), \
+                    patch.object(window_module.MainWindow, "_online", lambda self, value=online: value):
+                window = window_module.MainWindow(self.application, CATALOG, store=False, first_run=True)
+                window._on_detected(set())
+                self.assertEqual("wizard" if online else "offline", window.stack.get_visible_child_name())
+                # What the window's close button sends (close() does nothing on a window never shown).
+                window.emit("close-request")
+                self.assertEqual(done, firstrun.marker_path(Path(home)).exists(), online)
+                window.destroy()
+
     def test_bad_links_and_catalog_cards(self) -> None:
         from caramos_app_center.ui import window as window_module
 

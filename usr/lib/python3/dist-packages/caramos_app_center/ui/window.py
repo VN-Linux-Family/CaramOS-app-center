@@ -497,6 +497,8 @@ class MainWindow(Adw.ApplicationWindow):
             self.get_application().hold()
             self.set_visible(False)
             return True
+        if self.first_run and firstrun.closing_marks_done(self.stack.get_visible_child_name() or ""):
+            firstrun.mark_done()
         # Only the autostarted picker explains where to find it again; a user who opened it knows.
         if self.first_run and not self.reopen_hint_shown and \
                 self.stack.get_visible_child_name() in ("wizard", "offline"):

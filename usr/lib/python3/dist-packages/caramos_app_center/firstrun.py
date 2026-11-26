@@ -44,6 +44,17 @@ def should_run(
     return not marker_path(home).exists()
 
 
+def closing_marks_done(page: str) -> bool:
+    """Whether closing the first-run window (Later, or the window's close button) on this page means it is done.
+
+    The picker shows itself once per user: whoever closes it is told where to find the App Center again, and it
+    does not come back at every login (a computer lab whose students log in automatically saw it at every start).
+    Only the "No Internet connection" page asks again at the next login, as it says: it could not show any app.
+    """
+
+    return page != "offline"
+
+
 def mark_done(home: Path | None = None) -> None:
     marker = marker_path(Path.home() if home is None else home)
     marker.parent.mkdir(parents=True, exist_ok=True)

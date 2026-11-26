@@ -107,6 +107,23 @@ class FirstRunTests(unittest.TestCase):
         self.assertFalse(self.should_run(uid=0))
         self.assertFalse(self.should_run(uid=999))
 
+    def test_closing_the_picker_is_enough(self) -> None:
+        # Later or the window's close button: the picker does not come back at every login (a lab whose students
+        # log in automatically saw it at every start, 2026-11-26). Only the offline page asks again, as it says.
+        for page in ("wizard", "loading", "link", "store", ""):
+            self.assertTrue(firstrun.closing_marks_done(page), page)
+        self.assertFalse(firstrun.closing_marks_done("offline"))
+
+    def test_the_window_marks_it_done_when_closed(self) -> None:
+        source = (ROOT / "usr/lib/python3/dist-packages/caramos_app_center/ui/window.py").read_text(encoding="utf-8")
+        close = source.split("    def _on_close_request(", 1)[1].split("\n    def ", 1)[0]
+        hint = close.index("self._show_reopen_hint()")
+        marked = close.index("firstrun.mark_done()")
+        self.assertLess(close.index("firstrun.closing_marks_done(self.stack.get_visible_child_name()"), marked)
+        # Done before the hint, after the hidden install (which marks it done when it finishes).
+        self.assertLess(close.index("self.hidden_install = True"), marked)
+        self.assertLess(marked, hint)
+
 
 class EventTests(unittest.TestCase):
     def test_round_trip_and_rejects_noise(self) -> None:

@@ -1,3 +1,15 @@
+caramos-app-center (0.4.2) noble; urgency=medium
+
+  * The app picker that opens at the first login shows itself once per
+    account, as it was meant to: closing it, with Later or the window's
+    close button, now counts as done. Before, it came back at every login
+    until someone installed apps with it, so a computer lab whose students
+    log in automatically saw it at every start. The closing hint still says
+    where to find the App Center (the Desktop and the Start menu). Only its
+    "No Internet connection" page asks again at the next login, as it says.
+
+ -- Vietnam Linux Family <developer@vietnamlinuxfamily.net>  Thu, 26 Nov 2026 22:31:10 +0700
+
 caramos-app-center (0.4.1) noble; urgency=medium
 
   * Installs work again on a computer that was turned off while it
